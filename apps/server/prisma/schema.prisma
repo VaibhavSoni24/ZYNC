@@ -1,0 +1,61 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id                  String            @id @default(uuid())
+  name                String
+  username            String            @unique
+  email               String            @unique
+  dob                 String
+  passwordHash        String
+  avatar              String            @default("Comet")
+  bio                 String?
+  usernameChangeCount Int               @default(0)
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  hostedRooms         Room[]            @relation("HostedRooms")
+  roomParticipants    RoomParticipant[]
+
+  @@index([username])
+  @@index([email])
+}
+
+model Room {
+  id             String            @id @default(uuid())
+  code           String            @unique
+  name           String
+  description    String?
+  visibility     String            @default("PUBLIC") // PUBLIC, PRIVATE
+  language       String            @default("English")
+  currentVideoId String            @default("dQw4w9WgXcQ")
+  hostId         String
+  host           User              @relation("HostedRooms", fields: [hostId], references: [id])
+  isActive       Boolean           @default(true)
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  participants   RoomParticipant[]
+
+  @@index([code])
+  @@index([visibility, isActive])
+}
+
+model RoomParticipant {
+  id        String   @id @default(uuid())
+  roomId    String
+  room      Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      String   @default("VIEWER") // HOST, MODERATOR, PARTICIPANT, VIEWER
+  joinedAt  DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([roomId, userId])
+  @@index([roomId])
+  @@index([userId])
+}
