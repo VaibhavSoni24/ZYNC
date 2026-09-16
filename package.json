@@ -1,0 +1,23 @@
+{
+  "name": "zync-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=@zync/client & npm run dev --workspace=@zync/server",
+    "dev:server": "npm run dev --workspace=@zync/server",
+    "dev:client": "npm run dev --workspace=@zync/client",
+    "build": "npm run build --workspace=@zync/shared && npm run build --workspace=@zync/server && npm run build --workspace=@zync/client",
+    "build:shared": "npm run build --workspace=@zync/shared",
+    "build:server": "npm run build --workspace=@zync/server",
+    "build:client": "npm run build --workspace=@zync/client",
+    "typecheck": "npm run typecheck --workspace=@zync/shared && npm run typecheck --workspace=@zync/server && npm run typecheck --workspace=@zync/client",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "vitest": "^5.0.1"
+  }
+}
