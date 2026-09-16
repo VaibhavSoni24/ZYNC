@@ -235,7 +235,7 @@ export const LandingPage: React.FC = () => {
                           <span className="text-[10px] text-text-muted font-mono">14:03</span>
                         </div>
                         <p className="text-white text-[11px] leading-relaxed">
-                          Turning the room volume to 100% — enjoy the show everyone!
+                          Turning the room volume to 100% - enjoy the show everyone!
                         </p>
                       </div>
                     </div>
