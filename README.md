@@ -152,13 +152,19 @@ npm run build
 
 ### 2. Backend Server (Render)
 1. Create a new **Web Service** on [Render](https://render.com).
-2. Connect your GitHub repository.
+2. Connect your GitHub repository: `https://github.com/VaibhavSoni24/ZYNC`.
 3. Configure settings:
-   - **Root Directory**: `apps/server`
-   - **Build Command**: `npm install && npm run build`
-   - **Start Command**: `npm start`
+   - **Root Directory**: leave empty (root)
+   - **Build Command**: `npm install && npm run build:shared && npm run build:server`
+   - **Start Command**: `npm run start --workspace=@zync/server`
 4. Add environment variables:
-   - `DATABASE_URL`, `REDIS_URL`, `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`, `BREVO_API_KEY`, `BREVO_SENDER_EMAIL`, `CLIENT_URL`.
+   - `DATABASE_URL`: your Neon or Supabase PostgreSQL connection string
+   - `CLIENT_URL`: `https://zync-watch-party.vercel.app`
+   - `JWT_ACCESS_SECRET`: `zync-access-super-secret-key-production-2026`
+   - `JWT_REFRESH_SECRET`: `zync-refresh-super-secret-key-production-2026`
+   - `BREVO_API_KEY`: *(optional, from Brevo)*
+   - `BREVO_SENDER_EMAIL`: *(your sender email)*
+   - `REDIS_URL`: *(optional, from Upstash)*
 
 ### 3. Database & Cache
 - **PostgreSQL**: Hosted on [Neon](https://neon.tech) or [Supabase](https://supabase.com).
@@ -168,7 +174,7 @@ npm run build
 
 ## Live Deployment
 
-- **Client**: `https://zync-live.vercel.app` *(or configured production domain)*
+- **Client (Live)**: [https://zync-watch-party.vercel.app](https://zync-watch-party.vercel.app)
 - **Server**: `https://zync-server.onrender.com`
 
 ---
