@@ -12,8 +12,16 @@ interface RequestOptions extends RequestInit {
   data?: any;
 }
 
+function getCleanServerUrl(): string {
+  const envUrl = import.meta.env.VITE_SERVER_URL;
+  if (typeof envUrl === 'string' && (envUrl.startsWith('http://') || envUrl.startsWith('https://'))) {
+    return envUrl.replace(/\/+$/, '');
+  }
+  return import.meta.env.PROD ? 'https://zync-server-zt02.onrender.com' : '';
+}
+
 export async function apiRequest<T = any>(endpoint: string, options: RequestOptions = {}): Promise<T> {
-  const serverBaseUrl = import.meta.env.VITE_SERVER_URL || (import.meta.env.PROD ? 'https://zync-server-zt02.onrender.com' : '');
+  const serverBaseUrl = getCleanServerUrl();
   const path = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
   const url = endpoint.startsWith('http') ? endpoint : `${serverBaseUrl}${path}`;
 
@@ -63,7 +71,7 @@ export async function apiRequest<T = any>(endpoint: string, options: RequestOpti
   const resData = await response.json().catch(() => ({}));
 
   if (!response.ok) {
-    const message = resData.error || (resData.details ? resData.details[0]?.message : 'An error occurred');
+    const message = resData.error || (resData.details ? resData.details[0]?.message : `Request failed with status ${response.status}`);
     throw new Error(message);
   }
 
