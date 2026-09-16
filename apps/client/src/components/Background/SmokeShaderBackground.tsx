@@ -214,7 +214,7 @@ export const SmokeShaderBackground: React.FC = () => {
   }, []);
 
   return (
-    <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10 select-none">
+    <div className="fixed inset-0 overflow-hidden pointer-events-none z-0 select-none">
       {/* 60fps WebGL Vivid Fluid Smoke Shader Canvas */}
       <canvas
         ref={canvasRef}
