@@ -15,7 +15,6 @@ import {
   Zap,
   ArrowRight
 } from 'lucide-react';
-import { SmokeShaderBackground } from '../../components/Background/SmokeShaderBackground';
 
 interface ChatMsg {
   id: string;
@@ -134,9 +133,6 @@ export const LandingPage: React.FC = () => {
 
   return (
     <div className="relative min-h-screen overflow-hidden text-text-primary">
-      {/* 60FPS Pure WebGL Smoke Shader Background */}
-      <SmokeShaderBackground />
-
       <div className="relative z-10 space-y-24 py-8 sm:py-16">
         {/* Hero Section */}
         <section className="text-center max-w-4xl mx-auto px-4 pt-8 pb-4">

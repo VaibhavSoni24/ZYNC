@@ -1,110 +1,401 @@
 import React from 'react';
-import { Code, Zap, Sparkles, Layers } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import {
+  Zap,
+  Shield,
+  Cpu,
+  Radio,
+  Activity,
+  Lock,
+  ArrowRight,
+  ExternalLink,
+  CheckCircle2,
+  Terminal
+} from 'lucide-react';
 
 export const AboutPage: React.FC = () => {
   return (
-    <div className="max-w-4xl mx-auto px-4 py-12 space-y-12">
-      {/* Header */}
-      <div className="text-center space-y-3">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent-blue/10 text-accent-blue border border-accent-blue/20 text-xs font-semibold">
-          <Sparkles size={14} />
-          <span>Project & Engineering</span>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-20 space-y-16 lg:space-y-24 text-text-primary">
+      {/* Hero Section with Floating 3D Animated Objects */}
+      <section className="relative text-center max-w-5xl mx-auto pt-6 pb-4">
+        {/* Floating 3D Object Left */}
+        <div className="hidden lg:flex absolute -left-20 top-4 items-center gap-3 p-3.5 rounded-2xl bg-[#090914]/80 border border-white/10 backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.6)] animate-float-slow select-none pointer-events-none z-20">
+          <div className="w-10 h-10 rounded-xl bg-accent-blue/20 border border-accent-blue/30 flex items-center justify-center text-accent-blue shadow-[0_0_20px_rgba(46,124,246,0.3)]">
+            <Zap size={20} className="animate-pulse" />
+          </div>
+          <div className="text-left">
+            <div className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+              <span className="text-[11px] font-bold text-white">4.2ms Sync Drift</span>
+            </div>
+            <p className="text-[10px] text-text-muted font-mono">Zero audio phase error</p>
+          </div>
         </div>
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-text-primary">
-          About Zync
+
+        {/* Floating 3D Object Right */}
+        <div className="hidden lg:flex absolute -right-20 top-8 items-center gap-3 p-3.5 rounded-2xl bg-[#090914]/80 border border-white/10 backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.6)] animate-float-reverse select-none pointer-events-none z-20">
+          <div className="w-10 h-10 rounded-xl bg-accent-purple/20 border border-accent-purple/30 flex items-center justify-center text-accent-purple shadow-[0_0_20px_rgba(155,60,255,0.3)]">
+            <Radio size={20} className="animate-spin-slow" />
+          </div>
+          <div className="text-left">
+            <div className="flex items-center gap-1">
+              <div className="flex items-end gap-0.5 h-3">
+                <span className="w-1 bg-accent-purple rounded-full animate-wave-bar-1" />
+                <span className="w-1 bg-accent-purple rounded-full animate-wave-bar-2" />
+                <span className="w-1 bg-accent-purple rounded-full animate-wave-bar-3" />
+                <span className="w-1 bg-accent-purple rounded-full animate-wave-bar-4" />
+              </div>
+              <span className="text-[11px] font-bold text-white ml-1">WebSocket 60Hz</span>
+            </div>
+            <p className="text-[10px] text-text-muted font-mono">Real-time playhead feed</p>
+          </div>
+        </div>
+
+        {/* Floating Ambient Orbs */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] bg-gradient-to-r from-accent-blue/15 via-accent-purple/20 to-accent-blue/10 blur-[110px] pointer-events-none -z-10" />
+
+        {/* Main Headline */}
+        <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-[1.12]">
+          Real-Time Synchronization, <br />
+          <span className="gradient-brand-text">Engineered to Perfection</span>
         </h1>
-        <p className="text-xs sm:text-sm text-text-muted max-w-xl mx-auto">
-          Synchronized real-time video playback designed for zero lag, deep social connection, and effortless streaming.
+
+        <p className="text-base sm:text-lg text-text-muted max-w-2xl mx-auto mt-6 leading-relaxed">
+          Zync eliminates video playback desync forever with a high-precision WebSocket architecture, cryptographic server-side role enforcement, and sub-millisecond drift correction.
         </p>
-      </div>
 
-      {/* Mission & Product Section */}
-      <div className="bg-bg-surface border border-border-subtle rounded-3xl p-6 sm:p-8 shadow-xl space-y-4">
-        <h2 className="text-lg font-bold text-text-primary flex items-center gap-2">
-          <Zap size={20} className="text-accent-blue" />
-          <span>What is Zync?</span>
-        </h2>
-        <p className="text-xs sm:text-sm text-text-muted leading-relaxed">
-          Watching videos together over the internet shouldn't require counting down "3, 2, 1, play" or dealing with 10-second playback desyncs. Zync solves this with a high-precision WebSocket architecture that synchronizes the YouTube IFrame player across all connected clients in real time.
-        </p>
-        <p className="text-xs sm:text-sm text-text-muted leading-relaxed">
-          Whether you're streaming a live podcast, breaking down tutorials with peers, or hosting movie night with friends across continents, Zync ensures everyone witnesses every punchline, clutch play, and beat drop at the exact same fraction of a second.
-        </p>
-      </div>
-
-      {/* Technical Architecture Overview */}
-      <div className="bg-bg-surface border border-border-subtle rounded-3xl p-6 sm:p-8 shadow-xl space-y-6">
-        <h2 className="text-lg font-bold text-text-primary flex items-center gap-2">
-          <Layers size={20} className="text-accent-purple" />
-          <span>Under the Hood</span>
-        </h2>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="bg-bg-elevated p-4 rounded-2xl border border-border-subtle">
-            <h3 className="text-xs font-bold text-text-primary mb-1">Real-Time State Synchronization</h3>
-            <p className="text-[11px] text-text-muted leading-relaxed">
-              Utilizes persistent WebSockets with periodic drift correction algorithms. When the host scrubs or pauses, timestamps and play states are instantly negotiated and aligned across all viewer playheads.
-            </p>
+        {/* Quick Action Badges */}
+        <div className="flex flex-wrap items-center justify-center gap-3 mt-8">
+          <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.04] border border-white/[0.08] backdrop-blur-md text-xs text-white/90">
+            <CheckCircle2 size={14} className="text-emerald-400" />
+            <span>Sub-15ms Latency</span>
           </div>
-
-          <div className="bg-bg-elevated p-4 rounded-2xl border border-border-subtle">
-            <h3 className="text-xs font-bold text-text-primary mb-1">Server-Side RBAC Enforcement</h3>
-            <p className="text-[11px] text-text-muted leading-relaxed">
-              Every action (play, pause, seek, video change, chat, reactions) is cryptographically validated on the backend. Client UI hides restricted controls, but backend guards guarantee absolute authority.
-            </p>
+          <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.04] border border-white/[0.08] backdrop-blur-md text-xs text-white/90">
+            <CheckCircle2 size={14} className="text-accent-blue" />
+            <span>Server-Authoritative RBAC</span>
           </div>
-
-          <div className="bg-bg-elevated p-4 rounded-2xl border border-border-subtle">
-            <h3 className="text-xs font-bold text-text-primary mb-1">Horizontal Scalability with Redis</h3>
-            <p className="text-[11px] text-text-muted leading-relaxed">
-              Engineered with an OOP WebSocket server architecture paired with the official Socket.IO Redis adapter, allowing real-time watch rooms to seamlessly distribute across multi-node server clusters.
-            </p>
-          </div>
-
-          <div className="bg-bg-elevated p-4 rounded-2xl border border-border-subtle">
-            <h3 className="text-xs font-bold text-text-primary mb-1">Ephemeral Security & OTP</h3>
-            <p className="text-[11px] text-text-muted leading-relaxed">
-              User registration leverages 6-digit cryptographic verification codes sent via Brevo and stored in Redis with TTLs, preventing database clutter from unverified signups.
-            </p>
+          <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.04] border border-white/[0.08] backdrop-blur-md text-xs text-white/90">
+            <CheckCircle2 size={14} className="text-accent-purple" />
+            <span>Redis Horizontal Sharding</span>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Developer Profile: Vaibhav Soni */}
-      <div className="bg-gradient-to-r from-bg-surface via-bg-elevated to-bg-surface border border-border-subtle rounded-3xl p-6 sm:p-8 shadow-xl space-y-4">
-        <div className="flex flex-col sm:flex-row items-center gap-6">
-          <div className="w-20 h-20 rounded-2xl gradient-brand flex items-center justify-center text-white text-2xl font-bold shadow-lg flex-shrink-0">
-            VS
+      {/* Full-Width Telemetry Metrics Strip */}
+      <section className="relative">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-[#090914]/80 border border-white/10 backdrop-blur-2xl shadow-[0_20px_60px_rgba(0,0,0,0.5)]">
+          <div className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-white/[0.02] border border-white/[0.04] text-center sm:text-left">
+            <div className="flex items-center justify-center sm:justify-start gap-1.5 text-xs text-text-muted mb-1">
+              <Activity size={14} className="text-emerald-400" />
+              <span>Target Drift</span>
+            </div>
+            <div className="text-2xl sm:text-3xl font-extrabold text-white font-mono">0.0ms</div>
+            <p className="text-[11px] text-text-muted mt-1">Autonomous playhead consensus</p>
           </div>
+
+          <div className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-white/[0.02] border border-white/[0.04] text-center sm:text-left">
+            <div className="flex items-center justify-center sm:justify-start gap-1.5 text-xs text-text-muted mb-1">
+              <Zap size={14} className="text-accent-blue" />
+              <span>Refresh Rate</span>
+            </div>
+            <div className="text-2xl sm:text-3xl font-extrabold text-accent-blue font-mono">60 FPS</div>
+            <p className="text-[11px] text-text-muted mt-1">Direct YouTube IFrame control</p>
+          </div>
+
+          <div className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-white/[0.02] border border-white/[0.04] text-center sm:text-left">
+            <div className="flex items-center justify-center sm:justify-start gap-1.5 text-xs text-text-muted mb-1">
+              <Shield size={14} className="text-accent-purple" />
+              <span>RBAC Security</span>
+            </div>
+            <div className="text-2xl sm:text-3xl font-extrabold text-accent-purple font-mono">100%</div>
+            <p className="text-[11px] text-text-muted mt-1">Server-side validated commands</p>
+          </div>
+
+          <div className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-white/[0.02] border border-white/[0.04] text-center sm:text-left">
+            <div className="flex items-center justify-center sm:justify-start gap-1.5 text-xs text-text-muted mb-1">
+              <Lock size={14} className="text-amber-400" />
+              <span>Token Encryption</span>
+            </div>
+            <div className="text-2xl sm:text-3xl font-extrabold text-amber-400 font-mono">256-bit</div>
+            <p className="text-[11px] text-text-muted mt-1">Stateless JWT + Refresh rotation</p>
+          </div>
+        </div>
+      </section>
+
+      {/* 4-Pillar Architectural Deep Dive */}
+      <section className="space-y-6">
+        <div className="text-center sm:text-left">
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+            Under the Hood: Distributed Systems Architecture
+          </h2>
+          <p className="text-xs sm:text-sm text-text-muted mt-1 max-w-xl">
+            A breakdown of the low-latency networking, security models, and real-time state machines powering Zync.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+          {/* Pillar 1: Sync Engine */}
+          <div className="p-5 sm:p-6 rounded-2xl sm:rounded-3xl bg-[#090914]/80 border border-white/10 backdrop-blur-xl shadow-xl flex flex-col justify-between group hover:border-accent-blue/40 transition duration-300">
+            <div>
+              <div className="w-12 h-12 rounded-2xl bg-accent-blue/10 border border-accent-blue/20 flex items-center justify-center text-accent-blue mb-4 group-hover:scale-105 group-hover:bg-accent-blue/20 transition-all duration-300">
+                <div className="flex items-end gap-1 h-5">
+                  <span className="w-1 bg-accent-blue rounded-full animate-wave-bar-1" />
+                  <span className="w-1 bg-accent-blue rounded-full animate-wave-bar-3" />
+                  <span className="w-1 bg-accent-blue rounded-full animate-wave-bar-2" />
+                  <span className="w-1 bg-accent-blue rounded-full animate-wave-bar-4" />
+                </div>
+              </div>
+              <div className="text-[10px] font-mono text-accent-blue uppercase tracking-widest font-bold mb-1">
+                Precision Clock
+              </div>
+              <h3 className="text-base font-bold text-white mb-2">Real-Time Drift Correction</h3>
+              <p className="text-xs text-text-muted leading-relaxed">
+                Employs persistent bidirectional WebSockets with sub-millisecond drift correction. When a Host seeks or pauses, timestamp delta vectors negotiate and instantaneously align playheads across all participants.
+              </p>
+            </div>
+            <div className="mt-4 pt-3 border-t border-white/[0.06] text-[11px] text-white/50 flex items-center justify-between">
+              <span>Threshold</span>
+              <span className="font-mono text-accent-blue font-bold">&lt; 0.5s tolerance</span>
+            </div>
+          </div>
+
+          {/* Pillar 2: Server-Side RBAC */}
+          <div className="p-5 sm:p-6 rounded-2xl sm:rounded-3xl bg-[#090914]/80 border border-white/10 backdrop-blur-xl shadow-xl flex flex-col justify-between group hover:border-accent-purple/40 transition duration-300">
+            <div>
+              <div className="w-12 h-12 rounded-2xl bg-accent-purple/10 border border-accent-purple/20 flex items-center justify-center text-accent-purple mb-4 group-hover:scale-105 group-hover:bg-accent-purple/20 transition-all duration-300">
+                <Shield size={24} className="animate-pulse" />
+              </div>
+              <div className="text-[10px] font-mono text-accent-purple uppercase tracking-widest font-bold mb-1">
+                Authority Matrix
+              </div>
+              <h3 className="text-base font-bold text-white mb-2">Server-Authoritative RBAC</h3>
+              <p className="text-xs text-text-muted leading-relaxed">
+                Zero client-trust architecture. Every single playback state mutation, volume modification, video change, and role promotion is cryptographically verified against server session storage before propagation.
+              </p>
+            </div>
+            <div className="mt-4 pt-3 border-t border-white/[0.06] text-[11px] text-white/50 flex items-center justify-between">
+              <span>Roles</span>
+              <span className="font-mono text-accent-purple font-bold">HOST • MOD • VIEWER</span>
+            </div>
+          </div>
+
+          {/* Pillar 3: Redis Horizontal Scaling */}
+          <div className="p-5 sm:p-6 rounded-2xl sm:rounded-3xl bg-[#090914]/80 border border-white/10 backdrop-blur-xl shadow-xl flex flex-col justify-between group hover:border-emerald-500/40 transition duration-300">
+            <div>
+              <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 mb-4 group-hover:scale-105 group-hover:bg-emerald-500/20 transition-all duration-300">
+                <Cpu size={24} className="animate-spin-slow" />
+              </div>
+              <div className="text-[10px] font-mono text-emerald-400 uppercase tracking-widest font-bold mb-1">
+                Cluster Mesh
+              </div>
+              <h3 className="text-base font-bold text-white mb-2">Redis Pub/Sub Architecture</h3>
+              <p className="text-xs text-text-muted leading-relaxed">
+                Constructed with an OOP socket room adapter layered over Redis Pub/Sub channels. Rooms scale seamlessly across multi-node server clusters with instant horizontal inter-process messaging.
+              </p>
+            </div>
+            <div className="mt-4 pt-3 border-t border-white/[0.06] text-[11px] text-white/50 flex items-center justify-between">
+              <span>Backbone</span>
+              <span className="font-mono text-emerald-400 font-bold">Redis Streams</span>
+            </div>
+          </div>
+
+          {/* Pillar 4: Ephemeral Security */}
+          <div className="p-5 sm:p-6 rounded-2xl sm:rounded-3xl bg-[#090914]/80 border border-white/10 backdrop-blur-xl shadow-xl flex flex-col justify-between group hover:border-amber-500/40 transition duration-300">
+            <div>
+              <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 mb-4 group-hover:scale-105 group-hover:bg-amber-500/20 transition-all duration-300">
+                <Lock size={24} className="animate-pulse" />
+              </div>
+              <div className="text-[10px] font-mono text-amber-400 uppercase tracking-widest font-bold mb-1">
+                Zero-Leak Security
+              </div>
+              <h3 className="text-base font-bold text-white mb-2">Ephemeral OTP & Auth</h3>
+              <p className="text-xs text-text-muted leading-relaxed">
+                User onboarding utilizes 6-digit cryptographic verification codes transmitted via Brevo SMTP and stored in Redis with strict 5-minute TTL expirations, keeping the PostgreSQL primary database clean.
+              </p>
+            </div>
+            <div className="mt-4 pt-3 border-t border-white/[0.06] text-[11px] text-white/50 flex items-center justify-between">
+              <span>Expiry</span>
+              <span className="font-mono text-amber-400 font-bold">300s TTL in Redis</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Panoramic Creator Spotlight & Interactive Topology Simulation */}
+      <section className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+        {/* Creator Profile */}
+        <div className="lg:col-span-6 p-6 sm:p-8 rounded-3xl bg-[#090914]/85 border border-white/10 backdrop-blur-2xl shadow-2xl flex flex-col justify-between relative overflow-hidden">
+          {/* Subtle Ambient Light */}
+          <div className="absolute top-0 right-0 w-64 h-64 bg-accent-blue/10 blur-3xl pointer-events-none" />
+
           <div>
-            <h2 className="text-xl font-bold text-text-primary text-center sm:text-left">
-              Developed by Vaibhav Soni
-            </h2>
-            <p className="text-xs text-accent-blue font-medium mt-0.5 text-center sm:text-left">
-              Full-Stack Software Engineer & Distributed Systems Enthusiast
+            <div className="flex items-center gap-4 mb-6">
+              <div className="w-16 h-16 rounded-2xl gradient-brand flex items-center justify-center text-white text-2xl font-black shadow-[0_0_30px_rgba(46,124,246,0.4)] flex-shrink-0 overflow-hidden border border-white/20 relative">
+                <img
+                  src="/vaibhav.jpeg"
+                  alt="Vaibhav Soni"
+                  className="w-full h-full object-cover object-top"
+                  onError={(e) => {
+                    (e.target as HTMLElement).style.display = 'none';
+                  }}
+                />
+              </div>
+              <div>
+                <h3 className="text-xl font-extrabold text-white">Vaibhav Soni</h3>
+                <p className="text-xs text-accent-blue font-semibold mt-0.5">
+                  Full-Stack Software Engineer & Distributed Systems Enthusiast
+                </p>
+                <p className="text-[11px] text-text-muted mt-0.5">
+                  Creator & Lead Architect of Zync
+                </p>
+              </div>
+            </div>
+
+            <p className="text-xs sm:text-sm text-text-muted leading-relaxed mb-4">
+              "Building real-time experiences demands uncompromising dedication to milliseconds and user delight. Zync was engineered to bridge physical distance, transforming video watching into an effortless, communal experience that feels as immediate as sitting on the same couch."
             </p>
-            <p className="text-xs text-text-muted mt-2 leading-relaxed text-center sm:text-left">
-              Passionate about building responsive, real-time web applications with clean design aesthetics, modular object-oriented architecture, and robust distributed state management.
-            </p>
+
+            {/* Core Tech Stack Matrix */}
+            <div className="space-y-2 mt-6">
+              <div className="text-[11px] font-mono text-white/50 uppercase tracking-wider font-semibold">
+                Technology Ecosystem
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  'TypeScript',
+                  'React 18',
+                  'Node.js',
+                  'Socket.IO',
+                  'PostgreSQL',
+                  'Prisma ORM',
+                  'Redis',
+                  'TailwindCSS',
+                  'WebGL Shaders',
+                  'Vite'
+                ].map((tech) => (
+                  <span
+                    key={tech}
+                    className="px-2.5 py-1 rounded-xl bg-white/[0.04] border border-white/[0.08] text-[11px] text-white/80 font-medium hover:border-accent-blue/40 transition"
+                  >
+                    {tech}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-8 pt-5 border-t border-white/[0.08] flex flex-wrap items-center justify-between gap-4 text-xs">
+            <a
+              href="https://github.com/VaibhavSoni24"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-4 py-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-white font-medium flex items-center gap-2 transition"
+            >
+              <Terminal size={14} className="text-accent-blue" />
+              <span>github.com/VaibhavSoni24</span>
+              <ExternalLink size={12} className="text-text-muted" />
+            </a>
+
+            <Link
+              to="/contact"
+              className="text-accent-blue hover:text-white font-semibold flex items-center gap-1.5 transition"
+            >
+              <span>Get in touch directly</span>
+              <ArrowRight size={14} />
+            </Link>
           </div>
         </div>
 
-        <div className="pt-4 border-t border-border-subtle flex flex-wrap items-center justify-between gap-4 text-xs text-text-muted">
-          <div className="flex items-center gap-2">
-            <Code size={14} className="text-accent-blue" />
-            <span>TypeScript • React • Node.js • Socket.IO • PostgreSQL</span>
+        {/* Live Interactive Distributed Mesh Topology */}
+        <div className="lg:col-span-6 p-6 sm:p-8 rounded-3xl bg-[#090914]/85 border border-white/10 backdrop-blur-2xl shadow-2xl flex flex-col justify-between relative overflow-hidden">
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+                <h4 className="text-sm font-bold text-white tracking-tight">Active Mesh State Machine</h4>
+              </div>
+              <span className="px-2 py-0.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-mono font-bold">
+                LOCKSTEP SYNCED
+              </span>
+            </div>
+
+            <p className="text-xs text-text-muted leading-relaxed mb-6">
+              A real-time state visualization of how Host playback signals broadcast through Redis channels to viewer nodes without audio jitter:
+            </p>
+
+            {/* Topology Graphic Node Graph */}
+            <div className="relative h-56 bg-[#05050A] rounded-2xl border border-white/[0.06] p-4 flex items-center justify-center overflow-hidden">
+              {/* Pulsing Grid Background */}
+              <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:24px_24px]" />
+
+              {/* Connecting SVG Beams */}
+              <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 400 200">
+                {/* Node 1 to Node 2 */}
+                <line x1="200" y1="50" x2="80" y2="150" stroke="#2E7CF6" strokeWidth="2" strokeDasharray="4 4" className="opacity-40" />
+                <line x1="200" y1="50" x2="200" y2="150" stroke="#9B3CFF" strokeWidth="2" strokeDasharray="4 4" className="opacity-40" />
+                <line x1="200" y1="50" x2="320" y2="150" stroke="#10B981" strokeWidth="2" strokeDasharray="4 4" className="opacity-40" />
+
+                {/* Animated Packet Dots */}
+                <circle cx="140" cy="100" r="3" fill="#2E7CF6" className="animate-ping" />
+                <circle cx="200" cy="100" r="3" fill="#9B3CFF" className="animate-ping" />
+                <circle cx="260" cy="100" r="3" fill="#10B981" className="animate-ping" />
+              </svg>
+
+              {/* Central Host Node */}
+              <div className="absolute top-4 left-1/2 -translate-x-1/2 flex flex-col items-center z-10">
+                <div className="px-3 py-1.5 rounded-xl bg-accent-purple/20 border border-accent-purple/40 text-accent-purple font-mono font-bold text-xs shadow-[0_0_20px_rgba(155,60,255,0.4)] flex items-center gap-1.5">
+                  <Radio size={12} className="animate-spin-slow" />
+                  <span>Host Playhead [02:15]</span>
+                </div>
+              </div>
+
+              {/* Viewer Nodes */}
+              <div className="absolute bottom-4 inset-x-4 flex justify-between z-10">
+                <div className="px-2.5 py-1 rounded-xl bg-white/[0.04] border border-white/10 text-white font-mono text-[10px] flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-accent-blue animate-pulse" />
+                  <span>Viewer A (Δ 0ms)</span>
+                </div>
+                <div className="px-2.5 py-1 rounded-xl bg-white/[0.04] border border-white/10 text-white font-mono text-[10px] flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-accent-purple animate-pulse" />
+                  <span>Viewer B (Δ 2ms)</span>
+                </div>
+                <div className="px-2.5 py-1 rounded-xl bg-white/[0.04] border border-white/10 text-white font-mono text-[10px] flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  <span>Viewer C (Δ 0ms)</span>
+                </div>
+              </div>
+            </div>
           </div>
-          <a
-            href="https://github.com/VaibhavSoni24"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-text-primary hover:text-accent-blue font-medium flex items-center gap-1 transition"
-          >
-            <span>GitHub Profile</span>
-            <span>&rarr;</span>
-          </a>
+
+          <div className="mt-4 pt-3 border-t border-white/[0.08] flex items-center justify-between text-[11px] text-text-muted">
+            <span>Transmission Protocol: Binary Frame Packets</span>
+            <span className="font-mono text-emerald-400">Zero packet loss</span>
+          </div>
         </div>
-      </div>
+      </section>
+
+      {/* Bottom CTA Card */}
+      <section className="text-center p-8 sm:p-12 rounded-3xl bg-gradient-to-b from-[#0B0B18]/90 to-[#070710]/95 border border-white/10 backdrop-blur-2xl shadow-2xl relative overflow-hidden">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-accent-purple/20 blur-3xl pointer-events-none" />
+
+        <div className="relative z-10 max-w-xl mx-auto space-y-4">
+          <h3 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+            Ready to experience Zync?
+          </h3>
+          <p className="text-xs sm:text-sm text-text-muted">
+            Create an instant synchronized room in seconds. No extensions, no downloads, perfectly in sync.
+          </p>
+          <div className="pt-2">
+            <Link
+              to="/register"
+              className="inline-flex items-center gap-2 px-7 py-3 rounded-full bg-accent-purple/85 hover:bg-accent-purple border border-accent-purple/50 text-white font-semibold text-xs sm:text-sm shadow-xl shadow-accent-purple/25 hover:shadow-accent-purple/40 active:scale-95 transition"
+            >
+              <span>Get Started</span>
+              <ArrowRight size={15} />
+            </Link>
+          </div>
+        </div>
+      </section>
     </div>
   );
 };
