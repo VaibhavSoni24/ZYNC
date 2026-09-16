@@ -20,7 +20,7 @@ export class ContactService {
       throw err;
     }
 
-    return { message: 'Thank you for reaching out! Your message has been dispatched to Vaibhav.' };
+    return { message: 'Thank you for reaching out! Your message has been sent to Vaibhav Soni.' };
   }
 }
 
