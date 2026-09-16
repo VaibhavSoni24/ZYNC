@@ -1,0 +1,19 @@
+# Zync
+
+> Watch Together, Perfectly In Sync
+
+Zync is a real-time collaborative watch-party web application that synchronizes YouTube video playback across multiple participants in rooms.
+
+## Features
+- Real-time video synchronization (play, pause, seek, change video) with drift correction.
+- Room-based watch parties with 8-character unique room codes.
+- Granular Role-Based Access Control (RBAC): Host, Moderator, Participant, and Viewer.
+- Server-side role enforcement and visibility filtering.
+- Interactive live chat and floating emoji reactions.
+- Playback control requests with Host/Moderator approval workflows.
+- Custom authentication with Brevo email OTP verification.
+
+## Architecture
+- Frontend: React 18, TypeScript, Vite, Tailwind CSS, YouTube IFrame API.
+- Backend: Node.js, Express, Socket.IO with OOP architecture (Room, Participant, RoleManager, MessageHandler).
+- Database & Cache: PostgreSQL with Prisma ORM, Redis for Socket.IO horizontal scaling.

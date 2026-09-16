@@ -1,0 +1,103 @@
+import React, { useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { useAuthStore } from './store/useAuthStore';
+import { Navbar } from './components/Navbar';
+import { Footer } from './components/Footer';
+
+// Feature Pages
+import { LandingPage } from './features/landing/LandingPage';
+import { LoginPage } from './features/auth/LoginPage';
+import { RegisterPage } from './features/auth/RegisterPage';
+import { VerifyOtpPage } from './features/auth/VerifyOtpPage';
+import { HomePage } from './features/home/HomePage';
+import { HostRoomPage } from './features/room/HostRoomPage';
+import { JoinRoomPage } from './features/room/JoinRoomPage';
+import { RoomPage } from './features/room/RoomPage';
+import { ProfilePage } from './features/profile/ProfilePage';
+import { AboutPage } from './features/about/AboutPage';
+import { ContactPage } from './features/contact/ContactPage';
+import { NotFoundPage } from './features/notFound/NotFoundPage';
+
+interface ProtectedRouteProps {
+  children: React.ReactNode;
+}
+
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
+  const { isAuthenticated, isLoading } = useAuthStore();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-[70vh] flex items-center justify-center">
+        <div className="w-8 h-8 rounded-full border-2 border-accent-blue border-t-transparent animate-spin" />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <>{children}</>;
+};
+
+export const App: React.FC = () => {
+  const { checkAuth } = useAuthStore();
+
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
+
+  return (
+    <BrowserRouter>
+      <div className="min-h-screen flex flex-col bg-bg-base text-text-primary">
+        <Navbar />
+        <main className="flex-1">
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/verify-otp" element={<VerifyOtpPage />} />
+
+            {/* Protected Routes */}
+            <Route
+              path="/home"
+              element={
+                <ProtectedRoute>
+                  <HomePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/room/host"
+              element={
+                <ProtectedRoute>
+                  <HostRoomPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <ProfilePage />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Public/Semi-public Room Routes */}
+            <Route path="/room/join" element={<JoinRoomPage />} />
+            <Route path="/room/:code" element={<RoomPage />} />
+
+            {/* General Routes */}
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/contact" element={<ContactPage />} />
+
+            {/* 404 Custom Fallback */}
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </main>
+        <Footer />
+      </div>
+    </BrowserRouter>
+  );
+};

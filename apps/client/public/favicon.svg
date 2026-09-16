@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <defs>
+    <linearGradient id="blueGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00A2FF"/>
+      <stop offset="100%" stop-color="#005BFF"/>
+    </linearGradient>
+    <linearGradient id="purpleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#B246FF"/>
+      <stop offset="100%" stop-color="#7B16FF"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Left Head -->
+  <circle cx="160" cy="150" r="55" fill="url(#blueGrad)" />
+
+  <!-- Right Head -->
+  <circle cx="352" cy="150" r="55" fill="url(#purpleGrad)" />
+
+  <!-- Right Body (underneath left overlap) -->
+  <path d="M 352 205 C 290 205 270 240 256 265 C 242 240 222 205 160 205 C 100 205 85 270 85 320 C 85 410 180 435 256 435 C 332 435 427 410 427 320 C 427 270 412 205 352 205 Z" fill="url(#purpleGrad)" />
+
+  <!-- Left Body & Arm looping down -->
+  <path d="M 160 205 C 100 205 85 270 85 320 C 85 385 130 425 185 433 C 240 440 295 400 340 330 C 355 305 315 240 220 225 C 185 220 170 205 160 205 Z" fill="url(#blueGrad)" />
+
+  <!-- Central Play Button (White Triangle cutout) -->
+  <path d="M 195 245 C 195 235 206 228 215 233 L 335 300 C 344 305 344 319 335 324 L 215 391 C 206 396 195 389 195 379 Z" fill="#FFFFFF" />
+</svg>
