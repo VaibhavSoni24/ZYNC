@@ -13,28 +13,28 @@ const FRAGMENT_SHADER = `
   uniform float u_time;
   uniform vec2 u_mouse;
 
-  // Permutation polynomial for noise
-  vec4 permute(vec4 x) { return mod(((x*34.0)+1.0)*x, 289.0); }
-  vec4 taylorInvSqrt(vec4 r) { return 1.79284291400159 - 0.85373472095314 * r; }
+  // Standard Ashima Simplex 2D noise with correct GLSL ES 1.0 vector overloads
+  vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+  vec2 mod289(vec2 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+  vec3 permute(vec3 x) { return mod289(((x * 34.0) + 1.0) * x); }
 
-  // 2D Simplex Noise
   float snoise(vec2 v) {
     const vec4 C = vec4(0.211324865405187, 0.366025403784439, -0.577350269189626, 0.024390243902439);
     vec2 i  = floor(v + dot(v, C.yy));
-    vec2 x0 = v -   i + dot(i, C.xx);
+    vec2 x0 = v - i + dot(i, C.xx);
     vec2 i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
     vec4 x12 = x0.xyxy + C.xxzz;
     x12.xy -= i1;
-    i = mod(i, 289.0);
+    i = mod289(i);
     vec3 p = permute(permute(i.y + vec3(0.0, i1.y, 1.0)) + i.x + vec3(0.0, i1.x, 1.0));
-    vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
-    m = m*m;
-    m = m*m;
+    vec3 m = max(0.5 - vec3(dot(x0, x0), dot(x12.xy, x12.xy), dot(x12.zw, x12.zw)), 0.0);
+    m = m * m;
+    m = m * m;
     vec3 x = 2.0 * fract(p * C.www) - 1.0;
     vec3 h = abs(x) - 0.5;
     vec3 ox = floor(x + 0.5);
     vec3 a0 = x - ox;
-    m *= taylorInvSqrt(a0*a0 + h*h);
+    m *= 1.79284291400159 - 0.85373472095314 * (a0 * a0 + h * h);
     vec3 g;
     g.x  = a0.x  * x0.x  + h.x  * x0.y;
     g.yz = a0.yz * x12.xz + h.yz * x12.yw;
@@ -44,47 +44,67 @@ const FRAGMENT_SHADER = `
   void main() {
     vec2 uv = gl_FragCoord.xy / u_resolution.xy;
     float aspect = u_resolution.x / u_resolution.y;
-    vec2 p = uv;
-    p.x *= aspect;
+    vec2 p = (uv - 0.5) * vec2(aspect, 1.0);
 
-    float t = u_time * 0.16;
+    float t = u_time * 0.22;
 
-    // Multi-layered fluid domain warping for rich billowing smoke waves
-    vec2 q = vec2(
-      snoise(p * 0.75 + vec2(t * 0.18, -t * 0.14)),
-      snoise(p * 0.75 + vec2(-t * 0.15, t * 0.20))
+    // Fluid mouse interaction
+    vec2 m = (u_mouse - 0.5) * vec2(aspect, 1.0);
+    float dMouse = length(p - m);
+    vec2 mousePull = (p - m) * exp(-dMouse * 2.2) * 0.16;
+
+    // Organic domain warping for fluid smoke billows
+    vec2 warp = vec2(
+      snoise(p * 0.65 + vec2(t * 0.15, -t * 0.12) + mousePull),
+      snoise(p * 0.65 + vec2(-t * 0.14, t * 0.18) - mousePull)
     );
 
-    vec2 r = vec2(
-      snoise(p * 1.1 + 2.2 * q + vec2(t * 0.22, -t * 0.18)),
-      snoise(p * 1.1 + 2.2 * q + vec2(-t * 0.19, t * 0.25))
-    );
+    vec2 pWarped = p + warp * 0.35;
 
-    float s = snoise(p * 1.4 + 2.6 * r + vec2(t * 0.12, t * 0.15));
-    float wave1 = 0.5 + 0.5 * sin(p.x * 2.2 + p.y * 1.6 + t + s * 2.8);
-    float wave2 = 0.5 + 0.5 * cos(p.x * 1.7 - p.y * 2.0 - t * 0.75 + length(q) * 2.2);
+    // Drifting color nodes for silky mesh-gradient smoke
+    // Node 1: Electric Cobalt Blue (#005BFF)
+    vec2 pt1 = vec2(sin(t * 0.38) * 0.62 * aspect, cos(t * 0.30) * 0.45);
+    float w1 = smoothstep(1.30, 0.05, length(pWarped - pt1));
 
-    // Vivid ShaderGradient palette: Deep Obsidian, Royal Cobalt, Electric Blue, Neon Violet, Vivid Magenta
-    vec3 cObsidian = vec3(0.024, 0.024, 0.05);   // #06060D
-    vec3 cDeepBlue = vec3(0.01, 0.18, 0.65);    // #022EA6
-    vec3 cElecBlue = vec3(0.05, 0.45, 1.0);     // #0D73FF
-    vec3 cPurple   = vec3(0.48, 0.12, 0.96);    // #7B1FF5
-    vec3 cMagenta  = vec3(0.68, 0.15, 0.88);    // #AD26E0
-    vec3 cCyan     = vec3(0.12, 0.72, 1.0);     // #1FB8FF
+    // Node 2: Royal Neon Violet (#7B16FF)
+    vec2 pt2 = vec2(cos(t * 0.34 + 2.0) * 0.68 * aspect, sin(t * 0.40 + 1.5) * 0.48);
+    float w2 = smoothstep(1.25, 0.05, length(pWarped - pt2));
 
-    // Blend into continuous, mesmerizing fluid smoke waves
-    vec3 col = mix(cObsidian, cDeepBlue, smoothstep(0.05, 0.55, wave1));
-    col = mix(col, cPurple, smoothstep(0.20, 0.70, wave2));
-    col = mix(col, cElecBlue, smoothstep(0.35, 0.80, 0.5 + 0.5 * s));
-    col = mix(col, cMagenta, smoothstep(0.55, 0.90, length(r) * 0.5));
-    col = mix(col, cCyan, smoothstep(0.75, 0.98, wave1 * wave2));
+    // Node 3: Radiant Orchid Magenta (#AD26E0)
+    vec2 pt3 = vec2(sin(t * 0.28 + 4.2) * 0.55 * aspect, cos(t * 0.36 + 3.8) * 0.45);
+    float w3 = smoothstep(1.15, 0.05, length(pWarped - pt3));
 
-    // Dynamic contrast to keep center typography readable while smoke swirls around it
-    float centerGlow = 1.0 - smoothstep(0.15, 0.85, distance(uv, vec2(0.5, 0.42)));
-    col = mix(col, col * 0.65 + cObsidian * 0.35, centerGlow * 0.4);
+    // Node 4: Luminous Cyan Crest (#00D2FF)
+    vec2 pt4 = vec2(cos(t * 0.46 + 1.0) * 0.45 * aspect, sin(t * 0.26 + 4.0) * 0.35);
+    float w4 = smoothstep(0.95, 0.05, length(pWarped - pt4));
 
-    // Subtle filmic texture
-    float grain = fract(sin(dot(gl_FragCoord.xy, vec2(12.9898, 78.233))) * 43758.5453) * 0.015;
+    // Secondary smoke turbulence
+    float smoke = snoise(pWarped * 1.05 + vec2(t * 0.07, -t * 0.09));
+    float smokeMask = 0.5 + 0.5 * smoke;
+
+    // Premium Color Palette
+    vec3 cBase    = vec3(0.024, 0.024, 0.048); // #06060C Deep obsidian void
+    vec3 cBlue    = vec3(0.00, 0.36, 1.00);    // #005BFF Electric Cobalt
+    vec3 cPurple  = vec3(0.48, 0.09, 1.00);    // #7B16FF Royal Purple
+    vec3 cMagenta = vec3(0.78, 0.12, 0.88);    // #AD26E0 Vivid Magenta
+    vec3 cCyan    = vec3(0.00, 0.82, 1.00);    // #00D2FF Neon Cyan
+
+    // Continuous fluid color blending
+    vec3 col = cBase;
+    col = mix(col, cBlue, w1 * 0.85);
+    col = mix(col, cPurple, w2 * 0.80);
+    col = mix(col, cMagenta, w3 * 0.65);
+    col = mix(col, cCyan, w4 * 0.35);
+
+    // Modulate with smoke turbulence
+    col *= 0.88 + 0.25 * smokeMask;
+
+    // Subtle center vignette for crystal-clear typography readability
+    float centerDim = smoothstep(0.08, 0.95, length((uv - vec2(0.5, 0.44)) * vec2(aspect * 0.85, 1.0)));
+    col = mix(col * 0.82, col, 0.5 + 0.5 * centerDim);
+
+    // Micro filmic dither
+    float grain = fract(sin(dot(gl_FragCoord.xy, vec2(12.9898, 78.233))) * 43758.5453) * 0.008;
     col += grain;
 
     gl_FragColor = vec4(col, 1.0);
@@ -174,11 +194,14 @@ export const SmokeShaderBackground: React.FC = () => {
     window.addEventListener('resize', resize);
     resize();
 
-    let mouseX = 0.5;
-    let mouseY = 0.5;
+    let targetMouseX = 0.5;
+    let targetMouseY = 0.5;
+    let currentMouseX = 0.5;
+    let currentMouseY = 0.5;
+
     const onMouseMove = (e: MouseEvent) => {
-      mouseX = e.clientX / window.innerWidth;
-      mouseY = 1.0 - e.clientY / window.innerHeight;
+      targetMouseX = e.clientX / window.innerWidth;
+      targetMouseY = 1.0 - e.clientY / window.innerHeight;
     };
     window.addEventListener('mousemove', onMouseMove, { passive: true });
 
@@ -191,9 +214,13 @@ export const SmokeShaderBackground: React.FC = () => {
     const render = (now: number) => {
       if (isVisible) {
         const elapsed = (now - startTime) * 0.001;
+        // Smooth mouse damping
+        currentMouseX += (targetMouseX - currentMouseX) * 0.05;
+        currentMouseY += (targetMouseY - currentMouseY) * 0.05;
+
         gl.uniform2f(resLoc, canvas.width, canvas.height);
         gl.uniform1f(timeLoc, elapsed);
-        gl.uniform2f(mouseLoc, mouseX, mouseY);
+        gl.uniform2f(mouseLoc, currentMouseX, currentMouseY);
         gl.drawArrays(gl.TRIANGLES, 0, 6);
       }
       animId = requestAnimationFrame(render);

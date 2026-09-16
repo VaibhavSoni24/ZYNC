@@ -59,7 +59,7 @@ export const LandingPage: React.FC = () => {
       id: '3',
       sender: 'Vaibhav',
       role: 'HOST',
-      text: 'Turning the room volume to 100% - enjoy the show everyone!',
+      text: 'Enjoy the show everyone!',
       time: '14:03'
     }
   ]);
@@ -327,35 +327,32 @@ export const LandingPage: React.FC = () => {
                     {messages.map((m) => (
                       <div
                         key={m.id}
-                        className={`p-2 rounded-xl transition ${
-                          m.role === 'YOU'
+                        className={`p-2 rounded-xl transition ${m.role === 'YOU'
                             ? 'bg-accent-blue/10 border border-accent-blue/20'
                             : m.role === 'HOST'
-                            ? 'bg-accent-purple/10 border border-accent-purple/20'
-                            : 'bg-white/[0.02] border border-white/[0.04]'
-                        }`}
+                              ? 'bg-accent-purple/10 border border-accent-purple/20'
+                              : 'bg-white/[0.02] border border-white/[0.04]'
+                          }`}
                       >
                         <div className="flex items-center justify-between mb-0.5">
                           <div className="flex items-center gap-1.5">
                             <span
-                              className={`font-bold text-[11px] ${
-                                m.role === 'YOU'
+                              className={`font-bold text-[11px] ${m.role === 'YOU'
                                   ? 'text-accent-blue'
                                   : m.role === 'HOST'
-                                  ? 'text-amber-300'
-                                  : 'text-purple-300'
-                              }`}
+                                    ? 'text-amber-300'
+                                    : 'text-purple-300'
+                                }`}
                             >
                               {m.sender}
                             </span>
                             <span
-                              className={`text-[8px] font-bold px-1 py-0.2 rounded ${
-                                m.role === 'YOU'
+                              className={`text-[8px] font-bold px-1 py-0.2 rounded ${m.role === 'YOU'
                                   ? 'bg-accent-blue/20 text-accent-blue'
                                   : m.role === 'HOST'
-                                  ? 'bg-amber-400/20 text-amber-300'
-                                  : 'bg-white/10 text-text-muted'
-                              }`}
+                                    ? 'bg-amber-400/20 text-amber-300'
+                                    : 'bg-white/10 text-text-muted'
+                                }`}
                             >
                               {m.role}
                             </span>
