@@ -175,7 +175,7 @@ npm run build
 ## Live Deployment
 
 - **Client (Live)**: [https://zync-watch-party.vercel.app](https://zync-watch-party.vercel.app)
-- **Server**: `https://zync-server.onrender.com`
+- **Server (Live)**: [https://zync-server-zt02.onrender.com](https://zync-server-zt02.onrender.com)
 
 ---
 

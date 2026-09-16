@@ -13,7 +13,7 @@ interface RequestOptions extends RequestInit {
 }
 
 export async function apiRequest<T = any>(endpoint: string, options: RequestOptions = {}): Promise<T> {
-  const serverBaseUrl = import.meta.env.VITE_SERVER_URL || '';
+  const serverBaseUrl = import.meta.env.VITE_SERVER_URL || (import.meta.env.PROD ? 'https://zync-server-zt02.onrender.com' : '');
   const path = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
   const url = endpoint.startsWith('http') ? endpoint : `${serverBaseUrl}${path}`;
 

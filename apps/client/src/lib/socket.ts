@@ -4,7 +4,7 @@ let socketInstance: Socket | null = null;
 
 export function getSocket(): Socket {
   if (!socketInstance) {
-    const serverUrl = import.meta.env.VITE_SERVER_URL || undefined;
+    const serverUrl = import.meta.env.VITE_SERVER_URL || (import.meta.env.PROD ? 'https://zync-server-zt02.onrender.com' : undefined);
     socketInstance = io(serverUrl, {
       autoConnect: false,
       reconnection: true,
