@@ -13,6 +13,8 @@ import {
   Users,
   Shield,
   Zap,
+  Radio,
+  Sparkles,
   ArrowRight
 } from 'lucide-react';
 
@@ -133,9 +135,51 @@ export const LandingPage: React.FC = () => {
 
   return (
     <div className="relative min-h-screen overflow-hidden text-text-primary">
+      {/* Floating 3D Blurred Ambient Spheres in Background */}
+      <div className="absolute -top-28 -left-28 w-[500px] h-[500px] rounded-full bg-gradient-to-br from-accent-blue/20 via-accent-purple/15 to-transparent blur-[120px] animate-float-slow pointer-events-none -z-10" />
+      <div className="absolute top-20 -right-32 w-[550px] h-[550px] rounded-full bg-gradient-to-bl from-accent-purple/25 via-pink-500/10 to-transparent blur-[130px] animate-float-reverse pointer-events-none -z-10" />
+      <div className="absolute top-[50%] -left-40 w-[450px] h-[450px] rounded-full bg-gradient-to-tr from-cyan-500/15 via-accent-blue/15 to-transparent blur-[110px] animate-float-reverse pointer-events-none -z-10" />
+      <div className="absolute bottom-10 right-0 w-[580px] h-[580px] rounded-full bg-gradient-to-tl from-accent-purple/20 via-accent-blue/15 to-transparent blur-[140px] animate-float-slow pointer-events-none -z-10" />
+
       <div className="relative z-10 space-y-24 py-8 sm:py-16">
         {/* Hero Section */}
-        <section className="text-center max-w-4xl mx-auto px-4 pt-8 pb-4">
+        <section className="text-center max-w-5xl mx-auto px-4 pt-6 pb-4 relative">
+          {/* Floating 3D Animated Object Badges */}
+          <div className="flex items-center justify-center gap-4 sm:gap-6 mb-8 flex-wrap">
+            {/* Floating 3D Object Left */}
+            <div className="flex items-center gap-3 p-2.5 px-4 rounded-2xl bg-[#090914]/85 border border-white/10 backdrop-blur-xl shadow-[0_15px_40px_rgba(0,0,0,0.5)] animate-float-slow select-none">
+              <div className="w-8 h-8 rounded-xl bg-accent-blue/20 border border-accent-blue/30 flex items-center justify-center text-accent-blue shadow-[0_0_15px_rgba(46,124,246,0.3)]">
+                <Zap size={16} className="animate-pulse" />
+              </div>
+              <div className="text-left">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                  <span className="text-xs font-bold text-white">4.2ms Sync Drift</span>
+                </div>
+                <p className="text-[10px] text-text-muted font-mono">Zero audio phase error</p>
+              </div>
+            </div>
+
+            {/* Floating 3D Object Right */}
+            <div className="flex items-center gap-3 p-2.5 px-4 rounded-2xl bg-[#090914]/85 border border-white/10 backdrop-blur-xl shadow-[0_15px_40px_rgba(0,0,0,0.5)] animate-float-reverse select-none">
+              <div className="w-8 h-8 rounded-xl bg-accent-purple/20 border border-accent-purple/30 flex items-center justify-center text-accent-purple shadow-[0_0_15px_rgba(155,60,255,0.3)]">
+                <Radio size={16} className="animate-spin-slow" />
+              </div>
+              <div className="text-left">
+                <div className="flex items-center gap-1">
+                  <div className="flex items-end gap-0.5 h-3">
+                    <span className="w-1 bg-accent-purple rounded-full animate-wave-bar-1" />
+                    <span className="w-1 bg-accent-purple rounded-full animate-wave-bar-2" />
+                    <span className="w-1 bg-accent-purple rounded-full animate-wave-bar-3" />
+                    <span className="w-1 bg-accent-purple rounded-full animate-wave-bar-4" />
+                  </div>
+                  <span className="text-xs font-bold text-white ml-1.5">WebSocket 60Hz</span>
+                </div>
+                <p className="text-[10px] text-text-muted font-mono">Real-time playhead feed</p>
+              </div>
+            </div>
+          </div>
+
           <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-[1.12]">
             Watch Together, <br className="hidden sm:inline" />
             <span className="gradient-brand-text">Perfectly in Sync</span>
@@ -158,6 +202,15 @@ export const LandingPage: React.FC = () => {
 
         {/* Interactive Theater Card */}
         <section className="relative max-w-6xl mx-auto px-4">
+          {/* Subtle Floating Badges Beside Theater */}
+          <div className="hidden xl:flex absolute -left-12 top-1/3 items-center gap-2 p-2.5 rounded-2xl bg-[#090914]/80 border border-white/10 backdrop-blur-xl shadow-xl animate-float-slow pointer-events-none select-none z-20">
+            <Sparkles size={14} className="text-amber-400" />
+            <span className="text-[11px] font-mono font-bold text-white/90">Autonomous Consensus</span>
+          </div>
+          <div className="hidden xl:flex absolute -right-12 top-1/3 items-center gap-2 p-2.5 rounded-2xl bg-[#090914]/80 border border-white/10 backdrop-blur-xl shadow-xl animate-float-reverse pointer-events-none select-none z-20">
+            <Shield size={14} className="text-accent-blue" />
+            <span className="text-[11px] font-mono font-bold text-white/90">Server RBAC Verified</span>
+          </div>
           {/* Subtle Ambient Radial Backlight */}
           <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-[80%] max-w-3xl h-32 bg-gradient-to-r from-accent-blue/30 via-accent-purple/50 to-accent-blue/30 blur-3xl opacity-70 -z-10" />
 

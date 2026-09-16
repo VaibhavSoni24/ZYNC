@@ -331,17 +331,75 @@ export const AboutPage: React.FC = () => {
               {/* Pulsing Grid Background */}
               <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:24px_24px]" />
 
-              {/* Connecting SVG Beams */}
+              {/* Connecting SVG Beams & Real Travelling Packets */}
               <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 400 200">
-                {/* Node 1 to Node 2 */}
-                <line x1="200" y1="50" x2="80" y2="150" stroke="#2E7CF6" strokeWidth="2" strokeDasharray="4 4" className="opacity-40" />
-                <line x1="200" y1="50" x2="200" y2="150" stroke="#9B3CFF" strokeWidth="2" strokeDasharray="4 4" className="opacity-40" />
-                <line x1="200" y1="50" x2="320" y2="150" stroke="#10B981" strokeWidth="2" strokeDasharray="4 4" className="opacity-40" />
+                <defs>
+                  <filter id="glowPacket" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                    <feMerge>
+                      <feMergeNode in="coloredBlur"/>
+                      <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                  </filter>
+                </defs>
 
-                {/* Animated Packet Dots */}
-                <circle cx="140" cy="100" r="3" fill="#2E7CF6" className="animate-ping" />
-                <circle cx="200" cy="100" r="3" fill="#9B3CFF" className="animate-ping" />
-                <circle cx="260" cy="100" r="3" fill="#10B981" className="animate-ping" />
+                {/* Base Grid Circuit Lines */}
+                <line x1="200" y1="45" x2="65" y2="170" stroke="rgba(46,124,246,0.2)" strokeWidth="2" strokeDasharray="5 5" />
+                <line x1="200" y1="45" x2="200" y2="170" stroke="rgba(155,60,255,0.2)" strokeWidth="2" strokeDasharray="5 5" />
+                <line x1="200" y1="45" x2="335" y2="170" stroke="rgba(16,185,129,0.2)" strokeWidth="2" strokeDasharray="5 5" />
+
+                {/* Host Broadcast Emanation Ring */}
+                <circle cx="200" cy="45" r="6" fill="none" stroke="#9B3CFF" strokeWidth="2">
+                  <animate attributeName="r" values="6;26" dur="1.8s" repeatCount="indefinite" />
+                  <animate attributeName="opacity" values="0.9;0" dur="1.8s" repeatCount="indefinite" />
+                </circle>
+
+                {/* Stream 1: Host to Viewer A */}
+                <circle r="4" fill="#38BDF8" filter="url(#glowPacket)">
+                  <animateMotion path="M 200 45 L 65 170" dur="1.6s" repeatCount="indefinite" />
+                </circle>
+                <circle r="2" fill="#FFFFFF">
+                  <animateMotion path="M 200 45 L 65 170" dur="1.6s" repeatCount="indefinite" />
+                </circle>
+                <circle r="3" fill="#38BDF8" opacity="0.6">
+                  <animateMotion path="M 200 45 L 65 170" dur="1.6s" begin="0.8s" repeatCount="indefinite" />
+                </circle>
+
+                {/* Stream 2: Host to Viewer B */}
+                <circle r="4" fill="#C084FC" filter="url(#glowPacket)">
+                  <animateMotion path="M 200 45 L 200 170" dur="1.6s" begin="0.3s" repeatCount="indefinite" />
+                </circle>
+                <circle r="2" fill="#FFFFFF">
+                  <animateMotion path="M 200 45 L 200 170" dur="1.6s" begin="0.3s" repeatCount="indefinite" />
+                </circle>
+                <circle r="3" fill="#C084FC" opacity="0.6">
+                  <animateMotion path="M 200 45 L 200 170" dur="1.6s" begin="1.1s" repeatCount="indefinite" />
+                </circle>
+
+                {/* Stream 3: Host to Viewer C */}
+                <circle r="4" fill="#34D399" filter="url(#glowPacket)">
+                  <animateMotion path="M 200 45 L 335 170" dur="1.6s" begin="0.6s" repeatCount="indefinite" />
+                </circle>
+                <circle r="2" fill="#FFFFFF">
+                  <animateMotion path="M 200 45 L 335 170" dur="1.6s" begin="0.6s" repeatCount="indefinite" />
+                </circle>
+                <circle r="3" fill="#34D399" opacity="0.6">
+                  <animateMotion path="M 200 45 L 335 170" dur="1.6s" begin="1.4s" repeatCount="indefinite" />
+                </circle>
+
+                {/* Arrival Ripple Rings at Viewers */}
+                <circle cx="65" cy="170" r="3" fill="none" stroke="#38BDF8" strokeWidth="1.5">
+                  <animate attributeName="r" values="3;16" dur="1.6s" begin="1.4s" repeatCount="indefinite" />
+                  <animate attributeName="opacity" values="0.8;0" dur="1.6s" begin="1.4s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="200" cy="170" r="3" fill="none" stroke="#C084FC" strokeWidth="1.5">
+                  <animate attributeName="r" values="3;16" dur="1.6s" begin="0.1s" repeatCount="indefinite" />
+                  <animate attributeName="opacity" values="0.8;0" dur="1.6s" begin="0.1s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="335" cy="170" r="3" fill="none" stroke="#34D399" strokeWidth="1.5">
+                  <animate attributeName="r" values="3;16" dur="1.6s" begin="0.4s" repeatCount="indefinite" />
+                  <animate attributeName="opacity" values="0.8;0" dur="1.6s" begin="0.4s" repeatCount="indefinite" />
+                </circle>
               </svg>
 
               {/* Central Host Node */}

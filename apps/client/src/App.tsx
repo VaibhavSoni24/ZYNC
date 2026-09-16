@@ -4,6 +4,7 @@ import { useAuthStore } from './store/useAuthStore';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
 import { SmokeShaderBackground } from './components/Background/SmokeShaderBackground';
+import { PageTransition } from './components/Navigation/PageTransition';
 
 // Feature Pages
 import { LandingPage } from './features/landing/LandingPage';
@@ -56,8 +57,9 @@ export const App: React.FC = () => {
 
         <Navbar />
         <main className="flex-1 relative z-10">
-          <Routes>
-            <Route path="/" element={<LandingPage />} />
+          <PageTransition>
+            <Routes>
+              <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/verify-otp" element={<VerifyOtpPage />} />
@@ -113,8 +115,9 @@ export const App: React.FC = () => {
             {/* 404 Custom Fallback */}
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
-        </main>
-        <Footer />
+        </PageTransition>
+      </main>
+      <Footer />
       </div>
     </BrowserRouter>
   );
