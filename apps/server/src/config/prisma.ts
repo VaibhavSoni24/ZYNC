@@ -21,6 +21,6 @@ prisma.$connect()
   .then(() => {
     logger.info('PostgreSQL connected successfully via Prisma');
   })
-  .catch((err) => {
+  .catch((err: any) => {
     logger.warn('Prisma database connection warning (is DATABASE_URL active?):', err.message);
   });

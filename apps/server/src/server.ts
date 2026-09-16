@@ -31,7 +31,7 @@ async function bootstrap() {
   process.on('SIGINT', shutdown);
 }
 
-bootstrap().catch((err) => {
+bootstrap().catch((err: any) => {
   logger.error('Fatal error bootstrapping server:', err);
   process.exit(1);
 });
