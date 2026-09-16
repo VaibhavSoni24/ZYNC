@@ -84,9 +84,23 @@ export const App: React.FC = () => {
               }
             />
 
-            {/* Public/Semi-public Room Routes */}
-            <Route path="/room/join" element={<JoinRoomPage />} />
-            <Route path="/room/:code" element={<RoomPage />} />
+            {/* Protected Room & User Routes */}
+            <Route
+              path="/room/join"
+              element={
+                <ProtectedRoute>
+                  <JoinRoomPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/room/:code"
+              element={
+                <ProtectedRoute>
+                  <RoomPage />
+                </ProtectedRoute>
+              }
+            />
 
             {/* General Routes */}
             <Route path="/about" element={<AboutPage />} />

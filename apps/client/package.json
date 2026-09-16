@@ -10,7 +10,10 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@react-three/fiber": "^8.18.0",
+    "@shadergradient/react": "^2.4.20",
     "@zync/shared": "*",
+    "camera-controls": "^3.1.2",
     "canvas-confetti": "^1.9.4",
     "clsx": "^2.1.1",
     "lucide-react": "^0.428.0",
@@ -20,6 +23,8 @@
     "react-router-dom": "^6.26.1",
     "socket.io-client": "^4.8.3",
     "tailwind-merge": "^2.5.2",
+    "three": "^0.186.0",
+    "three-stdlib": "^2.36.1",
     "zustand": "^4.5.5"
   },
   "devDependencies": {

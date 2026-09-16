@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { LogOut, Menu, X, Sparkles } from 'lucide-react';
+import { LogOut, Menu, X } from 'lucide-react';
 import { useAuthStore } from '../store/useAuthStore';
 import { AvatarIcon } from '../assets/avatars';
 
@@ -33,9 +33,9 @@ export const Navbar: React.FC = () => {
 
   return (
     <header className="sticky top-0 z-40 bg-bg-base/80 backdrop-blur-md border-b border-border-subtle">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between relative">
         {/* Brand Logo */}
-        <Link to={isAuthenticated ? '/home' : '/'} className="flex items-center gap-2.5 group">
+        <Link to={isAuthenticated ? '/home' : '/'} className="flex items-center gap-2.5 group z-10">
           <div className="w-8 h-8 rounded-xl bg-bg-surface border border-border-subtle flex items-center justify-center p-1 group-hover:border-accent-blue transition">
             <svg viewBox="0 0 512 512" className="w-full h-full">
               <defs>
@@ -60,8 +60,8 @@ export const Navbar: React.FC = () => {
           </span>
         </Link>
 
-        {/* Desktop Navigation Links */}
-        <nav className="hidden md:flex items-center gap-1">
+        {/* Desktop Navigation Links - Centered */}
+        <nav className="hidden md:flex items-center gap-1 absolute left-1/2 -translate-x-1/2 pointer-events-auto">
           {navLinks.map((link) => (
             <Link
               key={link.path}
@@ -78,7 +78,7 @@ export const Navbar: React.FC = () => {
         </nav>
 
         {/* Desktop User Section / CTA */}
-        <div className="hidden md:flex items-center gap-3">
+        <div className="hidden md:flex items-center gap-3 z-10">
           {isAuthenticated ? (
             <div className="flex items-center gap-3">
               <Link to="/profile" className="flex items-center gap-2 p-1 pl-2 pr-3 rounded-xl bg-bg-surface hover:bg-bg-elevated border border-border-subtle transition">
@@ -108,10 +108,9 @@ export const Navbar: React.FC = () => {
               </Link>
               <Link
                 to="/register"
-                className="px-4 py-1.5 rounded-xl gradient-brand text-white font-semibold text-xs shadow-md shadow-accent-blue/20 hover:opacity-95 transition flex items-center gap-1.5"
+                className="px-4 py-1.5 rounded-xl gradient-brand text-white font-semibold text-xs shadow-md shadow-accent-blue/20 hover:opacity-95 transition"
               >
-                <Sparkles size={13} />
-                <span>Get Started</span>
+                Get Started
               </Link>
             </div>
           )}
