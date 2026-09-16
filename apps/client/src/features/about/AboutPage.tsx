@@ -17,42 +17,45 @@ export const AboutPage: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-20 space-y-16 lg:space-y-24 text-text-primary">
       {/* Hero Section with Floating 3D Animated Objects */}
-      <section className="relative text-center max-w-5xl mx-auto pt-6 pb-4">
-        {/* Floating 3D Object Left */}
-        <div className="hidden lg:flex absolute -left-20 top-4 items-center gap-3 p-3.5 rounded-2xl bg-[#090914]/80 border border-white/10 backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.6)] animate-float-slow select-none pointer-events-none z-20">
-          <div className="w-10 h-10 rounded-xl bg-accent-blue/20 border border-accent-blue/30 flex items-center justify-center text-accent-blue shadow-[0_0_20px_rgba(46,124,246,0.3)]">
-            <Zap size={20} className="animate-pulse" />
-          </div>
-          <div className="text-left">
-            <div className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-              <span className="text-[11px] font-bold text-white">4.2ms Sync Drift</span>
-            </div>
-            <p className="text-[10px] text-text-muted font-mono">Zero audio phase error</p>
-          </div>
-        </div>
-
-        {/* Floating 3D Object Right */}
-        <div className="hidden lg:flex absolute -right-20 top-8 items-center gap-3 p-3.5 rounded-2xl bg-[#090914]/80 border border-white/10 backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.6)] animate-float-reverse select-none pointer-events-none z-20">
-          <div className="w-10 h-10 rounded-xl bg-accent-purple/20 border border-accent-purple/30 flex items-center justify-center text-accent-purple shadow-[0_0_20px_rgba(155,60,255,0.3)]">
-            <Radio size={20} className="animate-spin-slow" />
-          </div>
-          <div className="text-left">
-            <div className="flex items-center gap-1">
-              <div className="flex items-end gap-0.5 h-3">
-                <span className="w-1 bg-accent-purple rounded-full animate-wave-bar-1" />
-                <span className="w-1 bg-accent-purple rounded-full animate-wave-bar-2" />
-                <span className="w-1 bg-accent-purple rounded-full animate-wave-bar-3" />
-                <span className="w-1 bg-accent-purple rounded-full animate-wave-bar-4" />
-              </div>
-              <span className="text-[11px] font-bold text-white ml-1">WebSocket 60Hz</span>
-            </div>
-            <p className="text-[10px] text-text-muted font-mono">Real-time playhead feed</p>
-          </div>
-        </div>
-
+      <section className="relative text-center max-w-5xl mx-auto pt-4 pb-4">
         {/* Floating Ambient Orbs */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] bg-gradient-to-r from-accent-blue/15 via-accent-purple/20 to-accent-blue/10 blur-[110px] pointer-events-none -z-10" />
+
+        {/* Floating 3D Animated Object Badges */}
+        <div className="flex items-center justify-center gap-4 sm:gap-6 mb-8 flex-wrap">
+          {/* Floating 3D Object Left */}
+          <div className="flex items-center gap-3 p-2.5 px-4 rounded-2xl bg-[#090914]/85 border border-white/10 backdrop-blur-xl shadow-[0_15px_40px_rgba(0,0,0,0.5)] animate-float-slow select-none">
+            <div className="w-8 h-8 rounded-xl bg-accent-blue/20 border border-accent-blue/30 flex items-center justify-center text-accent-blue shadow-[0_0_15px_rgba(46,124,246,0.3)]">
+              <Zap size={16} className="animate-pulse" />
+            </div>
+            <div className="text-left">
+              <div className="flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                <span className="text-xs font-bold text-white">4.2ms Sync Drift</span>
+              </div>
+              <p className="text-[10px] text-text-muted font-mono">Zero audio phase error</p>
+            </div>
+          </div>
+
+          {/* Floating 3D Object Right */}
+          <div className="flex items-center gap-3 p-2.5 px-4 rounded-2xl bg-[#090914]/85 border border-white/10 backdrop-blur-xl shadow-[0_15px_40px_rgba(0,0,0,0.5)] animate-float-reverse select-none">
+            <div className="w-8 h-8 rounded-xl bg-accent-purple/20 border border-accent-purple/30 flex items-center justify-center text-accent-purple shadow-[0_0_15px_rgba(155,60,255,0.3)]">
+              <Radio size={16} className="animate-spin-slow" />
+            </div>
+            <div className="text-left">
+              <div className="flex items-center gap-1">
+                <div className="flex items-end gap-0.5 h-3">
+                  <span className="w-1 bg-accent-purple rounded-full animate-wave-bar-1" />
+                  <span className="w-1 bg-accent-purple rounded-full animate-wave-bar-2" />
+                  <span className="w-1 bg-accent-purple rounded-full animate-wave-bar-3" />
+                  <span className="w-1 bg-accent-purple rounded-full animate-wave-bar-4" />
+                </div>
+                <span className="text-xs font-bold text-white ml-1.5">WebSocket 60Hz</span>
+              </div>
+              <p className="text-[10px] text-text-muted font-mono">Real-time playhead feed</p>
+            </div>
+          </div>
+        </div>
 
         {/* Main Headline */}
         <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-[1.12]">
@@ -243,7 +246,7 @@ export const AboutPage: React.FC = () => {
               <div>
                 <h3 className="text-xl font-extrabold text-white">Vaibhav Soni</h3>
                 <p className="text-xs text-accent-blue font-semibold mt-0.5">
-                  Full-Stack Software Engineer & Distributed Systems Enthusiast
+                  Full-Stack Software Engineer
                 </p>
                 <p className="text-[11px] text-text-muted mt-0.5">
                   Creator & Lead Architect of Zync
