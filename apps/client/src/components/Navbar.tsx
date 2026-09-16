@@ -60,21 +60,23 @@ export const Navbar: React.FC = () => {
           </span>
         </Link>
 
-        {/* Desktop Navigation Links - Centered */}
+        {/* Desktop Navigation Links - Centered Floating Pill */}
         <nav className="hidden md:flex items-center gap-1 absolute left-1/2 -translate-x-1/2 pointer-events-auto">
-          {navLinks.map((link) => (
-            <Link
-              key={link.path}
-              to={link.path}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition ${
-                isActive(link.path)
-                  ? 'text-accent-blue bg-accent-blue/10 font-semibold'
-                  : 'text-text-muted hover:text-text-primary hover:bg-bg-elevated'
-              }`}
-            >
-              {link.label}
-            </Link>
-          ))}
+          <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-white/[0.04] border border-white/[0.08] backdrop-blur-xl shadow-lg shadow-black/20">
+            {navLinks.map((link) => (
+              <Link
+                key={link.path}
+                to={link.path}
+                className={`px-3.5 py-1 rounded-full text-xs font-medium transition ${
+                  isActive(link.path)
+                    ? 'text-white bg-white/[0.12] font-semibold'
+                    : 'text-text-muted hover:text-white hover:bg-white/[0.06]'
+                }`}
+              >
+                {link.label}
+              </Link>
+            ))}
+          </div>
         </nav>
 
         {/* Desktop User Section / CTA */}
@@ -99,18 +101,18 @@ export const Navbar: React.FC = () => {
               </button>
             </div>
           ) : (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               <Link
                 to="/login"
-                className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-text-muted hover:text-text-primary hover:bg-bg-elevated transition"
+                className="text-xs font-medium text-text-muted hover:text-white transition px-2 py-1"
               >
-                Sign In
+                Login
               </Link>
               <Link
                 to="/register"
-                className="px-4 py-1.5 rounded-xl gradient-brand text-white font-semibold text-xs shadow-md shadow-accent-blue/20 hover:opacity-95 transition"
+                className="px-4 py-1.5 rounded-full bg-accent-purple/80 hover:bg-accent-purple border border-accent-purple/50 text-white font-medium text-xs shadow-lg shadow-accent-purple/20 hover:shadow-accent-purple/30 transition active:scale-95"
               >
-                Get Started
+                Start free trial
               </Link>
             </div>
           )}

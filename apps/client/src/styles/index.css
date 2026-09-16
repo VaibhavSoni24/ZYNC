@@ -58,3 +58,26 @@ body {
   backdrop-filter: blur(12px);
   border: 1px solid var(--border);
 }
+
+@keyframes floatFade {
+  0% {
+    transform: translateY(0) scale(0.8);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+    transform: translateY(-8px) scale(1.1);
+  }
+  80% {
+    opacity: 0.85;
+  }
+  100% {
+    transform: translateY(-85px) scale(1.2);
+    opacity: 0;
+  }
+}
+
+.animate-float-fade {
+  animation: floatFade 2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
