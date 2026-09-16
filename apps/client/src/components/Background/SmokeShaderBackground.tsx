@@ -62,49 +62,49 @@ const FRAGMENT_SHADER = `
     vec2 pWarped = p + warp * 0.35;
 
     // Drifting color nodes for silky mesh-gradient smoke
-    // Node 1: Electric Cobalt Blue (#005BFF)
+    // Node 1: Deep Cobalt Blue
     vec2 pt1 = vec2(sin(t * 0.38) * 0.62 * aspect, cos(t * 0.30) * 0.45);
-    float w1 = smoothstep(1.30, 0.05, length(pWarped - pt1));
+    float w1 = smoothstep(1.35, 0.10, length(pWarped - pt1));
 
-    // Node 2: Royal Neon Violet (#7B16FF)
+    // Node 2: Royal Deep Violet
     vec2 pt2 = vec2(cos(t * 0.34 + 2.0) * 0.68 * aspect, sin(t * 0.40 + 1.5) * 0.48);
-    float w2 = smoothstep(1.25, 0.05, length(pWarped - pt2));
+    float w2 = smoothstep(1.30, 0.10, length(pWarped - pt2));
 
-    // Node 3: Radiant Orchid Magenta (#AD26E0)
+    // Node 3: Deep Orchid Magenta
     vec2 pt3 = vec2(sin(t * 0.28 + 4.2) * 0.55 * aspect, cos(t * 0.36 + 3.8) * 0.45);
-    float w3 = smoothstep(1.15, 0.05, length(pWarped - pt3));
+    float w3 = smoothstep(1.20, 0.10, length(pWarped - pt3));
 
-    // Node 4: Luminous Cyan Crest (#00D2FF)
+    // Node 4: Muted Cyan Highlight
     vec2 pt4 = vec2(cos(t * 0.46 + 1.0) * 0.45 * aspect, sin(t * 0.26 + 4.0) * 0.35);
-    float w4 = smoothstep(0.95, 0.05, length(pWarped - pt4));
+    float w4 = smoothstep(1.00, 0.10, length(pWarped - pt4));
 
     // Secondary smoke turbulence
     float smoke = snoise(pWarped * 1.05 + vec2(t * 0.07, -t * 0.09));
     float smokeMask = 0.5 + 0.5 * smoke;
 
-    // Premium Color Palette
-    vec3 cBase    = vec3(0.024, 0.024, 0.048); // #06060C Deep obsidian void
-    vec3 cBlue    = vec3(0.00, 0.36, 1.00);    // #005BFF Electric Cobalt
-    vec3 cPurple  = vec3(0.48, 0.09, 1.00);    // #7B16FF Royal Purple
-    vec3 cMagenta = vec3(0.78, 0.12, 0.88);    // #AD26E0 Vivid Magenta
-    vec3 cCyan    = vec3(0.00, 0.82, 1.00);    // #00D2FF Neon Cyan
+    // Deepened, slightly darker luxury palette
+    vec3 cBase    = vec3(0.015, 0.015, 0.032); // Deep night void
+    vec3 cBlue    = vec3(0.00, 0.26, 0.78);    // Deep cobalt
+    vec3 cPurple  = vec3(0.36, 0.07, 0.75);    // Deep violet
+    vec3 cMagenta = vec3(0.55, 0.08, 0.65);    // Deep orchid
+    vec3 cCyan    = vec3(0.00, 0.58, 0.76);    // Deep cyan
 
     // Continuous fluid color blending
     vec3 col = cBase;
-    col = mix(col, cBlue, w1 * 0.85);
-    col = mix(col, cPurple, w2 * 0.80);
-    col = mix(col, cMagenta, w3 * 0.65);
-    col = mix(col, cCyan, w4 * 0.35);
+    col = mix(col, cBlue, w1 * 0.75);
+    col = mix(col, cPurple, w2 * 0.70);
+    col = mix(col, cMagenta, w3 * 0.55);
+    col = mix(col, cCyan, w4 * 0.30);
 
-    // Modulate with smoke turbulence
-    col *= 0.88 + 0.25 * smokeMask;
+    // Deepen slightly for extra contrast and cinematic dark atmosphere
+    col *= 0.80 + 0.20 * smokeMask;
 
     // Subtle center vignette for crystal-clear typography readability
     float centerDim = smoothstep(0.08, 0.95, length((uv - vec2(0.5, 0.44)) * vec2(aspect * 0.85, 1.0)));
-    col = mix(col * 0.82, col, 0.5 + 0.5 * centerDim);
+    col = mix(col * 0.80, col, 0.5 + 0.5 * centerDim);
 
     // Micro filmic dither
-    float grain = fract(sin(dot(gl_FragCoord.xy, vec2(12.9898, 78.233))) * 43758.5453) * 0.008;
+    float grain = fract(sin(dot(gl_FragCoord.xy, vec2(12.9898, 78.233))) * 43758.5453) * 0.007;
     col += grain;
 
     gl_FragColor = vec4(col, 1.0);
@@ -247,9 +247,6 @@ export const SmokeShaderBackground: React.FC = () => {
         ref={canvasRef}
         className="absolute inset-0 w-full h-full pointer-events-none"
       />
-
-      {/* Subtle bottom gradient to blend cleanly with the footer */}
-      <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#0A0A12] to-transparent pointer-events-none" />
     </div>
   );
 };
