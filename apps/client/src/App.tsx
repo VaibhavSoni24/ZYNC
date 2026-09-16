@@ -49,7 +49,7 @@ export const App: React.FC = () => {
 
   return (
     <BrowserRouter>
-      <div className="min-h-screen flex flex-col bg-bg-base text-text-primary">
+      <div className="min-h-screen flex flex-col bg-transparent text-text-primary">
         <Navbar />
         <main className="flex-1">
           <Routes>

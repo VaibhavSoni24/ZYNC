@@ -112,7 +112,7 @@ export const Navbar: React.FC = () => {
                 to="/register"
                 className="px-4 py-1.5 rounded-full bg-accent-purple/80 hover:bg-accent-purple border border-accent-purple/50 text-white font-medium text-xs shadow-lg shadow-accent-purple/20 hover:shadow-accent-purple/30 transition active:scale-95"
               >
-                Start free trial
+                Get Started
               </Link>
             </div>
           )}

@@ -35,9 +35,9 @@ export const LandingPage: React.FC = () => {
   const [copied, setCopied] = useState(false);
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(false);
-  const [progress, setProgress] = useState(42); // percentage
-  const [currentTimeSec, setCurrentTimeSec] = useState(102); // 01:42
-  const totalDurationSec = 228; // 03:48
+  const [progress, setProgress] = useState(42);
+  const [currentTimeSec, setCurrentTimeSec] = useState(102);
+  const totalDurationSec = 228;
 
   // Interactive Live Chat
   const [messages, setMessages] = useState<ChatMsg[]>([
@@ -105,7 +105,7 @@ export const LandingPage: React.FC = () => {
 
   const spawnReaction = (emoji: string) => {
     const id = ++emojiCountRef.current;
-    const left = Math.floor(Math.random() * 60) + 20; // 20% to 80%
+    const left = Math.floor(Math.random() * 60) + 20;
     setFloatingEmojis((prev) => [...prev, { id, emoji, left }]);
     setTimeout(() => {
       setFloatingEmojis((prev) => prev.filter((item) => item.id !== id));
@@ -137,9 +137,9 @@ export const LandingPage: React.FC = () => {
       {/* 60FPS Pure WebGL Smoke Shader Background */}
       <SmokeShaderBackground />
 
-      <div className="relative z-10 space-y-24 py-6 sm:py-12">
+      <div className="relative z-10 space-y-24 py-8 sm:py-16">
         {/* Hero Section */}
-        <section className="text-center max-w-4xl mx-auto px-4 pt-12 pb-4">
+        <section className="text-center max-w-4xl mx-auto px-4 pt-8 pb-4">
           <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-[1.12]">
             Watch Together, <br className="hidden sm:inline" />
             <span className="gradient-brand-text">Perfectly in Sync</span>
@@ -154,280 +154,255 @@ export const LandingPage: React.FC = () => {
               to="/register"
               className="px-7 py-3 rounded-full bg-accent-purple/85 hover:bg-accent-purple border border-accent-purple/50 text-white font-semibold text-xs sm:text-sm shadow-xl shadow-accent-purple/25 hover:shadow-accent-purple/40 active:scale-95 transition flex items-center gap-2 group"
             >
-              <span>Get Started Free</span>
+              <span>Get Started</span>
               <ArrowRight size={15} className="group-hover:translate-x-0.5 transition-transform" />
             </Link>
           </div>
         </section>
 
-        {/* Reflect-Style Celestial Event Horizon & Radiant Arc */}
-        <section className="relative max-w-6xl mx-auto px-4 -mt-10">
-          {/* Radiant Celestial Halo System */}
-          <div className="relative flex flex-col items-center justify-center pointer-events-none select-none">
-            {/* Concentric Orbital Rings */}
-            <div className="absolute -top-32 w-[620px] h-[310px] rounded-t-full border border-purple-500/10 pointer-events-none" />
-            <div className="absolute -top-24 w-[480px] h-[240px] rounded-t-full border border-purple-500/15 pointer-events-none" />
-            <div className="absolute -top-16 w-[340px] h-[170px] rounded-t-full border border-purple-500/25 pointer-events-none" />
+        {/* Interactive Theater Card */}
+        <section className="relative max-w-6xl mx-auto px-4">
+          {/* Subtle Ambient Radial Backlight */}
+          <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-[80%] max-w-3xl h-32 bg-gradient-to-r from-accent-blue/30 via-accent-purple/50 to-accent-blue/30 blur-3xl opacity-70 -z-10" />
 
-            {/* Glowing Celestial Event Horizon Arch */}
-            <div className="relative w-[320px] sm:w-[460px] h-[160px] sm:h-[220px] flex items-end justify-center overflow-hidden">
-              {/* Diffuse Violet Atmospheric Corona */}
-              <div className="absolute bottom-0 w-full h-full bg-gradient-to-t from-accent-purple/50 via-accent-blue/30 to-transparent blur-3xl opacity-80" />
-              
-              {/* Radiant White/Violet Arch Ring */}
-              <div className="w-[300px] sm:w-[420px] h-[150px] sm:h-[210px] rounded-t-full border-t-[8px] sm:border-t-[12px] border-x-[4px] border-white/90 border-x-accent-purple/70 shadow-[0_-15px_60px_rgba(155,60,255,0.9),0_0_30px_rgba(46,124,246,0.8)] relative">
-                {/* Core Luminous Arc */}
-                <div className="absolute inset-x-4 top-0 h-10 bg-gradient-to-b from-white to-transparent blur-sm opacity-90" />
+          {/* Frosted Product Card */}
+          <div className="bg-[#090914]/85 border border-white/10 rounded-2xl sm:rounded-3xl p-3 sm:p-5 shadow-[0_30px_90px_rgba(0,0,0,0.85)] backdrop-blur-2xl relative overflow-hidden">
+            {/* Header Bar */}
+            <div className="flex flex-wrap items-center justify-between gap-3 px-3 py-2 border-b border-white/[0.08] mb-3 text-xs">
+              {/* Left: Window Dots & Room Pill */}
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-red-500/80" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-amber-500/80" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/80" />
+                </div>
+
+                <div className="flex items-center gap-2 bg-white/[0.04] border border-white/[0.08] px-2.5 py-1 rounded-xl">
+                  <span className="text-[10px] text-text-muted font-mono">ROOM:</span>
+                  <span className="font-mono font-bold text-white tracking-wider text-xs">T6YZ-POM2</span>
+                  <button
+                    onClick={handleCopyCode}
+                    className="text-text-muted hover:text-white transition ml-1"
+                    title="Copy Room Code"
+                  >
+                    {copied ? <Check size={12} className="text-emerald-400" /> : <Copy size={12} />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Right: Sync Status & Watchers */}
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-medium text-[11px]">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  <span>In Sync • 0.0s drift</span>
+                </div>
+
+                <div className="hidden sm:flex items-center gap-1.5 text-[11px] text-text-muted">
+                  <div className="flex -space-x-1">
+                    <div className="w-5 h-5 rounded-full bg-accent-blue/40 border border-bg-base flex items-center justify-center text-[9px] font-bold text-accent-blue">V</div>
+                    <div className="w-5 h-5 rounded-full bg-accent-purple/40 border border-bg-base flex items-center justify-center text-[9px] font-bold text-accent-purple">M</div>
+                    <div className="w-5 h-5 rounded-full bg-emerald-500/40 border border-bg-base flex items-center justify-center text-[9px] font-bold text-emerald-400">L</div>
+                  </div>
+                  <span>+12 watching</span>
+                </div>
               </div>
             </div>
 
-            {/* Horizontal Light Horizon Beam bleeding onto the card */}
-            <div className="w-[90%] max-w-4xl h-[2px] bg-gradient-to-r from-transparent via-white/80 to-transparent shadow-[0_0_30px_#9B3CFF,0_0_15px_#2E7CF6] -mt-1 z-20" />
-          </div>
+            {/* Main Theater Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5">
+              {/* 16:9 Video Canvas */}
+              <div className="lg:col-span-8 relative aspect-video bg-[#040408] rounded-xl sm:rounded-2xl overflow-hidden border border-white/[0.08] flex flex-col justify-between p-3.5 sm:p-4 group select-none shadow-inner">
+                {/* Cinematic Video Poster Atmosphere */}
+                <div className="absolute inset-0 bg-gradient-to-tr from-[#050616] via-[#08051E] to-[#120732] opacity-95" />
 
-          {/* Frosted Product Card with Specular Top Rim Highlight */}
-          <div className="relative -mt-0.5 z-20">
-            <div className="bg-[#090914]/90 border border-white/10 rounded-2xl sm:rounded-3xl p-3 sm:p-5 shadow-[0_30px_90px_rgba(0,0,0,0.9)] backdrop-blur-2xl relative overflow-hidden">
-              {/* Top Specular Rim Reflection */}
-              <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-accent-purple/70 to-transparent" />
+                {/* Dynamic Floating Reactions Overlay */}
+                <div className="absolute inset-0 overflow-hidden pointer-events-none z-30">
+                  {floatingEmojis.map((item) => (
+                    <div
+                      key={item.id}
+                      style={{ left: `${item.left}%` }}
+                      className="absolute bottom-16 text-2xl animate-float-fade"
+                    >
+                      {item.emoji}
+                    </div>
+                  ))}
+                </div>
 
-              {/* Header Bar */}
-              <div className="flex flex-wrap items-center justify-between gap-3 px-3 py-2 border-b border-white/[0.08] mb-3 text-xs">
-                {/* Left: Window Dots & Room Pill */}
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-red-500/80" />
-                    <span className="w-2.5 h-2.5 rounded-full bg-amber-500/80" />
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/80" />
+                {/* Video Top Badges */}
+                <div className="relative z-10 flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-2">
+                    <span className="bg-black/65 backdrop-blur-md px-2.5 py-1 rounded-lg border border-white/10 text-[11px] font-medium text-white/90">
+                      Interstellar • Official Trailer
+                    </span>
+                    <span className="hidden sm:inline-block bg-accent-blue/20 text-accent-blue border border-accent-blue/30 px-1.5 py-0.5 rounded text-[9px] font-mono font-bold">
+                      4K 60FPS
+                    </span>
                   </div>
 
-                  <div className="flex items-center gap-2 bg-white/[0.04] border border-white/[0.08] px-2.5 py-1 rounded-xl">
-                    <span className="text-[10px] text-text-muted font-mono">ROOM:</span>
-                    <span className="font-mono font-bold text-white tracking-wider text-xs">T6YZ-POM2</span>
-                    <button
-                      onClick={handleCopyCode}
-                      className="text-text-muted hover:text-white transition ml-1"
-                      title="Copy Room Code"
-                    >
-                      {copied ? <Check size={12} className="text-emerald-400" /> : <Copy size={12} />}
-                    </button>
+                  <div className="flex items-center gap-1.5 bg-black/65 backdrop-blur-md px-2.5 py-1 rounded-lg border border-white/10 text-[11px] text-white/90">
+                    <span className="w-1.5 h-1.5 rounded-full bg-accent-purple animate-ping" />
+                    <span className="font-semibold text-accent-purple">HOST:</span>
+                    <span>Vaibhav</span>
                   </div>
                 </div>
 
-                {/* Right: Sync Status & Watchers */}
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-medium text-[11px]">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                    <span>In Sync • 0.0s drift</span>
+                {/* Interactive Big Center Play/Pause Trigger */}
+                <div className="relative z-10 flex items-center justify-center">
+                  <button
+                    onClick={() => setIsPlaying(!isPlaying)}
+                    className="w-16 h-16 sm:w-18 sm:h-18 rounded-full bg-gradient-to-br from-accent-blue via-accent-purple to-accent-purple text-white flex items-center justify-center shadow-[0_0_40px_rgba(123,22,255,0.6)] hover:scale-105 active:scale-95 transition"
+                    title={isPlaying ? 'Pause' : 'Play'}
+                  >
+                    {isPlaying ? (
+                      <Pause size={26} className="text-white" />
+                    ) : (
+                      <Play size={26} className="text-white translate-x-0.5" />
+                    )}
+                  </button>
+                </div>
+
+                {/* Interactive Playback Control HUD */}
+                <div className="relative z-10 bg-black/80 backdrop-blur-md p-2.5 sm:p-3 rounded-xl border border-white/10 flex flex-col gap-2">
+                  {/* Scrub Bar */}
+                  <div
+                    onClick={handleScrub}
+                    className="w-full h-1.5 rounded-full bg-white/20 relative cursor-pointer group/scrub"
+                    title="Click to seek"
+                  >
+                    <div
+                      style={{ width: `${progress}%` }}
+                      className="h-full rounded-full gradient-brand relative transition-all duration-150"
+                    >
+                      <span className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full shadow-md scale-0 group-hover/scrub:scale-100 transition-transform" />
+                    </div>
                   </div>
 
-                  <div className="hidden sm:flex items-center gap-1.5 text-[11px] text-text-muted">
-                    <div className="flex -space-x-1">
-                      <div className="w-5 h-5 rounded-full bg-accent-blue/40 border border-bg-base flex items-center justify-center text-[9px] font-bold text-accent-blue">V</div>
-                      <div className="w-5 h-5 rounded-full bg-accent-purple/40 border border-bg-base flex items-center justify-center text-[9px] font-bold text-accent-purple">M</div>
-                      <div className="w-5 h-5 rounded-full bg-emerald-500/40 border border-bg-base flex items-center justify-center text-[9px] font-bold text-emerald-400">L</div>
+                  {/* Controls Row */}
+                  <div className="flex items-center justify-between text-[11px] text-white/80">
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={() => setIsPlaying(!isPlaying)}
+                        className="hover:text-white transition"
+                      >
+                        {isPlaying ? <Pause size={14} /> : <Play size={14} />}
+                      </button>
+                      <span className="font-mono text-white/90">
+                        {formatTime(currentTimeSec)} / {formatTime(totalDurationSec)}
+                      </span>
+                      <button
+                        onClick={() => setIsMuted(!isMuted)}
+                        className="flex items-center gap-1 text-white/70 hover:text-white transition"
+                      >
+                        {isMuted ? <VolumeX size={14} className="text-red-400" /> : <Volume2 size={14} />}
+                        <span className="font-mono text-[10px]">{isMuted ? 'Muted' : '100%'}</span>
+                      </button>
                     </div>
-                    <span>+12 watching</span>
+
+                    <div className="flex items-center gap-3 text-white/70">
+                      <div className="flex items-center gap-1 bg-white/[0.06] px-2 py-0.5 rounded text-[10px] font-mono">
+                        <span>Auto Drift Fix</span>
+                      </div>
+                      <Maximize2 size={13} className="hover:text-white cursor-pointer transition" />
+                    </div>
                   </div>
                 </div>
               </div>
 
-              {/* Main Theater Grid */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5">
-                {/* 16:9 Video Canvas */}
-                <div className="lg:col-span-8 relative aspect-video bg-[#040408] rounded-xl sm:rounded-2xl overflow-hidden border border-white/[0.08] flex flex-col justify-between p-3.5 sm:p-4 group select-none shadow-inner">
-                  {/* Cinematic Video Poster Atmosphere */}
-                  <div className="absolute inset-0 bg-gradient-to-tr from-[#050616] via-[#08051E] to-[#120732] opacity-95" />
+              {/* Right: Interactive Live Chat & Instant Reaction Stream */}
+              <div className="lg:col-span-4 bg-[#06060E]/80 border border-white/[0.08] rounded-xl sm:rounded-2xl p-3 flex flex-col justify-between h-full min-h-[300px]">
+                <div>
+                  {/* Chat Header */}
+                  <div className="flex items-center justify-between pb-2.5 border-b border-white/[0.08] text-xs">
+                    <div className="flex items-center gap-2 font-semibold text-white">
+                      <MessageSquare size={13} className="text-accent-blue" />
+                      <span>Live Chat</span>
+                    </div>
+                    <span className="text-[10px] text-text-muted font-mono bg-white/[0.04] px-2 py-0.5 rounded-full">
+                      {messages.length} messages
+                    </span>
+                  </div>
 
-                  {/* Dynamic Floating Reactions Overlay */}
-                  <div className="absolute inset-0 overflow-hidden pointer-events-none z-30">
-                    {floatingEmojis.map((item) => (
+                  {/* Messages Flow */}
+                  <div className="space-y-2.5 py-2.5 text-xs max-h-[220px] overflow-y-auto">
+                    {messages.map((m) => (
                       <div
-                        key={item.id}
-                        style={{ left: `${item.left}%` }}
-                        className="absolute bottom-16 text-2xl animate-float-fade"
+                        key={m.id}
+                        className={`p-2 rounded-xl transition ${
+                          m.role === 'YOU'
+                            ? 'bg-accent-blue/10 border border-accent-blue/20'
+                            : m.role === 'HOST'
+                            ? 'bg-accent-purple/10 border border-accent-purple/20'
+                            : 'bg-white/[0.02] border border-white/[0.04]'
+                        }`}
                       >
-                        {item.emoji}
+                        <div className="flex items-center justify-between mb-0.5">
+                          <div className="flex items-center gap-1.5">
+                            <span
+                              className={`font-bold text-[11px] ${
+                                m.role === 'YOU'
+                                  ? 'text-accent-blue'
+                                  : m.role === 'HOST'
+                                  ? 'text-amber-300'
+                                  : 'text-purple-300'
+                              }`}
+                            >
+                              {m.sender}
+                            </span>
+                            <span
+                              className={`text-[8px] font-bold px-1 py-0.2 rounded ${
+                                m.role === 'YOU'
+                                  ? 'bg-accent-blue/20 text-accent-blue'
+                                  : m.role === 'HOST'
+                                  ? 'bg-amber-400/20 text-amber-300'
+                                  : 'bg-white/10 text-text-muted'
+                              }`}
+                            >
+                              {m.role}
+                            </span>
+                          </div>
+                          <span className="text-[9px] text-text-muted font-mono">{m.time}</span>
+                        </div>
+                        <p className="text-white/90 text-[11px] leading-relaxed">{m.text}</p>
                       </div>
                     ))}
                   </div>
-
-                  {/* Video Top Badges */}
-                  <div className="relative z-10 flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-2">
-                      <span className="bg-black/65 backdrop-blur-md px-2.5 py-1 rounded-lg border border-white/10 text-[11px] font-medium text-white/90">
-                        Interstellar • Official Trailer
-                      </span>
-                      <span className="hidden sm:inline-block bg-accent-blue/20 text-accent-blue border border-accent-blue/30 px-1.5 py-0.5 rounded text-[9px] font-mono font-bold">
-                        4K 60FPS
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-1.5 bg-black/65 backdrop-blur-md px-2.5 py-1 rounded-lg border border-white/10 text-[11px] text-white/90">
-                      <span className="w-1.5 h-1.5 rounded-full bg-accent-purple animate-ping" />
-                      <span className="font-semibold text-accent-purple">HOST:</span>
-                      <span>Vaibhav</span>
-                    </div>
-                  </div>
-
-                  {/* Interactive Big Center Play/Pause Trigger */}
-                  <div className="relative z-10 flex items-center justify-center">
-                    <button
-                      onClick={() => setIsPlaying(!isPlaying)}
-                      className="w-16 h-16 sm:w-18 sm:h-18 rounded-full bg-gradient-to-br from-accent-blue via-accent-purple to-accent-purple text-white flex items-center justify-center shadow-[0_0_40px_rgba(123,22,255,0.6)] hover:scale-105 active:scale-95 transition"
-                      title={isPlaying ? 'Pause' : 'Play'}
-                    >
-                      {isPlaying ? (
-                        <Pause size={26} className="text-white" />
-                      ) : (
-                        <Play size={26} className="text-white translate-x-0.5" />
-                      )}
-                    </button>
-                  </div>
-
-                  {/* Interactive Playback Control HUD */}
-                  <div className="relative z-10 bg-black/80 backdrop-blur-md p-2.5 sm:p-3 rounded-xl border border-white/10 flex flex-col gap-2">
-                    {/* Scrub Bar */}
-                    <div
-                      onClick={handleScrub}
-                      className="w-full h-1.5 rounded-full bg-white/20 relative cursor-pointer group/scrub"
-                      title="Click to seek"
-                    >
-                      <div
-                        style={{ width: `${progress}%` }}
-                        className="h-full rounded-full gradient-brand relative transition-all duration-150"
-                      >
-                        <span className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full shadow-md scale-0 group-hover/scrub:scale-100 transition-transform" />
-                      </div>
-                    </div>
-
-                    {/* Controls Row */}
-                    <div className="flex items-center justify-between text-[11px] text-white/80">
-                      <div className="flex items-center gap-3">
-                        <button
-                          onClick={() => setIsPlaying(!isPlaying)}
-                          className="hover:text-white transition"
-                        >
-                          {isPlaying ? <Pause size={14} /> : <Play size={14} />}
-                        </button>
-                        <span className="font-mono text-white/90">
-                          {formatTime(currentTimeSec)} / {formatTime(totalDurationSec)}
-                        </span>
-                        <button
-                          onClick={() => setIsMuted(!isMuted)}
-                          className="flex items-center gap-1 text-white/70 hover:text-white transition"
-                        >
-                          {isMuted ? <VolumeX size={14} className="text-red-400" /> : <Volume2 size={14} />}
-                          <span className="font-mono text-[10px]">{isMuted ? 'Muted' : '100%'}</span>
-                        </button>
-                      </div>
-
-                      <div className="flex items-center gap-3 text-white/70">
-                        <div className="flex items-center gap-1 bg-white/[0.06] px-2 py-0.5 rounded text-[10px] font-mono">
-                          <span>Auto Drift Fix</span>
-                        </div>
-                        <Maximize2 size={13} className="hover:text-white cursor-pointer transition" />
-                      </div>
-                    </div>
-                  </div>
                 </div>
 
-                {/* Right: Interactive Live Chat & Instant Reaction Stream */}
-                <div className="lg:col-span-4 bg-[#06060E]/80 border border-white/[0.08] rounded-xl sm:rounded-2xl p-3 flex flex-col justify-between h-full min-h-[300px]">
-                  <div>
-                    {/* Chat Header */}
-                    <div className="flex items-center justify-between pb-2.5 border-b border-white/[0.08] text-xs">
-                      <div className="flex items-center gap-2 font-semibold text-white">
-                        <MessageSquare size={13} className="text-accent-blue" />
-                        <span>Live Chat</span>
-                      </div>
-                      <span className="text-[10px] text-text-muted font-mono bg-white/[0.04] px-2 py-0.5 rounded-full">
-                        {messages.length} messages
-                      </span>
-                    </div>
-
-                    {/* Messages Flow */}
-                    <div className="space-y-2.5 py-2.5 text-xs max-h-[220px] overflow-y-auto">
-                      {messages.map((m) => (
-                        <div
-                          key={m.id}
-                          className={`p-2 rounded-xl transition ${
-                            m.role === 'YOU'
-                              ? 'bg-accent-blue/10 border border-accent-blue/20'
-                              : m.role === 'HOST'
-                              ? 'bg-accent-purple/10 border border-accent-purple/20'
-                              : 'bg-white/[0.02] border border-white/[0.04]'
-                          }`}
+                {/* Interactive Floating Emoji Quick Bar + Chat Input */}
+                <div className="pt-2 border-t border-white/[0.08] space-y-2">
+                  {/* Quick Reactions: Click to Float Emojis */}
+                  <div className="flex items-center justify-between px-1">
+                    <span className="text-[10px] text-text-muted">React:</span>
+                    <div className="flex items-center gap-1.5">
+                      {['❤️', '🔥', '🍿', '🚀', '🎉'].map((emoji) => (
+                        <button
+                          key={emoji}
+                          onClick={() => spawnReaction(emoji)}
+                          className="p-1 text-xs hover:scale-125 active:scale-95 transition"
+                          title={`Send ${emoji}`}
                         >
-                          <div className="flex items-center justify-between mb-0.5">
-                            <div className="flex items-center gap-1.5">
-                              <span
-                                className={`font-bold text-[11px] ${
-                                  m.role === 'YOU'
-                                    ? 'text-accent-blue'
-                                    : m.role === 'HOST'
-                                    ? 'text-amber-300'
-                                    : 'text-purple-300'
-                                }`}
-                              >
-                                {m.sender}
-                              </span>
-                              <span
-                                className={`text-[8px] font-bold px-1 py-0.2 rounded ${
-                                  m.role === 'YOU'
-                                    ? 'bg-accent-blue/20 text-accent-blue'
-                                    : m.role === 'HOST'
-                                    ? 'bg-amber-400/20 text-amber-300'
-                                    : 'bg-white/10 text-text-muted'
-                                }`}
-                              >
-                                {m.role}
-                              </span>
-                            </div>
-                            <span className="text-[9px] text-text-muted font-mono">{m.time}</span>
-                          </div>
-                          <p className="text-white/90 text-[11px] leading-relaxed">{m.text}</p>
-                        </div>
+                          {emoji}
+                        </button>
                       ))}
                     </div>
                   </div>
 
-                  {/* Interactive Floating Emoji Quick Bar + Chat Input */}
-                  <div className="pt-2 border-t border-white/[0.08] space-y-2">
-                    {/* Quick Reactions: Click to Float Emojis */}
-                    <div className="flex items-center justify-between px-1">
-                      <span className="text-[10px] text-text-muted">React:</span>
-                      <div className="flex items-center gap-1.5">
-                        {['❤️', '🔥', '🍿', '🚀', '🎉'].map((emoji) => (
-                          <button
-                            key={emoji}
-                            onClick={() => spawnReaction(emoji)}
-                            className="p-1 text-xs hover:scale-125 active:scale-95 transition"
-                            title={`Send ${emoji}`}
-                          >
-                            {emoji}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Text Input */}
-                    <form onSubmit={handleSendMessage} className="flex items-center gap-1.5">
-                      <input
-                        type="text"
-                        value={inputVal}
-                        onChange={(e) => setInputVal(e.target.value)}
-                        placeholder="Type a message..."
-                        className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl px-3 py-1.5 text-xs text-white placeholder:text-text-muted/60 focus:outline-none focus:border-accent-purple/50 transition"
-                      />
-                      <button
-                        type="submit"
-                        className="p-1.5 rounded-xl bg-accent-purple/30 hover:bg-accent-purple/50 border border-accent-purple/40 text-accent-purple hover:text-white transition"
-                      >
-                        <Send size={13} />
-                      </button>
-                    </form>
-                  </div>
+                  {/* Text Input */}
+                  <form onSubmit={handleSendMessage} className="flex items-center gap-1.5">
+                    <input
+                      type="text"
+                      value={inputVal}
+                      onChange={(e) => setInputVal(e.target.value)}
+                      placeholder="Type a message..."
+                      className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl px-3 py-1.5 text-xs text-white placeholder:text-text-muted/60 focus:outline-none focus:border-accent-purple/50 transition"
+                    />
+                    <button
+                      type="submit"
+                      className="p-1.5 rounded-xl bg-accent-purple/30 hover:bg-accent-purple/50 border border-accent-purple/40 text-accent-purple hover:text-white transition"
+                    >
+                      <Send size={13} />
+                    </button>
+                  </form>
                 </div>
               </div>
             </div>
@@ -435,7 +410,7 @@ export const LandingPage: React.FC = () => {
         </section>
 
         {/* Feature Pillars */}
-        <section className="max-w-5xl mx-auto px-4 pt-12">
+        <section className="max-w-5xl mx-auto px-4 pt-8">
           <div className="text-center mb-12">
             <h2 className="text-2xl sm:text-3xl font-bold text-white">Engineered for Frictionless Watch Parties</h2>
             <p className="text-xs sm:text-sm text-text-muted mt-2">Built ground-up for sub-second sync, privacy, and effortless fun.</p>
@@ -484,7 +459,7 @@ export const LandingPage: React.FC = () => {
             to="/register"
             className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-accent-purple/85 hover:bg-accent-purple border border-accent-purple/50 text-white font-semibold text-xs sm:text-sm shadow-xl shadow-accent-purple/25 hover:shadow-accent-purple/40 active:scale-95 transition group"
           >
-            <span>Create Free Account</span>
+            <span>Get Started</span>
             <ArrowRight size={15} className="group-hover:translate-x-0.5 transition-transform" />
           </Link>
         </section>

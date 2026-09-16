@@ -8,7 +8,7 @@ export const Footer: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-text-muted">
         <div className="flex items-center gap-2">
           <span className="font-bold text-text-primary">Zync</span>
-          <span>:</span>
+          <span>-</span>
           <span>Watch Together, Perfectly in Sync</span>
         </div>
 
