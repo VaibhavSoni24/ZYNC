@@ -85,11 +85,11 @@ export const ContactPage: React.FC = () => {
   };
 
   return (
-    <div className="relative min-h-[calc(100vh-4rem)] overflow-hidden py-12 sm:py-20 text-text-primary">
+    <div className="relative min-h-[calc(100vh-4rem)] py-12 sm:py-20 text-text-primary">
       {/* ========================================================================= */}
       {/* 3D BLURRED DEPTH SHAPES IN BACKGROUND (Optical Spatial Depth Vibe)        */}
       {/* ========================================================================= */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden select-none -z-10">
+      <div className="absolute inset-0 pointer-events-none select-none -z-10 overflow-hidden">
         {/* 3D Blurred Sphere (Top-Left Depth Anchor) */}
         <div className="absolute -top-10 -left-12 sm:top-12 sm:left-10 w-72 sm:w-96 h-72 sm:h-96 rounded-full opacity-45 blur-[55px] animate-float-slow">
           <svg viewBox="0 0 200 200" className="w-full h-full">
@@ -127,24 +127,6 @@ export const ContactPage: React.FC = () => {
             <polygon points="180,80 100,140 100,190 180,130" fill="url(#facetRight)" />
           </svg>
         </div>
-
-        {/* 3D Blurred Toroidal Ring (Bottom-Center Depth Accent) */}
-        <div className="absolute -bottom-20 left-1/3 -translate-x-1/2 w-96 sm:w-[500px] h-96 sm:h-[500px] opacity-35 blur-[65px] animate-float-slow">
-          <svg viewBox="0 0 300 300" className="w-full h-full">
-            <defs>
-              <radialGradient id="ringGrad" cx="50%" cy="50%" r="50%">
-                <stop offset="40%" stopColor="transparent" />
-                <stop offset="70%" stopColor="#3B82F6" />
-                <stop offset="90%" stopColor="#9333EA" />
-                <stop offset="100%" stopColor="transparent" />
-              </radialGradient>
-            </defs>
-            <circle cx="150" cy="150" r="130" fill="none" stroke="url(#ringGrad)" strokeWidth="48" />
-          </svg>
-        </div>
-
-        {/* Cinematic Ambient Glow Center */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] h-[400px] bg-gradient-to-r from-accent-blue/10 via-accent-purple/15 to-accent-blue/10 blur-[120px]" />
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 lg:space-y-16 relative z-10">
