@@ -41,62 +41,49 @@ const FRAGMENT_SHADER = `
     return 130.0 * dot(m, g);
   }
 
-  // Multi-octave fluid fractal noise (smoke simulation)
-  float fbm(vec2 p) {
-    float total = 0.0;
-    float amp = 0.55;
-    float freq = 1.0;
-    for (int i = 0; i < 5; i++) {
-      total += amp * snoise(p * freq);
-      p = p * 1.85 + vec2(0.35, 0.15);
-      amp *= 0.52;
-      freq *= 1.95;
-    }
-    return total;
-  }
-
   void main() {
     vec2 uv = gl_FragCoord.xy / u_resolution.xy;
     float aspect = u_resolution.x / u_resolution.y;
     vec2 p = uv;
     p.x *= aspect;
 
-    float t = u_time * 0.08;
+    float t = u_time * 0.16;
 
-    // Organic fluid domain warping - simulates swirling liquid smoke
+    // Multi-layered fluid domain warping for rich billowing smoke waves
     vec2 q = vec2(
-      fbm(p + vec2(0.0, t * 0.5)),
-      fbm(p + vec2(2.8, 1.4 - t * 0.35))
+      snoise(p * 0.75 + vec2(t * 0.18, -t * 0.14)),
+      snoise(p * 0.75 + vec2(-t * 0.15, t * 0.20))
     );
 
     vec2 r = vec2(
-      fbm(p + 3.0 * q + vec2(1.7 - t * 0.4, 9.2)),
-      fbm(p + 3.0 * q + vec2(8.3, 2.8 + t * 0.3))
+      snoise(p * 1.1 + 2.2 * q + vec2(t * 0.22, -t * 0.18)),
+      snoise(p * 1.1 + 2.2 * q + vec2(-t * 0.19, t * 0.25))
     );
 
-    float smoke = fbm(p + 3.2 * r);
-    smoke = 0.5 + 0.5 * smoke; // Map to [0, 1]
+    float s = snoise(p * 1.4 + 2.6 * r + vec2(t * 0.12, t * 0.15));
+    float wave1 = 0.5 + 0.5 * sin(p.x * 2.2 + p.y * 1.6 + t + s * 2.8);
+    float wave2 = 0.5 + 0.5 * cos(p.x * 1.7 - p.y * 2.0 - t * 0.75 + length(q) * 2.2);
 
-    // Vivid Blue, Purple, Magenta and Obsidian Black Smoke Palette
-    vec3 deepBlack  = vec3(0.02, 0.02, 0.04);   // #05050A
-    vec3 darkIndigo  = vec3(0.06, 0.04, 0.18);   // #0F0A2E
-    vec3 royalBlue   = vec3(0.02, 0.32, 0.98);   // #0552FA
-    vec3 electricPurp = vec3(0.55, 0.12, 1.0);   // #8C1FFF
-    vec3 neonViolet  = vec3(0.72, 0.22, 1.0);   // #B838FF
-    vec3 brightCyan  = vec3(0.15, 0.65, 1.0);   // #26A6FF
+    // Vivid ShaderGradient palette: Deep Obsidian, Royal Cobalt, Electric Blue, Neon Violet, Vivid Magenta
+    vec3 cObsidian = vec3(0.024, 0.024, 0.05);   // #06060D
+    vec3 cDeepBlue = vec3(0.01, 0.18, 0.65);    // #022EA6
+    vec3 cElecBlue = vec3(0.05, 0.45, 1.0);     // #0D73FF
+    vec3 cPurple   = vec3(0.48, 0.12, 0.96);    // #7B1FF5
+    vec3 cMagenta  = vec3(0.68, 0.15, 0.88);    // #AD26E0
+    vec3 cCyan     = vec3(0.12, 0.72, 1.0);     // #1FB8FF
 
-    // Layer the fluid smoke colors with rich transitions
-    vec3 col = mix(deepBlack, darkIndigo, smoothstep(0.0, 0.4, smoke));
-    col = mix(col, royalBlue, smoothstep(0.35, 0.65, length(q)));
-    col = mix(col, electricPurp, smoothstep(0.4, 0.75, length(r)));
-    col = mix(col, neonViolet, smoothstep(0.65, 0.95, smoke * length(q)));
-    col = mix(col, brightCyan, smoothstep(0.85, 1.1, smoke * smoke));
+    // Blend into continuous, mesmerizing fluid smoke waves
+    vec3 col = mix(cObsidian, cDeepBlue, smoothstep(0.05, 0.55, wave1));
+    col = mix(col, cPurple, smoothstep(0.20, 0.70, wave2));
+    col = mix(col, cElecBlue, smoothstep(0.35, 0.80, 0.5 + 0.5 * s));
+    col = mix(col, cMagenta, smoothstep(0.55, 0.90, length(r) * 0.5));
+    col = mix(col, cCyan, smoothstep(0.75, 0.98, wave1 * wave2));
 
-    // Dynamic vignette to keep center content crisp and visible
-    float centerDist = distance(uv, vec2(0.5, 0.45));
-    col *= (1.05 - smoothstep(0.2, 0.85, centerDist) * 0.35);
+    // Dynamic contrast to keep center typography readable while smoke swirls around it
+    float centerGlow = 1.0 - smoothstep(0.15, 0.85, distance(uv, vec2(0.5, 0.42)));
+    col = mix(col, col * 0.65 + cObsidian * 0.35, centerGlow * 0.4);
 
-    // Subtle film grain
+    // Subtle filmic texture
     float grain = fract(sin(dot(gl_FragCoord.xy, vec2(12.9898, 78.233))) * 43758.5453) * 0.015;
     col += grain;
 
@@ -173,7 +160,6 @@ export const SmokeShaderBackground: React.FC = () => {
 
     const resize = () => {
       if (!canvas) return;
-      // High-performance resolution scaling (max 1.25 DPR for butter smooth 60fps)
       const dpr = Math.min(window.devicePixelRatio || 1, 1.25);
       const w = Math.floor(window.innerWidth * dpr);
       const h = Math.floor(window.innerHeight * dpr);
@@ -229,14 +215,14 @@ export const SmokeShaderBackground: React.FC = () => {
 
   return (
     <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10 select-none">
-      {/* Dynamic 60fps WebGL Smoke Shader Canvas */}
+      {/* 60fps WebGL Vivid Fluid Smoke Shader Canvas */}
       <canvas
         ref={canvasRef}
         className="absolute inset-0 w-full h-full pointer-events-none"
       />
 
-      {/* Subtle bottom fade so footer transitions smoothly */}
-      <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[#0A0A12] to-transparent pointer-events-none" />
+      {/* Subtle bottom gradient to blend cleanly with the footer */}
+      <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#0A0A12] to-transparent pointer-events-none" />
     </div>
   );
 };
