@@ -4,7 +4,7 @@ import { Heart } from 'lucide-react';
 
 export const Footer: React.FC = () => {
   return (
-    <footer className="relative z-20 border-t border-white/[0.08] bg-[#070710]/90 backdrop-blur-xl mt-20">
+    <footer className="relative z-20 bg-[#070710]/90 backdrop-blur-xl mt-12 sm:mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-text-muted">
         <div className="flex items-center gap-2">
           <span className="font-bold text-white text-sm tracking-tight">Zync</span>

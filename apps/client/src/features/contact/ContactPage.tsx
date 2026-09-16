@@ -8,8 +8,6 @@ import {
   Copy,
   Check,
   Sparkles,
-  Clock,
-  ShieldCheck,
   ArrowUpRight
 } from 'lucide-react';
 import { apiRequest } from '../../lib/api';
@@ -45,7 +43,6 @@ export const ContactPage: React.FC = () => {
   const handleTopicSelect = (topic: string) => {
     setSelectedTopic(topic);
     if (!formData.message.startsWith(`[${topic}]`)) {
-      // If previous topic was in square brackets, replace it, otherwise prepend
       const cleanMessage = formData.message.replace(/^\[.*?\]\s*/, '');
       setFormData(prev => ({
         ...prev,
@@ -61,7 +58,6 @@ export const ContactPage: React.FC = () => {
     setSuccess(false);
 
     try {
-      // Ensure the topic is tagged in the message if not already present
       const finalMessage = formData.message.startsWith('[')
         ? formData.message
         : `[${selectedTopic}] ${formData.message}`;
@@ -79,7 +75,7 @@ export const ContactPage: React.FC = () => {
         setSuccess(true);
         setFormData({ name: '', email: '', message: '' });
       } else {
-        setError(res.error || 'Failed to dispatch message. Please try again.');
+        setError(res.error || 'Failed to send message. Please try again.');
       }
     } catch (err: any) {
       setError(err.message || 'Failed to send message. Please reach out directly to vaibhavsoni280506@gmail.com.');
@@ -153,23 +149,16 @@ export const ContactPage: React.FC = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 lg:space-y-16 relative z-10">
         {/* ========================================================================= */}
-        {/* HERO SECTION                                                              */}
+        {/* HERO SECTION (Clean, no top button/pill)                                  */}
         {/* ========================================================================= */}
-        <div className="text-center max-w-3xl mx-auto space-y-4">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.04] border border-white/10 backdrop-blur-xl text-xs font-medium text-text-muted">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-white/90">Direct Transmission Channel</span>
-            <span className="text-white/30">•</span>
-            <span className="text-accent-blue font-mono text-[11px]">Brevo SMTP Direct</span>
-          </div>
-
+        <div className="text-center max-w-3xl mx-auto space-y-4 pt-2">
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.1]">
             Get in <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent-blue via-accent-purple to-cyan-400">Touch</span>
           </h1>
 
           <p className="text-sm sm:text-base text-text-muted leading-relaxed max-w-2xl mx-auto">
             Have questions regarding Zync's distributed synchronization engine, feedback,
-            or ideas for collaboration? Send a direct transmission straight to Vaibhav.
+            or ideas for collaboration? Send a message straight to Vaibhav.
           </p>
         </div>
 
@@ -277,30 +266,22 @@ export const ContactPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Architecture Relay Details Card */}
-            <div className="rounded-3xl p-6 bg-[#0a0a14]/60 border border-white/[0.06] backdrop-blur-xl space-y-4">
-              <div className="flex items-center gap-2 text-xs font-semibold text-white">
-                <ShieldCheck size={16} className="text-accent-blue" />
-                <span>Encrypted Direct Delivery</span>
-              </div>
-              <p className="text-[11px] text-text-muted leading-relaxed">
-                Messages submitted through this terminal are authenticated and dispatched directly to
-                Vaibhav's personal mailbox via Brevo's verified transactional infrastructure.
-              </p>
-              <div className="grid grid-cols-2 gap-3 pt-1 text-[11px]">
-                <div className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.05]">
-                  <div className="flex items-center gap-1.5 text-text-muted mb-1">
-                    <Clock size={12} className="text-accent-purple" />
-                    <span>Response Time</span>
-                  </div>
-                  <span className="text-white font-semibold">&lt; 24 Hours</span>
+            {/* Floating 3D Object: Nice to meet you! */}
+            <div className="relative p-6 sm:p-7 rounded-3xl bg-[#0a0a14]/65 border border-white/[0.08] backdrop-blur-2xl shadow-[0_20px_40px_rgba(0,0,0,0.45)] animate-float-slow select-none overflow-hidden group">
+              <div className="absolute top-0 right-0 w-36 h-36 bg-gradient-to-br from-accent-purple/20 via-pink-500/10 to-transparent rounded-full blur-2xl pointer-events-none" />
+
+              <div className="relative z-10 flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-accent-blue/25 via-accent-purple/30 to-pink-500/25 border border-white/20 flex items-center justify-center text-2xl shadow-[0_0_25px_rgba(155,60,255,0.35)] flex-shrink-0 animate-bounce">
+                  👋
                 </div>
-                <div className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.05]">
-                  <div className="flex items-center gap-1.5 text-text-muted mb-1">
-                    <Sparkles size={12} className="text-cyan-400" />
-                    <span>Delivery Status</span>
-                  </div>
-                  <span className="text-emerald-400 font-semibold">100% Reliable</span>
+                <div>
+                  <h3 className="text-base sm:text-lg font-bold text-white tracking-tight flex items-center gap-2">
+                    Nice to meet you!
+                    <Sparkles size={16} className="text-amber-400" />
+                  </h3>
+                  <p className="text-xs text-text-muted mt-0.5">
+                    Feel free to say hi or ask anything about Zync.
+                  </p>
                 </div>
               </div>
             </div>
@@ -317,10 +298,10 @@ export const ContactPage: React.FC = () => {
               <div className="relative z-10 space-y-6">
                 <div>
                   <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
-                    Transmit a Message
+                    Send a Message
                   </h2>
                   <p className="text-xs sm:text-sm text-text-muted mt-1">
-                    Fill in your details below to start a direct line of communication.
+                    Fill in your details below to start a conversation.
                   </p>
                 </div>
 
@@ -358,9 +339,9 @@ export const ContactPage: React.FC = () => {
                         <CheckCircle2 size={22} />
                       </div>
                       <div>
-                        <h3 className="text-sm font-bold text-white">Transmission Delivered Successfully!</h3>
+                        <h3 className="text-sm font-bold text-white">Message Sent Successfully!</h3>
                         <p className="text-xs text-emerald-300/90 mt-0.5">
-                          Your message was dispatched to Vaibhav Soni ({emailAddress}).
+                          Your message has been sent to Vaibhav Soni ({emailAddress}).
                         </p>
                       </div>
                     </div>
@@ -373,7 +354,7 @@ export const ContactPage: React.FC = () => {
                         onClick={() => setSuccess(false)}
                         className="text-xs font-semibold text-white underline underline-offset-4 hover:text-accent-blue transition-colors"
                       >
-                        Send another transmission
+                        Send another message
                       </button>
                     </div>
                   </div>
@@ -459,12 +440,12 @@ export const ContactPage: React.FC = () => {
                     {loading ? (
                       <>
                         <div className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
-                        <span>Dispatching Transmission...</span>
+                        <span>Sending Message...</span>
                       </>
                     ) : (
                       <>
                         <Send size={15} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-                        <span>Transmit Message to Vaibhav</span>
+                        <span>Send Message</span>
                       </>
                     )}
                   </button>
