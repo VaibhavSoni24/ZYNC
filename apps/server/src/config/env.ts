@@ -16,5 +16,5 @@ export const ENV = {
   BREVO_SENDER_EMAIL: process.env.BREVO_SENDER_EMAIL || 'vaibhav@zync.live',
   BREVO_SENDER_NAME: process.env.BREVO_SENDER_NAME || 'Zync Team',
   CLIENT_URL: process.env.CLIENT_URL || 'http://localhost:3000',
-  CONTACT_RECEIVER_EMAIL: process.env.CONTACT_RECEIVER_EMAIL || 'vaibhavsoni24@gmail.com'
+  CONTACT_RECEIVER_EMAIL: process.env.CONTACT_RECEIVER_EMAIL || 'vaibhavsoni280506@gmail.com'
 };

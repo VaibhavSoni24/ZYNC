@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { LogOut, Menu, X } from 'lucide-react';
+import { motion } from 'motion/react';
 import { useAuthStore } from '../store/useAuthStore';
 import { AvatarIcon } from '../assets/avatars';
 
@@ -60,22 +61,34 @@ export const Navbar: React.FC = () => {
           </span>
         </Link>
 
-        {/* Desktop Navigation Links - Centered Floating Pill */}
+        {/* Desktop Navigation Links - Centered Floating Pill with Animated Switch Transition */}
         <nav className="hidden md:flex items-center gap-1 absolute left-1/2 -translate-x-1/2 pointer-events-auto">
-          <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-white/[0.04] border border-white/[0.08] backdrop-blur-xl shadow-lg shadow-black/20">
-            {navLinks.map((link) => (
-              <Link
-                key={link.path}
-                to={link.path}
-                className={`px-3.5 py-1 rounded-full text-xs font-medium transition ${
-                  isActive(link.path)
-                    ? 'text-white bg-white/[0.12] font-semibold'
-                    : 'text-text-muted hover:text-white hover:bg-white/[0.06]'
-                }`}
-              >
-                {link.label}
-              </Link>
-            ))}
+          <div className="flex items-center gap-1 p-1 rounded-full bg-white/[0.04] border border-white/[0.08] backdrop-blur-xl shadow-lg shadow-black/20 relative">
+            {navLinks.map((link) => {
+              const active = isActive(link.path);
+              return (
+                <Link
+                  key={link.path}
+                  to={link.path}
+                  className={`relative px-4 py-1.5 rounded-full text-xs font-medium transition-colors duration-200 ${
+                    active ? 'text-white font-semibold' : 'text-text-muted hover:text-white'
+                  }`}
+                >
+                  {active && (
+                    <motion.div
+                      layoutId="activeNavPill"
+                      className="absolute inset-0 rounded-full bg-gradient-to-r from-accent-blue/30 via-accent-purple/35 to-accent-blue/25 border border-white/20 shadow-[0_0_15px_rgba(155,60,255,0.25)]"
+                      transition={{
+                        type: 'spring',
+                        stiffness: 380,
+                        damping: 30
+                      }}
+                    />
+                  )}
+                  <span className="relative z-10">{link.label}</span>
+                </Link>
+              );
+            })}
           </div>
         </nav>
 

@@ -4,11 +4,20 @@ import { logger } from './logger';
 export interface SendEmailOptions {
   toEmail: string;
   toName?: string;
+  replyToEmail?: string;
+  replyToName?: string;
   subject: string;
   htmlContent: string;
 }
 
-export async function sendEmail({ toEmail, toName, subject, htmlContent }: SendEmailOptions): Promise<boolean> {
+export async function sendEmail({
+  toEmail,
+  toName,
+  replyToEmail,
+  replyToName,
+  subject,
+  htmlContent
+}: SendEmailOptions): Promise<boolean> {
   if (!ENV.BREVO_API_KEY) {
     logger.info(`[DEV_MODE - EMAIL SIMULATOR] To: ${toEmail} | Subject: ${subject}`);
     logger.info(`[DEV_MODE - EMAIL CONTENT]\n${htmlContent.replace(/<[^>]*>?/gm, ' ').trim()}`);
@@ -16,6 +25,28 @@ export async function sendEmail({ toEmail, toName, subject, htmlContent }: SendE
   }
 
   try {
+    const payload: any = {
+      sender: {
+        name: ENV.BREVO_SENDER_NAME,
+        email: ENV.BREVO_SENDER_EMAIL
+      },
+      to: [
+        {
+          email: toEmail,
+          name: toName || toEmail
+        }
+      ],
+      subject,
+      htmlContent
+    };
+
+    if (replyToEmail) {
+      payload.replyTo = {
+        email: replyToEmail,
+        name: replyToName || replyToEmail
+      };
+    }
+
     const response = await fetch('https://api.brevo.com/v3/smtp/email', {
       method: 'POST',
       headers: {
@@ -23,20 +54,7 @@ export async function sendEmail({ toEmail, toName, subject, htmlContent }: SendE
         'Content-Type': 'application/json',
         'api-key': ENV.BREVO_API_KEY
       },
-      body: JSON.stringify({
-        sender: {
-          name: ENV.BREVO_SENDER_NAME,
-          email: ENV.BREVO_SENDER_EMAIL
-        },
-        to: [
-          {
-            email: toEmail,
-            name: toName || toEmail
-          }
-        ],
-        subject,
-        htmlContent
-      })
+      body: JSON.stringify(payload)
     });
 
     if (!response.ok) {
@@ -83,15 +101,33 @@ export function generateOtpEmailHtml(otp: string, username: string): string {
 
 export function generateContactEmailHtml(name: string, email: string, message: string): string {
   return `
-    <div style="font-family: sans-serif; max-width: 540px; margin: 0 auto; background-color: #0A0A12; color: #F5F5FA; border-radius: 12px; padding: 32px; border: 1px solid #26263A;">
-      <h2 style="color: #2E7CF6; margin-top: 0;">New Message from Zync Contact Form</h2>
-      <div style="background-color: #14141F; border-radius: 8px; padding: 20px; border: 1px solid #26263A;">
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Message:</strong></p>
-        <div style="background-color: #1C1C29; padding: 16px; border-radius: 6px; white-space: pre-wrap; color: #E2E8F0;">
-          ${message}
+    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 560px; margin: 0 auto; background-color: #0A0A12; color: #F5F5FA; border-radius: 16px; padding: 32px; border: 1px solid #26263A;">
+      <div style="text-align: center; margin-bottom: 24px;">
+        <h1 style="color: #FFFFFF; font-size: 26px; margin: 0; font-weight: 800; letter-spacing: -0.5px;">Zync</h1>
+        <p style="color: #2E7CF6; font-size: 13px; font-weight: 600; margin: 6px 0 0 0; text-transform: uppercase; letter-spacing: 1px;">New Direct Contact Form Submission</p>
+      </div>
+
+      <div style="background-color: #14141F; border-radius: 12px; padding: 24px; border: 1px solid #26263A;">
+        <div style="margin-bottom: 14px;">
+          <span style="font-size: 12px; color: #8B8B9E; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; display: block; margin-bottom: 4px;">From</span>
+          <span style="font-size: 16px; color: #FFFFFF; font-weight: 600;">${name}</span>
         </div>
+
+        <div style="margin-bottom: 20px;">
+          <span style="font-size: 12px; color: #8B8B9E; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; display: block; margin-bottom: 4px;">Email</span>
+          <a href="mailto:${email}" style="font-size: 15px; color: #2E7CF6; text-decoration: none; font-weight: 500;">${email}</a>
+        </div>
+
+        <div style="border-top: 1px solid #26263A; padding-top: 16px;">
+          <span style="font-size: 12px; color: #8B8B9E; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; display: block; margin-bottom: 8px;">Message</span>
+          <div style="background-color: #1C1C29; padding: 18px; border-radius: 8px; font-size: 14px; line-height: 1.6; color: #F5F5FA; border-left: 3px solid #9B3CFF; white-space: pre-wrap;">
+${message}
+          </div>
+        </div>
+      </div>
+
+      <div style="text-align: center; margin-top: 24px; color: #5B5B6E; font-size: 12px;">
+        Hit "Reply" in your email client to respond directly to ${name} (${email}).
       </div>
     </div>
   `;
