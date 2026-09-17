@@ -15,5 +15,9 @@
     "build:server": "npm run build --workspace=@zync/server",
     "build:client": "npm run build --workspace=@zync/client",
     "typecheck": "npm run typecheck --workspace=@zync/shared && npm run typecheck --workspace=@zync/server && npm run typecheck --workspace=@zync/client"
+  },
+  "overrides": {
+    "esbuild": "^0.25.0",
+    "launch-editor": "^2.10.0"
   }
 }

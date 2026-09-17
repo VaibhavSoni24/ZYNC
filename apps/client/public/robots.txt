@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /api/
 
-Sitemap: https://zync.live/sitemap.xml
+Sitemap: https://zync-watch-party.vercel.app/sitemap.xml
