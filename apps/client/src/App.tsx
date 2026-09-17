@@ -12,6 +12,7 @@ import { LandingPage } from './features/landing/LandingPage';
 import { LoginPage } from './features/auth/LoginPage';
 import { RegisterPage } from './features/auth/RegisterPage';
 import { VerifyOtpPage } from './features/auth/VerifyOtpPage';
+import { ForgotPasswordPage } from './features/auth/ForgotPasswordPage';
 import { HomePage } from './features/home/HomePage';
 import { HostRoomPage } from './features/room/HostRoomPage';
 import { JoinRoomPage } from './features/room/JoinRoomPage';
@@ -64,6 +65,7 @@ export const App: React.FC = () => {
             <Routes>
               <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/verify-otp" element={<VerifyOtpPage />} />
 

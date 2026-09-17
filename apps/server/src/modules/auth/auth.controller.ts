@@ -165,6 +165,49 @@ export class AuthController {
       next(err);
     }
   }
+
+  async forgotPassword(req: Request, res: Response, _next: NextFunction) {
+    try {
+      const { identifier } = req.body;
+      if (!identifier || typeof identifier !== 'string') {
+        res.status(400).json({ success: false, error: 'Username or email address is required' });
+        return;
+      }
+      const result = await authService.requestForgotPasswordOtp(identifier);
+      res.status(200).json({ success: true, data: result });
+    } catch (err: any) {
+      res.status(400).json({ success: false, error: err.message || 'Failed to request password reset' });
+    }
+  }
+
+  async resendResetOtp(req: Request, res: Response, _next: NextFunction) {
+    try {
+      const { email } = req.body;
+      if (!email || typeof email !== 'string') {
+        res.status(400).json({ success: false, error: 'Email address is required' });
+        return;
+      }
+      const result = await authService.resendResetOtp(email);
+      res.status(200).json({ success: true, data: result });
+    } catch (err: any) {
+      res.status(400).json({ success: false, error: err.message || 'Failed to resend reset code' });
+    }
+  }
+
+  async resetPassword(req: Request, res: Response, _next: NextFunction) {
+    try {
+      const { email, otp, newPassword } = req.body;
+      if (!email || !otp || !newPassword) {
+        res.status(400).json({ success: false, error: 'Email, verification code, and new password are required' });
+        return;
+      }
+      const result = await authService.resetPassword(email, otp, newPassword);
+      res.status(200).json({ success: true, data: result });
+    } catch (err: any) {
+      res.status(400).json({ success: false, error: err.message || 'Failed to reset password' });
+    }
+  }
 }
 
 export const authController = new AuthController();
+

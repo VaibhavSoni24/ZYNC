@@ -16,9 +16,14 @@ import {
   Clock,
   CheckCircle2,
   Mail,
-  Loader2
+  Loader2,
+  Trash2,
+  KeyRound,
+  ShieldAlert,
+  X
 } from 'lucide-react';
 import { useAuthStore } from '../../store/useAuthStore';
+import { Interactive3DBlob } from '../../components/Mascot/Interactive3DBlob';
 import {
   PRESET_AVATARS,
   PRESET_AVATAR_DETAILS,
@@ -37,7 +42,7 @@ const QUICK_BIO_IDEAS = [
 
 export const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
-  const { user, setUser } = useAuthStore();
+  const { user, setUser, logout } = useAuthStore();
 
   // Profile Form States
   const [name, setName] = useState(user?.name || '');
@@ -64,6 +69,231 @@ export const ProfilePage: React.FC = () => {
   const [usernameError, setUsernameError] = useState<string | null>(null);
   const [profileLoading, setProfileLoading] = useState(false);
   const [usernameLoading, setUsernameLoading] = useState(false);
+
+  // Danger Zone - Change Password States
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [pwdMode, setPwdMode] = useState<'standard' | 'otp'>('standard');
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [pwdOtp, setPwdOtp] = useState('');
+  const [pwdOtpSent, setPwdOtpSent] = useState(false);
+  const [pwdCooldown, setPwdCooldown] = useState(0);
+  const [pwdLoading, setPwdLoading] = useState(false);
+  const [pwdError, setPwdError] = useState<string | null>(null);
+  const [pwdSuccess, setPwdSuccess] = useState<string | null>(null);
+
+  // Danger Zone - Delete Account States
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deleteMode, setDeleteMode] = useState<'password' | 'otp'>('password');
+  const [deletePassword, setDeletePassword] = useState('');
+  const [showDeletePassword, setShowDeletePassword] = useState(false);
+  const [deleteOtp, setDeleteOtp] = useState('');
+  const [deleteOtpSent, setDeleteOtpSent] = useState(false);
+  const [deleteCooldown, setDeleteCooldown] = useState(0);
+  const [deleteConfirmUsername, setDeleteConfirmUsername] = useState('');
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  // Cooldown timers
+  useEffect(() => {
+    if (pwdCooldown <= 0) return;
+    const t = setInterval(() => setPwdCooldown((prev) => prev - 1), 1000);
+    return () => clearInterval(t);
+  }, [pwdCooldown]);
+
+  useEffect(() => {
+    if (deleteCooldown <= 0) return;
+    const t = setInterval(() => setDeleteCooldown((prev) => prev - 1), 1000);
+    return () => clearInterval(t);
+  }, [deleteCooldown]);
+
+  // Masked email for display
+  const maskedUserEmail = user?.email
+    ? user.email.replace(/^(.)(.*)(.@.*)$/, (_, a, _b, c) => `${a}***${c}`)
+    : 'your registered email';
+
+  // Handlers for Change Password
+  const handleChangePasswordStandard = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPwdError(null);
+    setPwdSuccess(null);
+
+    if (!currentPassword) {
+      setPwdError('Current password is required');
+      return;
+    }
+    if (newPassword.length < 6) {
+      setPwdError('New password must be at least 6 characters');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setPwdError('New passwords do not match');
+      return;
+    }
+
+    setPwdLoading(true);
+    try {
+      const res = await apiRequest('/api/users/change-password', {
+        method: 'PUT',
+        data: { currentPassword, newPassword }
+      });
+      if (res.success) {
+        setPwdSuccess('Your password has been successfully updated!');
+        setCurrentPassword('');
+        setNewPassword('');
+        setConfirmPassword('');
+        setTimeout(() => {
+          setIsChangingPassword(false);
+          setPwdSuccess(null);
+        }, 3000);
+      } else {
+        throw new Error(res.error || 'Failed to update password');
+      }
+    } catch (err: any) {
+      setPwdError(err.message || 'Failed to update password');
+    } finally {
+      setPwdLoading(false);
+    }
+  };
+
+  const handleSendPasswordOtp = async () => {
+    if (pwdCooldown > 0 || !user?.email) return;
+    setPwdError(null);
+    setPwdLoading(true);
+    try {
+      const res = await apiRequest('/api/auth/forgot-password', {
+        method: 'POST',
+        data: { identifier: user.email }
+      });
+      if (res.success) {
+        setPwdOtpSent(true);
+        setPwdCooldown(60);
+        setPwdSuccess(`Verification code dispatched to ${maskedUserEmail}`);
+      } else {
+        throw new Error(res.error || 'Failed to send recovery code');
+      }
+    } catch (err: any) {
+      setPwdError(err.message || 'Failed to send recovery code');
+    } finally {
+      setPwdLoading(false);
+    }
+  };
+
+  const handleChangePasswordOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPwdError(null);
+    setPwdSuccess(null);
+
+    if (pwdOtp.trim().length !== 6) {
+      setPwdError('Please enter the 6-digit verification code');
+      return;
+    }
+    if (newPassword.length < 6) {
+      setPwdError('New password must be at least 6 characters');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setPwdError('New passwords do not match');
+      return;
+    }
+
+    setPwdLoading(true);
+    try {
+      const res = await apiRequest('/api/auth/reset-password', {
+        method: 'POST',
+        data: {
+          email: user?.email,
+          otp: pwdOtp.trim(),
+          newPassword
+        }
+      });
+      if (res.success) {
+        setPwdSuccess('Your password has been successfully reset via OTP!');
+        setPwdOtp('');
+        setNewPassword('');
+        setConfirmPassword('');
+        setPwdOtpSent(false);
+        setTimeout(() => {
+          setIsChangingPassword(false);
+          setPwdSuccess(null);
+        }, 3000);
+      } else {
+        throw new Error(res.error || 'Failed to reset password');
+      }
+    } catch (err: any) {
+      setPwdError(err.message || 'Failed to reset password');
+    } finally {
+      setPwdLoading(false);
+    }
+  };
+
+  // Handlers for Delete Account
+  const handleSendDeleteOtp = async () => {
+    if (deleteCooldown > 0) return;
+    setDeleteError(null);
+    setDeleteLoading(true);
+    try {
+      const res = await apiRequest('/api/users/request-delete-otp', {
+        method: 'POST'
+      });
+      if (res.success) {
+        setDeleteOtpSent(true);
+        setDeleteCooldown(60);
+      } else {
+        throw new Error(res.error || 'Failed to dispatch deletion code');
+      }
+    } catch (err: any) {
+      setDeleteError(err.message || 'Failed to request deletion code');
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
+  const handleDeleteAccount = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setDeleteError(null);
+
+    if (deleteConfirmUsername.trim().toLowerCase() !== user?.username.toLowerCase()) {
+      setDeleteError(`Please type @${user?.username} exactly to confirm account deletion`);
+      return;
+    }
+
+    if (deleteMode === 'password' && !deletePassword) {
+      setDeleteError('Account password is required');
+      return;
+    }
+
+    if (deleteMode === 'otp' && deleteOtp.trim().length !== 6) {
+      setDeleteError('Please enter the 6-digit email deletion code');
+      return;
+    }
+
+    setDeleteLoading(true);
+    try {
+      const res = await apiRequest('/api/users/account', {
+        method: 'DELETE',
+        data: {
+          password: deleteMode === 'password' ? deletePassword : undefined,
+          otp: deleteMode === 'otp' ? deleteOtp.trim() : undefined
+        }
+      });
+
+      if (res.success) {
+        setIsDeleteModalOpen(false);
+        await logout();
+        navigate('/', { replace: true });
+      } else {
+        throw new Error(res.error || 'Failed to delete account');
+      }
+    } catch (err: any) {
+      setDeleteError(err.message || 'Failed to delete account');
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
 
   // Synchronize initial state when user loads or updates
   useEffect(() => {
@@ -725,6 +955,485 @@ export const ProfilePage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* ========================================================================= */}
+      {/* GITHUB-STYLE DANGER ZONE AT THE BOTTOM                                    */}
+      {/* ========================================================================= */}
+      <div className="rounded-3xl border border-red-500/30 bg-red-950/10 backdrop-blur-xl overflow-hidden shadow-[0_15px_40px_rgba(239,68,68,0.08)] mt-10 sm:mt-14">
+        {/* Header Bar */}
+        <div className="px-6 py-4 border-b border-red-500/20 bg-red-500/5 flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-2.5">
+            <ShieldAlert size={18} className="text-red-400" />
+            <h3 className="text-sm sm:text-base font-bold text-red-400 tracking-tight">Danger Zone</h3>
+          </div>
+          <span className="text-[11px] font-mono text-red-300 bg-red-500/10 border border-red-500/20 px-2.5 py-0.5 rounded-full">
+            Security & Destructive Actions
+          </span>
+        </div>
+
+        <div className="divide-y divide-red-500/15">
+          {/* OPTION 1: CHANGE PASSWORD ROW */}
+          <div className="p-6 sm:p-7 space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h4 className="text-sm sm:text-base font-semibold text-white">Change Account Password</h4>
+                <p className="text-xs text-text-muted mt-0.5 max-w-xl">
+                  Update your current password or reset your credentials using a one-time verification code sent to your registered email.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsChangingPassword(!isChangingPassword);
+                  setPwdError(null);
+                  setPwdSuccess(null);
+                }}
+                className={`px-4 py-2.5 rounded-xl border text-xs font-semibold transition flex items-center gap-2 flex-shrink-0 self-start sm:self-auto ${
+                  isChangingPassword
+                    ? 'bg-white/10 text-white border-white/20'
+                    : 'bg-white/[0.04] text-white hover:bg-white/[0.08] border-white/15'
+                }`}
+              >
+                <KeyRound size={14} />
+                <span>{isChangingPassword ? 'Cancel' : 'Change Password'}</span>
+              </button>
+            </div>
+
+            {/* Expanded Change Password Box */}
+            {isChangingPassword && (
+              <div className="p-5 sm:p-6 rounded-2xl bg-black/40 border border-white/[0.08] space-y-5 animate-fade-in mt-3">
+                {/* Mode Selector */}
+                <div className="flex flex-wrap items-center gap-2 border-b border-white/[0.06] pb-3 text-xs">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPwdMode('standard');
+                      setPwdError(null);
+                      setPwdSuccess(null);
+                    }}
+                    className={`px-3 py-1.5 rounded-lg font-medium transition ${
+                      pwdMode === 'standard'
+                        ? 'bg-accent-blue text-white shadow-md'
+                        : 'text-text-muted hover:text-white'
+                    }`}
+                  >
+                    I Know My Current Password
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPwdMode('otp');
+                      setPwdError(null);
+                      setPwdSuccess(null);
+                    }}
+                    className={`px-3 py-1.5 rounded-lg font-medium transition ${
+                      pwdMode === 'otp'
+                        ? 'bg-accent-blue text-white shadow-md'
+                        : 'text-text-muted hover:text-white'
+                    }`}
+                  >
+                    Forgot Password? Reset via Email OTP
+                  </button>
+                </div>
+
+                {pwdError && (
+                  <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-ping" />
+                    <span>{pwdError}</span>
+                  </div>
+                )}
+
+                {pwdSuccess && (
+                  <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs flex items-center gap-2">
+                    <CheckCircle2 size={15} />
+                    <span>{pwdSuccess}</span>
+                  </div>
+                )}
+
+                {/* MODE A: STANDARD (Current + New) */}
+                {pwdMode === 'standard' && (
+                  <form onSubmit={handleChangePasswordStandard} className="space-y-4 max-w-lg">
+                    <div className="space-y-1.5">
+                      <label className="block text-xs font-semibold text-text-secondary">Current Password</label>
+                      <div className="relative">
+                        <input
+                          type={showCurrentPassword ? 'text' : 'password'}
+                          required
+                          placeholder="Enter current password"
+                          value={currentPassword}
+                          onChange={(e) => setCurrentPassword(e.target.value)}
+                          className="w-full pl-10 pr-11 py-2.5 bg-white/[0.04] border border-white/[0.08] focus:border-accent-blue rounded-xl text-xs sm:text-sm text-white placeholder:text-text-muted/50 focus:outline-none transition"
+                        />
+                        <Lock size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" />
+                        <button
+                          type="button"
+                          onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                          className="absolute right-3.5 top-1/2 -translate-y-1/2 text-text-muted hover:text-white transition"
+                        >
+                          {showCurrentPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="block text-xs font-semibold text-text-secondary">New Password (min 6 characters)</label>
+                      <div className="relative">
+                        <input
+                          type={showNewPassword ? 'text' : 'password'}
+                          required
+                          placeholder="Enter new password"
+                          value={newPassword}
+                          onChange={(e) => setNewPassword(e.target.value)}
+                          className="w-full pl-10 pr-11 py-2.5 bg-white/[0.04] border border-white/[0.08] focus:border-accent-blue rounded-xl text-xs sm:text-sm text-white placeholder:text-text-muted/50 focus:outline-none transition"
+                        />
+                        <Lock size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" />
+                        <button
+                          type="button"
+                          onClick={() => setShowNewPassword(!showNewPassword)}
+                          className="absolute right-3.5 top-1/2 -translate-y-1/2 text-text-muted hover:text-white transition"
+                        >
+                          {showNewPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="block text-xs font-semibold text-text-secondary">Confirm New Password</label>
+                      <div className="relative">
+                        <input
+                          type={showNewPassword ? 'text' : 'password'}
+                          required
+                          placeholder="Confirm new password"
+                          value={confirmPassword}
+                          onChange={(e) => setConfirmPassword(e.target.value)}
+                          className="w-full pl-10 pr-4 py-2.5 bg-white/[0.04] border border-white/[0.08] focus:border-accent-blue rounded-xl text-xs sm:text-sm text-white placeholder:text-text-muted/50 focus:outline-none transition"
+                        />
+                        <Lock size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" />
+                      </div>
+                    </div>
+
+                    <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setPwdMode('otp');
+                          setPwdError(null);
+                        }}
+                        className="text-[11px] text-accent-blue hover:underline"
+                      >
+                        Forgot your current password?
+                      </button>
+                      <button
+                        type="submit"
+                        disabled={pwdLoading || !currentPassword || !newPassword || !confirmPassword}
+                        className="px-5 py-2.5 rounded-xl bg-white/10 hover:bg-accent-blue text-white font-bold text-xs disabled:opacity-40 transition flex items-center gap-2"
+                      >
+                        {pwdLoading ? <Loader2 size={13} className="animate-spin" /> : <Check size={13} />}
+                        <span>Update Password</span>
+                      </button>
+                    </div>
+                  </form>
+                )}
+
+                {/* MODE B: FORGOT PASSWORD RESET VIA OTP */}
+                {pwdMode === 'otp' && (
+                  <div className="space-y-4 max-w-lg">
+                    <p className="text-xs text-text-muted leading-relaxed">
+                      We'll send a 6-digit recovery code to your registered email (<span className="text-white font-mono">{maskedUserEmail}</span>).
+                    </p>
+
+                    {!pwdOtpSent ? (
+                      <button
+                        type="button"
+                        onClick={handleSendPasswordOtp}
+                        disabled={pwdLoading || pwdCooldown > 0}
+                        className="px-5 py-2.5 rounded-xl gradient-brand text-white font-semibold text-xs transition flex items-center gap-2 disabled:opacity-50"
+                      >
+                        {pwdLoading ? <Loader2 size={14} className="animate-spin" /> : <Mail size={14} />}
+                        <span>{pwdCooldown > 0 ? `Resend in ${pwdCooldown}s` : 'Send Verification Code to My Email'}</span>
+                      </button>
+                    ) : (
+                      <form onSubmit={handleChangePasswordOtp} className="space-y-4">
+                        <div className="space-y-1.5">
+                          <div className="flex items-center justify-between">
+                            <label className="block text-xs font-semibold text-text-secondary">6-Digit Email Code</label>
+                            <button
+                              type="button"
+                              onClick={handleSendPasswordOtp}
+                              disabled={pwdCooldown > 0}
+                              className="text-[11px] font-mono text-accent-blue hover:underline disabled:text-text-muted/50"
+                            >
+                              {pwdCooldown > 0 ? `Resend in ${pwdCooldown}s` : 'Resend Code'}
+                            </button>
+                          </div>
+                          <input
+                            type="text"
+                            required
+                            maxLength={6}
+                            placeholder="123456"
+                            value={pwdOtp}
+                            onChange={(e) => setPwdOtp(e.target.value.replace(/\D/g, ''))}
+                            className="w-full px-4 py-2.5 bg-white/[0.04] border border-white/[0.08] focus:border-accent-blue rounded-xl font-mono text-center tracking-[0.3em] text-sm text-accent-blue font-bold focus:outline-none"
+                          />
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <label className="block text-xs font-semibold text-text-secondary">New Password (min 6 chars)</label>
+                          <input
+                            type="password"
+                            required
+                            placeholder="Enter new password"
+                            value={newPassword}
+                            onChange={(e) => setNewPassword(e.target.value)}
+                            className="w-full px-4 py-2.5 bg-white/[0.04] border border-white/[0.08] focus:border-accent-blue rounded-xl text-xs sm:text-sm text-white focus:outline-none"
+                          />
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <label className="block text-xs font-semibold text-text-secondary">Confirm New Password</label>
+                          <input
+                            type="password"
+                            required
+                            placeholder="Confirm new password"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            className="w-full px-4 py-2.5 bg-white/[0.04] border border-white/[0.08] focus:border-accent-blue rounded-xl text-xs sm:text-sm text-white focus:outline-none"
+                          />
+                        </div>
+
+                        <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+                          <button
+                            type="button"
+                            onClick={() => setPwdMode('standard')}
+                            className="text-[11px] text-text-muted hover:text-white"
+                          >
+                            Cancel & verify with current password
+                          </button>
+                          <button
+                            type="submit"
+                            disabled={pwdLoading || pwdOtp.length !== 6 || !newPassword || !confirmPassword}
+                            className="px-5 py-2.5 rounded-xl gradient-brand text-white font-bold text-xs disabled:opacity-40 transition flex items-center gap-2"
+                          >
+                            {pwdLoading ? <Loader2 size={13} className="animate-spin" /> : <Check size={13} />}
+                            <span>Verify OTP & Update Password</span>
+                          </button>
+                        </div>
+                      </form>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* OPTION 2: DELETE ACCOUNT ROW */}
+          <div className="p-6 sm:p-7 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-red-500/[0.02]">
+            <div>
+              <h4 className="text-sm sm:text-base font-semibold text-red-300">Delete Account</h4>
+              <p className="text-xs text-text-muted mt-0.5 max-w-xl">
+                Permanently remove your personal account, your silhouette identity, and any hosted watch parties. Once deleted, your account cannot be recovered.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setIsDeleteModalOpen(true);
+                setDeleteError(null);
+                setDeleteConfirmUsername('');
+                setDeletePassword('');
+                setDeleteOtp('');
+                setDeleteOtpSent(false);
+              }}
+              className="px-4 py-2.5 rounded-xl bg-red-500/20 hover:bg-red-500 text-red-300 hover:text-white border border-red-500/30 text-xs font-bold transition flex items-center gap-2 flex-shrink-0 self-start sm:self-auto shadow-lg shadow-red-500/10 active:scale-95"
+            >
+              <Trash2 size={14} />
+              <span>Delete Account</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* ========================================================================= */}
+      {/* DELETE ACCOUNT MODAL WITH 3D CLOUD-BLOB MASCOT (WORRIED EMOTION)          */}
+      {/* ========================================================================= */}
+      {isDeleteModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in overflow-y-auto">
+          <div className="relative w-full max-w-lg rounded-3xl p-6 sm:p-8 bg-[#0d070b] border border-red-500/35 shadow-[0_25px_60px_rgba(239,68,68,0.25)] space-y-5 overflow-hidden my-auto">
+            {/* Close Button */}
+            <button
+              type="button"
+              onClick={() => setIsDeleteModalOpen(false)}
+              className="absolute top-5 right-5 p-2 text-text-muted hover:text-white rounded-xl bg-white/[0.04] transition"
+            >
+              <X size={16} />
+            </button>
+
+            {/* 3D Cloud-Blob Companion Mascot with Worried Expression */}
+            <div className="flex flex-col items-center justify-center pt-2">
+              <Interactive3DBlob state="error" size={170} showReactionBubble={false} />
+              <h3 className="text-xl font-bold text-red-400 mt-2 text-center">
+                Permanently Delete Account?
+              </h3>
+              <p className="text-xs text-text-muted text-center mt-1 max-w-sm">
+                We're really sad to see you go. This will immediately wipe your profile, avatar persona, and cancel any watch parties you host.
+              </p>
+            </div>
+
+            {deleteError && (
+              <div className="p-3 rounded-xl bg-red-500/15 border border-red-500/30 text-red-400 text-xs flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-ping flex-shrink-0" />
+                <span>{deleteError}</span>
+              </div>
+            )}
+
+            {/* Verification Mode Toggle */}
+            <div className="flex flex-wrap items-center gap-2 border-b border-white/[0.06] pb-3 text-xs">
+              <button
+                type="button"
+                onClick={() => {
+                  setDeleteMode('password');
+                  setDeleteError(null);
+                }}
+                className={`px-3 py-1.5 rounded-lg font-medium transition ${
+                  deleteMode === 'password'
+                    ? 'bg-red-500 text-white shadow-md'
+                    : 'text-text-muted hover:text-white'
+                }`}
+              >
+                Verify with Password
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setDeleteMode('otp');
+                  setDeleteError(null);
+                }}
+                className={`px-3 py-1.5 rounded-lg font-medium transition ${
+                  deleteMode === 'otp'
+                    ? 'bg-red-500 text-white shadow-md'
+                    : 'text-text-muted hover:text-white'
+                }`}
+              >
+                Forgot Password? Verify via OTP
+              </button>
+            </div>
+
+            <form onSubmit={handleDeleteAccount} className="space-y-4">
+              {/* Mode 1: Password */}
+              {deleteMode === 'password' && (
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-text-secondary">
+                    Your Current Password <span className="text-red-400">*</span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showDeletePassword ? 'text' : 'password'}
+                      required
+                      placeholder="Enter your account password"
+                      value={deletePassword}
+                      onChange={(e) => setDeletePassword(e.target.value)}
+                      className="w-full pl-10 pr-11 py-2.5 bg-white/[0.04] border border-white/[0.08] focus:border-red-500 rounded-xl text-xs sm:text-sm text-white focus:outline-none transition"
+                    />
+                    <Lock size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" />
+                    <button
+                      type="button"
+                      onClick={() => setShowDeletePassword(!showDeletePassword)}
+                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-text-muted hover:text-white transition"
+                    >
+                      {showDeletePassword ? <EyeOff size={14} /> : <Eye size={14} />}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Mode 2: Email OTP */}
+              {deleteMode === 'otp' && (
+                <div className="space-y-3">
+                  {!deleteOtpSent ? (
+                    <div className="space-y-2">
+                      <p className="text-xs text-text-muted">
+                        Request a 6-digit deletion code to your email: <span className="text-white font-mono">{maskedUserEmail}</span>
+                      </p>
+                      <button
+                        type="button"
+                        onClick={handleSendDeleteOtp}
+                        disabled={deleteLoading || deleteCooldown > 0}
+                        className="px-4 py-2 rounded-xl bg-red-500/20 text-red-300 hover:bg-red-500 hover:text-white border border-red-500/30 text-xs font-semibold transition flex items-center gap-2"
+                      >
+                        {deleteLoading ? <Loader2 size={13} className="animate-spin" /> : <Mail size={13} />}
+                        <span>{deleteCooldown > 0 ? `Resend in ${deleteCooldown}s` : 'Send Deletion Code'}</span>
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <label className="block text-xs font-semibold text-text-secondary">6-Digit Deletion Code</label>
+                        <button
+                          type="button"
+                          onClick={handleSendDeleteOtp}
+                          disabled={deleteCooldown > 0}
+                          className="text-[11px] font-mono text-red-400 hover:underline disabled:text-text-muted/50"
+                        >
+                          {deleteCooldown > 0 ? `Resend in ${deleteCooldown}s` : 'Resend Code'}
+                        </button>
+                      </div>
+                      <input
+                        type="text"
+                        required
+                        maxLength={6}
+                        placeholder="123456"
+                        value={deleteOtp}
+                        onChange={(e) => setDeleteOtp(e.target.value.replace(/\D/g, ''))}
+                        className="w-full px-4 py-2.5 bg-white/[0.04] border border-white/[0.08] focus:border-red-500 rounded-xl font-mono text-center tracking-[0.3em] text-sm text-red-400 font-bold focus:outline-none"
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* GitHub-style confirmation text input */}
+              <div className="space-y-1.5 pt-1">
+                <label className="block text-xs font-semibold text-text-secondary">
+                  To confirm deletion, type <strong className="text-red-400 font-mono">@{user?.username}</strong> below:
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder={`@${user?.username}`}
+                  value={deleteConfirmUsername}
+                  onChange={(e) => setDeleteConfirmUsername(e.target.value)}
+                  className="w-full px-4 py-2.5 bg-white/[0.04] border border-white/[0.08] focus:border-red-500 rounded-xl text-xs sm:text-sm font-mono text-white placeholder:text-text-muted/40 focus:outline-none transition"
+                />
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-white/[0.08]">
+                <button
+                  type="button"
+                  onClick={() => setIsDeleteModalOpen(false)}
+                  className="px-4 py-2.5 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] text-text-muted hover:text-white text-xs font-semibold transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={
+                    deleteLoading ||
+                    deleteConfirmUsername.trim().toLowerCase() !== user?.username.toLowerCase() ||
+                    (deleteMode === 'password' && !deletePassword) ||
+                    (deleteMode === 'otp' && deleteOtp.trim().length !== 6)
+                  }
+                  className="px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs shadow-lg shadow-red-600/30 transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2"
+                >
+                  {deleteLoading ? <Loader2 size={13} className="animate-spin" /> : <Trash2 size={13} />}
+                  <span>Permanently Delete Account</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
+

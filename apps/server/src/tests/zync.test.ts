@@ -315,4 +315,38 @@ describe('Zync Full Suite Verification', () => {
       expect(host.role).toBe(Role.MODERATOR);
     });
   });
+
+  describe('6. Password Recovery & Account Deletion OTP Lifecycle', () => {
+    const testEmail = 'recovery_test@zync.live';
+
+    it('should store and verify action OTP for password reset', async () => {
+      const { storeActionOtp, verifyActionOtp } = await import('../utils/otp');
+      await storeActionOtp('reset', testEmail, '987654', { username: 'testuser' });
+
+      // Incorrect OTP should fail
+      const badAttempt = await verifyActionOtp('reset', testEmail, '000000');
+      expect(badAttempt.success).toBe(false);
+
+      // Correct OTP should succeed
+      const goodAttempt = await verifyActionOtp('reset', testEmail, '987654');
+      expect(goodAttempt.success).toBe(true);
+      expect(goodAttempt.metadata?.username).toBe('testuser');
+    });
+
+    it('should enforce cooldown for action OTP requests', async () => {
+      const { storeActionOtp, isActionOtpInCooldown } = await import('../utils/otp');
+      await storeActionOtp('delete', testEmail, '123123');
+
+      const cooldown = await isActionOtpInCooldown('delete', testEmail);
+      expect(cooldown.inCooldown).toBe(true);
+      expect(cooldown.remainingSeconds).toBeGreaterThan(0);
+    });
+
+    it('should reject password change with short new password', async () => {
+      await expect(
+        usersService.changePassword('user_id_xyz', 'oldPass123', '123')
+      ).rejects.toThrow('at least 6 characters');
+    });
+  });
 });
+

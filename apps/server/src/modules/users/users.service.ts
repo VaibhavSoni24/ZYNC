@@ -2,6 +2,14 @@ import bcrypt from 'bcryptjs';
 import { prisma } from '../../config/prisma';
 import { UserDto } from '@zync/shared';
 import { logger } from '../../utils/logger';
+import {
+  generateNumericOtp,
+  storeActionOtp,
+  verifyActionOtp,
+  isActionOtpInCooldown
+} from '../../utils/otp';
+import { sendEmail, generateAccountDeletionOtpEmailHtml } from '../../utils/brevo';
+
 
 function formatUserDto(user: any): UserDto {
   return {
@@ -166,6 +174,124 @@ export class UsersService {
       throw new Error('Failed to update username. Please try again.');
     }
   }
+
+  async changePassword(userId: string, currentPassword: string, newPassword: string) {
+    if (!currentPassword || !newPassword) {
+      throw new Error('Both current password and new password are required.');
+    }
+
+    if (newPassword.length < 6) {
+      throw new Error('New password must be at least 6 characters long.');
+    }
+
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      throw new Error('User account not found.');
+    }
+
+    const isMatch = await bcrypt.compare(currentPassword, user.passwordHash);
+    if (!isMatch) {
+      throw new Error('Incorrect current password. Please try again.');
+    }
+
+    if (currentPassword === newPassword) {
+      throw new Error('New password cannot be identical to your current password.');
+    }
+
+    const passwordHash = await bcrypt.hash(newPassword, 10);
+    await prisma.user.update({
+      where: { id: userId },
+      data: { passwordHash }
+    });
+
+    return {
+      success: true,
+      message: 'Your password has been updated successfully.'
+    };
+  }
+
+  async requestDeleteAccountOtp(userId: string) {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      throw new Error('User not found.');
+    }
+
+    const { inCooldown, remainingSeconds } = await isActionOtpInCooldown('delete', user.email);
+    if (inCooldown) {
+      throw new Error(`Please wait ${remainingSeconds} seconds before requesting another deletion code.`);
+    }
+
+    const otp = generateNumericOtp(6);
+    await storeActionOtp('delete', user.email, otp, { userId: user.id });
+
+    const emailHtml = generateAccountDeletionOtpEmailHtml(otp, user.name || user.username);
+    await sendEmail({
+      toEmail: user.email,
+      toName: user.name || user.username,
+      subject: 'Security Alert: Verification Code to Delete Your Zync Account',
+      htmlContent: emailHtml
+    });
+
+    const maskEmail = (em: string) => {
+      const parts = em.split('@');
+      if (parts.length !== 2) return em;
+      const [local, domain] = parts;
+      if (local.length <= 2) return `${local[0]}*@${domain}`;
+      return `${local[0]}***${local[local.length - 1]}@${domain}`;
+    };
+
+    return {
+      success: true,
+      message: 'Account deletion code sent to your email',
+      maskedEmail: maskEmail(user.email)
+    };
+  }
+
+  async deleteAccount(userId: string, verification: { password?: string; otp?: string }) {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      throw new Error('User not found.');
+    }
+
+    if (verification.password) {
+      const isMatch = await bcrypt.compare(verification.password, user.passwordHash);
+      if (!isMatch) {
+        throw new Error('Incorrect password. Account deletion aborted.');
+      }
+    } else if (verification.otp) {
+      const verifyResult = await verifyActionOtp('delete', user.email, verification.otp);
+      if (!verifyResult.success) {
+        throw new Error(verifyResult.message || 'Invalid or expired deletion verification code.');
+      }
+    } else {
+      throw new Error('Current password or verification code is required to delete your account.');
+    }
+
+    // 1. Delete hosted rooms
+    try {
+      await prisma.room.deleteMany({
+        where: { hostId: userId }
+      });
+    } catch (err: any) {
+      logger.warn('Error deleting hosted rooms for user:', err.message);
+    }
+
+    // 2. Delete user
+    try {
+      await prisma.user.delete({
+        where: { id: userId }
+      });
+    } catch (err: any) {
+      logger.error('Failed to delete user record:', err);
+      throw new Error('Failed to delete account. Please try again.');
+    }
+
+    return {
+      success: true,
+      message: 'Your account and all associated data have been permanently removed.'
+    };
+  }
 }
 
 export const usersService = new UsersService();
+

@@ -6,9 +6,16 @@ import {
   storeOtp,
   verifyOtp,
   isOtpInCooldown,
-  PendingRegistrationData
+  PendingRegistrationData,
+  storeActionOtp,
+  verifyActionOtp,
+  isActionOtpInCooldown
 } from '../../utils/otp';
-import { sendEmail, generateOtpEmailHtml } from '../../utils/brevo';
+import {
+  sendEmail,
+  generateOtpEmailHtml,
+  generatePasswordResetOtpEmailHtml
+} from '../../utils/brevo';
 import { signAccessToken, signRefreshToken } from '../../utils/jwt';
 import { logger } from '../../utils/logger';
 
@@ -262,6 +269,165 @@ export class AuthService {
 
     return null;
   }
+
+  async requestForgotPasswordOtp(identifier: string) {
+    const normalized = identifier.toLowerCase().trim();
+    if (!normalized) {
+      throw new Error('Please enter your username or registered email address.');
+    }
+
+    let user: any;
+    try {
+      user = await prisma.user.findFirst({
+        where: {
+          OR: [
+            { email: { equals: normalized, mode: 'insensitive' } },
+            { username: { equals: normalized, mode: 'insensitive' } }
+          ]
+        }
+      });
+    } catch (err: any) {
+      logger.warn('Prisma findFirst failed in requestForgotPasswordOtp, checking memory store:', err.message);
+      for (const u of inMemoryUsers.values()) {
+        if (u.email.toLowerCase() === normalized || u.username.toLowerCase() === normalized) {
+          user = u;
+          break;
+        }
+      }
+    }
+
+    if (!user) {
+      throw new Error('No account found associated with this username or email address.');
+    }
+
+    const { inCooldown, remainingSeconds } = await isActionOtpInCooldown('reset', user.email);
+    if (inCooldown) {
+      throw new Error(`Please wait ${remainingSeconds} seconds before requesting another reset code.`);
+    }
+
+    const otp = generateNumericOtp(6);
+    await storeActionOtp('reset', user.email, otp, {
+      userId: user.id,
+      username: user.username
+    });
+
+    const emailHtml = generatePasswordResetOtpEmailHtml(otp, user.name || user.username);
+    await sendEmail({
+      toEmail: user.email,
+      toName: user.name || user.username,
+      subject: 'Your Zync Password Reset Code',
+      htmlContent: emailHtml
+    });
+
+    // Helper to mask email for privacy
+    const maskEmail = (em: string) => {
+      const parts = em.split('@');
+      if (parts.length !== 2) return em;
+      const [local, domain] = parts;
+      if (local.length <= 2) return `${local[0]}*@${domain}`;
+      return `${local[0]}***${local[local.length - 1]}@${domain}`;
+    };
+
+    return {
+      message: 'Password reset code sent to your email',
+      email: user.email,
+      maskedEmail: maskEmail(user.email),
+      expiresInMinutes: 10
+    };
+  }
+
+  async resendResetOtp(email: string) {
+    const normalizedEmail = email.toLowerCase().trim();
+    if (!normalizedEmail) {
+      throw new Error('Email address is required to resend verification code.');
+    }
+
+    let user: any;
+    try {
+      user = await prisma.user.findUnique({
+        where: { email: normalizedEmail }
+      });
+    } catch (err: any) {
+      logger.warn('Prisma findUnique fallback in resendResetOtp:', err.message);
+      for (const u of inMemoryUsers.values()) {
+        if (u.email.toLowerCase() === normalizedEmail) {
+          user = u;
+          break;
+        }
+      }
+    }
+
+    if (!user) {
+      throw new Error('No account found with this email address.');
+    }
+
+    const { inCooldown, remainingSeconds } = await isActionOtpInCooldown('reset', normalizedEmail);
+    if (inCooldown) {
+      throw new Error(`Please wait ${remainingSeconds} seconds before requesting a new code.`);
+    }
+
+    const otp = generateNumericOtp(6);
+    await storeActionOtp('reset', normalizedEmail, otp, {
+      userId: user.id,
+      username: user.username
+    });
+
+    const emailHtml = generatePasswordResetOtpEmailHtml(otp, user.name || user.username);
+    await sendEmail({
+      toEmail: normalizedEmail,
+      toName: user.name || user.username,
+      subject: 'Your New Zync Password Reset Code',
+      htmlContent: emailHtml
+    });
+
+    return {
+      message: 'A new password reset code has been dispatched',
+      email: normalizedEmail
+    };
+  }
+
+  async resetPassword(email: string, otp: string, newPassword: string) {
+    const normalizedEmail = email.toLowerCase().trim();
+    if (!normalizedEmail || !otp) {
+      throw new Error('Email and verification code are required.');
+    }
+
+    if (!newPassword || newPassword.length < 6) {
+      throw new Error('New password must be at least 6 characters long.');
+    }
+
+    const result = await verifyActionOtp('reset', normalizedEmail, otp);
+    if (!result.success) {
+      throw new Error(result.message || 'Invalid or expired verification code.');
+    }
+
+    const passwordHash = await bcrypt.hash(newPassword, 10);
+
+    try {
+      await prisma.user.update({
+        where: { email: normalizedEmail },
+        data: { passwordHash }
+      });
+    } catch (err: any) {
+      logger.warn('Prisma resetPassword update fallback:', err.message);
+      let found = false;
+      for (const u of inMemoryUsers.values()) {
+        if (u.email.toLowerCase() === normalizedEmail) {
+          u.passwordHash = passwordHash;
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        throw new Error('User account not found to update password.');
+      }
+    }
+
+    return {
+      message: 'Password has been successfully reset! You can now sign in with your new password.'
+    };
+  }
 }
 
 export const authService = new AuthService();
+

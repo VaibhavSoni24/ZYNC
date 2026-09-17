@@ -106,3 +106,97 @@ export async function verifyOtp(email: string, submittedOtp: string): Promise<{
 
   return { success: true, userData };
 }
+
+export async function storeActionOtp(
+  purpose: 'reset' | 'delete',
+  email: string,
+  otp: string,
+  metadata?: any
+): Promise<void> {
+  const normalizedEmail = email.toLowerCase().trim();
+  const otpKey = `otp:${purpose}:${normalizedEmail}`;
+  const cooldownKey = `otp_cooldown:${purpose}:${normalizedEmail}`;
+  const attemptsKey = `otp_attempts:${purpose}:${normalizedEmail}`;
+  const metaKey = `otp_meta:${purpose}:${normalizedEmail}`;
+
+  await redisClient.set(otpKey, otp, 'EX', OTP_TTL_SECONDS);
+  await redisClient.set(cooldownKey, '1', 'EX', COOLDOWN_SECONDS);
+  await redisClient.set(attemptsKey, '0', 'EX', OTP_TTL_SECONDS);
+
+  if (metadata) {
+    await redisClient.set(metaKey, JSON.stringify(metadata), 'EX', OTP_TTL_SECONDS);
+  }
+
+  logger.info(`Action OTP (${purpose}) stored for ${normalizedEmail} (TTL: ${OTP_TTL_SECONDS}s)`);
+}
+
+export async function isActionOtpInCooldown(
+  purpose: 'reset' | 'delete',
+  email: string
+): Promise<{ inCooldown: boolean; remainingSeconds: number }> {
+  const normalizedEmail = email.toLowerCase().trim();
+  const cooldownKey = `otp_cooldown:${purpose}:${normalizedEmail}`;
+  const ttl = await redisClient.ttl(cooldownKey);
+  if (ttl > 0) {
+    return { inCooldown: true, remainingSeconds: ttl };
+  }
+  return { inCooldown: false, remainingSeconds: 0 };
+}
+
+export async function verifyActionOtp(
+  purpose: 'reset' | 'delete',
+  email: string,
+  submittedOtp: string
+): Promise<{ success: boolean; message?: string; metadata?: any }> {
+  const normalizedEmail = email.toLowerCase().trim();
+  const otpKey = `otp:${purpose}:${normalizedEmail}`;
+  const attemptsKey = `otp_attempts:${purpose}:${normalizedEmail}`;
+  const metaKey = `otp_meta:${purpose}:${normalizedEmail}`;
+
+  const storedOtp = await redisClient.get(otpKey);
+  if (!storedOtp) {
+    return {
+      success: false,
+      message: 'Verification code has expired or was not requested. Please request a new code.'
+    };
+  }
+
+  const attemptsStr = await redisClient.get(attemptsKey);
+  const currentAttempts = attemptsStr ? parseInt(attemptsStr, 10) : 0;
+
+  if (currentAttempts >= MAX_ATTEMPTS) {
+    await redisClient.del(otpKey);
+    await redisClient.del(metaKey);
+    return {
+      success: false,
+      message: 'Too many incorrect attempts. For security, please request a fresh code.'
+    };
+  }
+
+  if (storedOtp !== submittedOtp.trim()) {
+    await redisClient.incr(attemptsKey);
+    const remaining = MAX_ATTEMPTS - (currentAttempts + 1);
+    return {
+      success: false,
+      message: `Incorrect code. ${remaining} attempt${remaining === 1 ? '' : 's'} remaining.`
+    };
+  }
+
+  let metadata: any;
+  const metaRaw = await redisClient.get(metaKey);
+  if (metaRaw) {
+    try {
+      metadata = JSON.parse(metaRaw);
+    } catch {
+      // ignore
+    }
+  }
+
+  // Cleanup
+  await redisClient.del(otpKey);
+  await redisClient.del(attemptsKey);
+  await redisClient.del(metaKey);
+
+  return { success: true, metadata };
+}
+
