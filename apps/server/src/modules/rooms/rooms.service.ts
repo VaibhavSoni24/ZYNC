@@ -2,6 +2,7 @@ import crypto from 'crypto';
 import { prisma } from '../../config/prisma';
 import { RoomDto, RoomVisibility } from '@zync/shared';
 import { logger } from '../../utils/logger';
+import { getSocketServer } from '../../sockets';
 
 // Unambiguous alphanumeric characters (excluding I, 1, O, 0 to prevent user confusion)
 const CODE_CHARS = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
@@ -119,7 +120,31 @@ export class RoomsService {
     return null;
   }
 
+  async deleteRoomByCode(code: string): Promise<boolean> {
+    const normalizedCode = code.toUpperCase().trim();
+    try {
+      await prisma.room.delete({
+        where: { code: normalizedCode }
+      });
+      logger.info(`Deleted empty room from DB: ${normalizedCode}`);
+    } catch (err: any) {
+      // Room might have already been removed or DB fallback used
+      logger.info(`Prisma deleteRoomByCode notice (${normalizedCode}): ${err.message}`);
+    }
+
+    inMemoryRooms.delete(normalizedCode);
+    for (const [key, val] of inMemoryRooms.entries()) {
+      if (val.code === normalizedCode) {
+        inMemoryRooms.delete(key);
+      }
+    }
+    return true;
+  }
+
   async getPublicRooms(filters: { search?: string; language?: string }): Promise<RoomDto[]> {
+    const socketServer = getSocketServer();
+    const now = Date.now();
+
     try {
       const rooms = await prisma.room.findMany({
         where: {
@@ -140,7 +165,24 @@ export class RoomsService {
         take: 50
       });
 
-      return rooms.map(formatRoomDto);
+      const activeRooms: RoomDto[] = [];
+      for (const room of rooms) {
+        const liveCount = socketServer ? socketServer.getParticipantCount(room.code) : 0;
+        const createdAtTime = room.createdAt instanceof Date ? room.createdAt.getTime() : new Date(room.createdAt).getTime();
+        const ageMs = now - createdAtTime;
+
+        // Automatically delete stale empty rooms older than 2 minutes
+        if (liveCount === 0 && ageMs > 2 * 60 * 1000) {
+          this.deleteRoomByCode(room.code).catch(() => {});
+          continue;
+        }
+
+        const dto = formatRoomDto(room);
+        dto.participantCount = liveCount > 0 ? liveCount : (dto.participantCount || 0);
+        activeRooms.push(dto);
+      }
+
+      return activeRooms;
     } catch (err: any) {
       logger.warn('Prisma getPublicRooms fallback to memory store:', err.message);
       const publicList: any[] = [];
@@ -152,10 +194,23 @@ export class RoomsService {
           if (filters.search && !room.name.toLowerCase().includes(filters.search.toLowerCase())) {
             continue;
           }
-          publicList.push(room);
+
+          const liveCount = socketServer ? socketServer.getParticipantCount(room.code) : 0;
+          const createdAtTime = room.createdAt instanceof Date ? room.createdAt.getTime() : new Date(room.createdAt).getTime();
+          const ageMs = now - createdAtTime;
+
+          if (liveCount === 0 && ageMs > 2 * 60 * 1000) {
+            inMemoryRooms.delete(room.code);
+            inMemoryRooms.delete(room.id);
+            continue;
+          }
+
+          const dto = formatRoomDto(room);
+          dto.participantCount = liveCount > 0 ? liveCount : (dto.participantCount || 0);
+          publicList.push(dto);
         }
       }
-      return publicList.map(formatRoomDto);
+      return publicList;
     }
   }
 

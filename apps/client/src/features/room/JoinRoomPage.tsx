@@ -171,9 +171,15 @@ export const JoinRoomPage: React.FC = () => {
                     <span className="text-xs font-mono font-bold text-accent-blue bg-accent-blue/10 px-2 py-0.5 rounded border border-accent-blue/20">
                       {r.code}
                     </span>
-                    <span className="text-[11px] text-text-muted bg-bg-elevated px-2 py-0.5 rounded-full border border-border-subtle">
-                      {r.language}
-                    </span>
+                    <div className="flex items-center gap-1.5">
+                      <span className="flex items-center gap-1 text-[11px] font-medium text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                        <Users size={11} />
+                        {r.participantCount || 1} watching
+                      </span>
+                      <span className="text-[11px] text-text-muted bg-bg-elevated px-2 py-0.5 rounded-full border border-border-subtle">
+                        {r.language}
+                      </span>
+                    </div>
                   </div>
                   <h3 className="font-semibold text-sm text-text-primary group-hover:text-accent-blue transition line-clamp-1">
                     {r.name}

@@ -9,12 +9,16 @@ import { MessageHandler } from './classes/MessageHandler';
 import { roomsService } from '../modules/rooms/rooms.service';
 import { logger } from '../utils/logger';
 
+export let socketServerInstance: SocketServer | null = null;
+export const getSocketServer = (): SocketServer | null => socketServerInstance;
+
 export class SocketServer {
   private io: SocketIOServer;
   private rooms: Map<string, Room> = new Map(); // roomCode -> Room
   private socketToRoomMap: Map<string, string> = new Map(); // socketId -> roomCode
 
   constructor(httpServer: HttpServer) {
+    socketServerInstance = this;
     this.io = new SocketIOServer(httpServer, {
       cors: {
         origin: '*',
@@ -37,6 +41,15 @@ export class SocketServer {
 
     this.setupListeners();
     this.startPeriodicSync();
+  }
+
+  public getParticipantCount(roomCode: string): number {
+    const normalized = roomCode.toUpperCase().trim();
+    return this.rooms.get(normalized)?.getParticipantCount() || 0;
+  }
+
+  public getActiveRoomCodes(): string[] {
+    return Array.from(this.rooms.keys());
   }
 
   private setupListeners(): void {
@@ -141,19 +154,19 @@ export class SocketServer {
 
       // Leave room lifecycle
       socket.on(SOCKET_EVENTS.LEAVE_ROOM, () => {
-        this.handleDisconnect(socket);
+        this.handleDisconnect(socket, true);
         currentRoom = undefined;
         currentParticipant = undefined;
       });
 
       socket.on('disconnect', () => {
         logger.info(`Socket disconnected: ${socket.id}`);
-        this.handleDisconnect(socket);
+        this.handleDisconnect(socket, false);
       });
     });
   }
 
-  private handleDisconnect(socket: Socket): void {
+  private handleDisconnect(socket: Socket, isExplicitLeave: boolean = false): void {
     const roomCode = this.socketToRoomMap.get(socket.id);
     if (!roomCode) return;
 
@@ -169,14 +182,28 @@ export class SocketServer {
         username: removed.username
       });
 
-      // If room is empty, we keep it active in memory for 30 minutes before pruning
+      // If room is empty, delete it
       if (room.getParticipantCount() === 0) {
-        setTimeout(() => {
-          if (this.rooms.get(roomCode)?.getParticipantCount() === 0) {
-            this.rooms.delete(roomCode);
-            logger.info(`Pruned idle empty room: ${roomCode}`);
-          }
-        }, 30 * 60 * 1000);
+        if (isExplicitLeave) {
+          // Explicit leave: delete immediately from memory and database
+          this.rooms.delete(roomCode);
+          roomsService.deleteRoomByCode(roomCode).catch((err) => {
+            logger.warn(`Failed to delete empty room ${roomCode}:`, err);
+          });
+          logger.info(`Deleted empty room on explicit leave: ${roomCode}`);
+        } else {
+          // Socket disconnect (e.g. reload or temporary network drop): 15s grace period
+          setTimeout(() => {
+            const current = this.rooms.get(roomCode);
+            if (!current || current.getParticipantCount() === 0) {
+              this.rooms.delete(roomCode);
+              roomsService.deleteRoomByCode(roomCode).catch((err) => {
+                logger.warn(`Failed to delete empty room ${roomCode}:`, err);
+              });
+              logger.info(`Deleted empty room after grace period: ${roomCode}`);
+            }
+          }, 15000);
+        }
       }
     }
   }
