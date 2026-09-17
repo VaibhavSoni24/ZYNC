@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useAnimationControls } from 'framer-motion';
 
 export type MascotState = 'idle' | 'typing' | 'password' | 'success' | 'error' | 'yawn' | 'pet';
 export type MascotEmotionState = MascotState;
@@ -47,9 +47,10 @@ export const Interactive3DBlob: React.FC<Interactive3DBlobProps> = ({
   const [blink, setBlink] = useState(false);
   const [pupilPos, setPupilPos] = useState({ x: 0, y: 0 });
   const [bubbleText, setBubbleText] = useState(STATE_MESSAGES.idle[0]);
-  const [petSquish, setPetSquish] = useState(0);
   const [particles, setParticles] = useState<PetParticle[]>([]);
 
+  const squishControls = useAnimationControls();
+  const lastBubbleTime = useRef(0);
   const blobRef = useRef<HTMLDivElement | null>(null);
   const targetPupil = useRef({ x: 0, y: 0 });
   const currentPupil = useRef({ x: 0, y: 0 });
@@ -178,22 +179,42 @@ export const Interactive3DBlob: React.FC<Interactive3DBlobProps> = ({
     }
     lastActiveTime.current = Date.now();
     setInternalState('pet');
-    setPetSquish(prev => prev + 1);
 
-    // Pick a cute appreciation message
-    const petMsgs = STATE_MESSAGES.pet;
-    const randomMsg = petMsgs[Math.floor(Math.random() * petMsgs.length)];
-    setBubbleText(randomMsg);
+    // Smooth head-pat squish physics on the existing element - zero lag, no unmounting!
+    squishControls.start({
+      scaleY: [0.89, 1.05, 0.98, 1],
+      scaleX: [1.07, 0.96, 1.02, 1],
+      y: [5, -2, 1, 0],
+      transition: { duration: 0.4, ease: 'easeOut' }
+    });
 
-    // Spawn 3 floating cute particles above the cloud head
+    // Pick a cute appreciation message (throttled to avoid stuttering on spam click)
+    const now = Date.now();
+    if (now - lastBubbleTime.current > 1200) {
+      lastBubbleTime.current = now;
+      const petMsgs = STATE_MESSAGES.pet;
+      const randomMsg = petMsgs[Math.floor(Math.random() * petMsgs.length)];
+      setBubbleText(randomMsg);
+    }
+
+    // Spawn floating cute particles (capped so spamming doesn't lag)
     const icons = ['❤️', '💖', '✨', '🥰', '💕', '☁️'];
-    const newParticles: PetParticle[] = Array.from({ length: 3 }).map((_, i) => ({
-      id: Date.now() + Math.random() + i,
-      x: (Math.random() - 0.5) * 110,
-      y: (Math.random() - 0.5) * 20 - 15,
-      icon: icons[Math.floor(Math.random() * icons.length)],
-      size: 18 + Math.floor(Math.random() * 8)
-    }));
+    const newParticles: PetParticle[] = [
+      {
+        id: now + Math.random(),
+        x: (Math.random() - 0.5) * 100,
+        y: -10 - Math.random() * 15,
+        icon: icons[Math.floor(Math.random() * icons.length)],
+        size: 18 + Math.floor(Math.random() * 8)
+      },
+      {
+        id: now + Math.random() + 1,
+        x: (Math.random() - 0.5) * 100,
+        y: -10 - Math.random() * 15,
+        icon: icons[Math.floor(Math.random() * icons.length)],
+        size: 18 + Math.floor(Math.random() * 8)
+      }
+    ];
 
     setParticles(prev => [...prev.slice(-6), ...newParticles]);
 
@@ -370,12 +391,10 @@ export const Interactive3DBlob: React.FC<Interactive3DBlobProps> = ({
             times: [0, 0.5, 1]
           }}
         >
-          {/* SQUISH & BOUNCE HEAD-PAT DEFORMATION */}
+          {/* SQUISH & BOUNCE HEAD-PAT DEFORMATION (Continuous in-place physics, no unmounting) */}
           <motion.div
-            key={`squish-${petSquish}`}
-            initial={petSquish > 0 ? { scaleY: 0.88, scaleX: 1.08, y: 5 } : false}
-            animate={{ scaleY: 1, scaleX: 1, y: 0 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+            animate={squishControls}
+            style={{ transformOrigin: 'center bottom' }}
           >
             <svg
               viewBox="0 0 260 180"
