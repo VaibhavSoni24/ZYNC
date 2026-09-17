@@ -186,3 +186,43 @@ body {
   animation: pageEnter 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+/* 3D Falling Snowfall Animation for Home Page Background */
+@keyframes snowfallDown {
+  0% {
+    top: -120px;
+    opacity: 0;
+  }
+  6% {
+    opacity: var(--target-opacity, 0.45);
+  }
+  92% {
+    opacity: var(--target-opacity, 0.45);
+  }
+  100% {
+    top: calc(100% + 90px);
+    opacity: 0;
+  }
+}
+
+@keyframes swayAndTumble {
+  0% {
+    transform: translateX(0px) rotateX(0deg) rotateY(0deg) rotateZ(0deg);
+  }
+  33% {
+    transform: translateX(var(--sway-x, 24px)) rotateX(120deg) rotateY(100deg) rotateZ(60deg);
+  }
+  66% {
+    transform: translateX(calc(-1 * var(--sway-x, 24px))) rotateX(240deg) rotateY(210deg) rotateZ(180deg);
+  }
+  100% {
+    transform: translateX(0px) rotateX(360deg) rotateY(360deg) rotateZ(360deg);
+  }
+}
+
+.animate-falling-3d {
+  animation: snowfallDown var(--fall-duration, 18s) linear var(--fall-delay, 0s) infinite,
+             swayAndTumble var(--spin-duration, 12s) ease-in-out infinite;
+  will-change: top, transform, opacity;
+}
+
+

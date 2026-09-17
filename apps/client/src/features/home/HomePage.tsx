@@ -142,7 +142,7 @@ export const HomePage: React.FC = () => {
             Watch Together in <span className="gradient-brand-text font-black">Perfect Sync</span>
           </h2>
           <p className="text-sm sm:text-base text-gray-300 mt-2.5 leading-relaxed">
-            Zync locks every play, pause, seek, and buffer across all screens in real-time. Experience videos with friends as if you're sitting on the same couch — zero phase lag, live theater chat, and expressive floating emoji bursts.
+            Zync locks every play, pause, seek, and buffer across all screens in real-time. Experience videos with friends as if you're sitting on the same couch - zero phase lag, live theater chat, and expressive floating emoji bursts.
           </p>
         </div>
 
