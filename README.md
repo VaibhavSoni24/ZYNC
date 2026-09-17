@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="logo.png" width="100" height="100" alt="Zync Logo" style="border-radius: 20px;" />
+  <img src="./logo.png" width="100" height="100" alt="Zync Logo" style="border-radius: 20px;" />
   <h1>Zync</h1>
   <p><strong>Watch Together, Perfectly in Sync</strong></p>
   <p>
@@ -7,7 +7,6 @@
   </p>
   <p>
     <a href="https://zync-watch-party.vercel.app" target="_blank"><strong>🌐 Live Web App</strong></a> •
-    <a href="https://zync-server-zt02.onrender.com/api/health" target="_blank"><strong>⚡ API Health</strong></a> •
     <a href="#demo--screenshots"><strong>📸 Screenshots</strong></a> •
     <a href="#quick-start"><strong>🚀 Quick Start</strong></a>
   </p>
