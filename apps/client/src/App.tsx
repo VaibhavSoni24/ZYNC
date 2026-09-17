@@ -4,6 +4,7 @@ import { useAuthStore } from './store/useAuthStore';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
 import { SmokeShaderBackground } from './components/Background/SmokeShaderBackground';
+import { Floating3DShapes } from './components/Background/Floating3DShapes';
 import { PageTransition } from './components/Navigation/PageTransition';
 
 // Feature Pages
@@ -54,6 +55,8 @@ export const App: React.FC = () => {
       <div className="min-h-screen flex flex-col bg-transparent text-text-primary relative selection:bg-accent-blue/30 selection:text-white">
         {/* Global 60FPS WebGL Smoke Shader Background for ALL pages */}
         <SmokeShaderBackground />
+        {/* Global 3D Snowfall & Tumbling Glass Shapes for ALL pages */}
+        <Floating3DShapes />
 
         <Navbar />
         <main className="flex-1 relative z-10">

@@ -332,7 +332,7 @@ const FALLING_SHAPES: FallingShape[] = [
 export const Floating3DShapes: React.FC = () => {
   return (
     <div
-      className="pointer-events-none absolute inset-0 overflow-hidden -z-10 select-none"
+      className="pointer-events-none fixed inset-0 overflow-hidden z-0 select-none"
       style={{ perspective: '1200px' }}
     >
       {FALLING_SHAPES.map((shape, idx) => {

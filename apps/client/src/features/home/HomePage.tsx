@@ -15,7 +15,6 @@ import {
 } from 'lucide-react';
 import { useAuthStore } from '../../store/useAuthStore';
 import { AvatarIcon } from '../../assets/avatars';
-import { Floating3DShapes } from '../../components/Background/Floating3DShapes';
 import { RoomDto } from '@zync/shared';
 import { apiRequest } from '../../lib/api';
 
@@ -44,8 +43,6 @@ export const HomePage: React.FC = () => {
 
   return (
     <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-10 py-6 sm:py-10 space-y-12">
-      {/* Dedicated Floating 3D Shapes Layer for HomePage */}
-      <Floating3DShapes />
 
       {/* Background Ambient Radial Glow Orbs */}
       <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[850px] h-[380px] bg-gradient-to-r from-accent-blue/15 via-accent-purple/20 to-accent-blue/10 blur-[130px] pointer-events-none -z-10" />
