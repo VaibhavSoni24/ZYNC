@@ -59,10 +59,7 @@ export const Interactive3DBlob: React.FC<Interactive3DBlobProps> = ({
 
   // Sync external state changes
   useEffect(() => {
-    // Only overwrite if not in the middle of petting
-    if (internalState !== 'pet') {
-      setInternalState(externalState);
-    }
+    setInternalState(prev => (prev === 'pet' ? 'pet' : externalState));
     lastActiveTime.current = Date.now();
   }, [externalState]);
 
@@ -79,17 +76,15 @@ export const Interactive3DBlob: React.FC<Interactive3DBlobProps> = ({
   useEffect(() => {
     const resetTimer = () => {
       lastActiveTime.current = Date.now();
-      if (internalState === 'yawn') {
-        setInternalState('idle');
-      }
+      setInternalState(prev => (prev === 'yawn' ? 'idle' : prev));
     };
 
     const interval = setInterval(() => {
       // Only yawn if currently in idle state and no activity for > 45 seconds
-      if (externalState === 'idle' && internalState === 'idle') {
+      if (externalState === 'idle') {
         const elapsed = Date.now() - lastActiveTime.current;
         if (elapsed >= 45000) {
-          setInternalState('yawn');
+          setInternalState(prev => (prev === 'idle' ? 'yawn' : prev));
         }
       }
     }, 3000);
@@ -106,7 +101,7 @@ export const Interactive3DBlob: React.FC<Interactive3DBlobProps> = ({
       window.removeEventListener('click', resetTimer);
       window.removeEventListener('scroll', resetTimer);
     };
-  }, [externalState, internalState]);
+  }, [externalState]);
 
   // Natural blinking effect (except during password, yawn, or pet)
   useEffect(() => {
@@ -177,7 +172,10 @@ export const Interactive3DBlob: React.FC<Interactive3DBlobProps> = ({
   }, [activeState]);
 
   // Handle head-pat / petting click interaction
-  const handlePet = () => {
+  const handlePet = (e?: React.MouseEvent) => {
+    if (e) {
+      e.stopPropagation();
+    }
     lastActiveTime.current = Date.now();
     setInternalState('pet');
     setPetSquish(prev => prev + 1);
