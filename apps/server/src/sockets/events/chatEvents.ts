@@ -20,6 +20,16 @@ export function handleSendChat(
     return;
   }
 
+  // Rate limit: 1 message per second to prevent spam and server overload
+  const now = Date.now();
+  if (now - participant.lastChatTimestamp < 1000) {
+    participant.socket.emit(SOCKET_EVENTS.ERROR, {
+      message: 'Slow down! You can send 1 message per second.'
+    });
+    return;
+  }
+  participant.lastChatTimestamp = now;
+
   if (message.length > 500) {
     participant.socket.emit(SOCKET_EVENTS.ERROR, { message: 'Message is too long (max 500 characters)' });
     return;

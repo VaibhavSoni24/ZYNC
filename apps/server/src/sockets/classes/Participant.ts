@@ -10,6 +10,7 @@ export class Participant {
   public joinedAt: number;
   public hasRequestedControl: boolean = false;
   public lastReactionTimestamp: number = 0;
+  public lastChatTimestamp: number = 0;
 
   constructor(params: {
     socket: Socket;
