@@ -114,18 +114,34 @@ interface SearchableLanguageSelectProps {
   value: string;
   onChange: (languageName: string) => void;
   disabled?: boolean;
+  includeAllOption?: boolean;
+  allOptionLabel?: string;
+  placeholder?: string;
+  className?: string;
 }
 
 export const SearchableLanguageSelect: React.FC<SearchableLanguageSelectProps> = ({
   value,
   onChange,
-  disabled = false
+  disabled = false,
+  includeAllOption = false,
+  allOptionLabel = 'All Languages',
+  placeholder = 'Search...',
+  className = ''
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [openUpward, setOpenUpward] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const containerRef = useRef<HTMLDivElement | null>(null);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
+
+  const allLanguagesList = useMemo(() => {
+    if (!includeAllOption) return WORLD_LANGUAGES;
+    return [
+      { code: 'all', name: allOptionLabel, native: 'Any' },
+      ...WORLD_LANGUAGES
+    ];
+  }, [includeAllOption, allOptionLabel]);
 
   // Auto-detect whether to open upwards or downwards based on viewport space
   useEffect(() => {
@@ -177,33 +193,33 @@ export const SearchableLanguageSelect: React.FC<SearchableLanguageSelectProps> =
   // Filter languages
   const filteredLanguages = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
-    if (!query) return WORLD_LANGUAGES;
-    return WORLD_LANGUAGES.filter(
+    if (!query) return allLanguagesList;
+    return allLanguagesList.filter(
       (lang) =>
         lang.name.toLowerCase().includes(query) ||
         lang.native.toLowerCase().includes(query) ||
         lang.code.toLowerCase().includes(query)
     );
-  }, [searchQuery]);
+  }, [searchQuery, allLanguagesList]);
 
-  const selectedOption = WORLD_LANGUAGES.find((lang) => lang.name === value) || {
-    code: 'en',
-    name: value || 'English',
-    native: 'English'
+  const selectedOption = allLanguagesList.find((lang) => lang.name === value) || {
+    code: includeAllOption ? 'all' : 'en',
+    name: value || (includeAllOption ? allOptionLabel : 'English'),
+    native: includeAllOption ? 'Any' : 'English'
   };
 
   return (
-    <div ref={containerRef} className="relative w-full">
+    <div ref={containerRef} className={`relative w-full ${className}`}>
       {/* Trigger Button */}
       <button
         type="button"
         disabled={disabled}
         onClick={() => setIsOpen((prev) => !prev)}
-        className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl bg-white/[0.04] border ${
+        className={`w-full flex items-center justify-between px-4 py-2.5 rounded-2xl bg-white/[0.04] border ${
           isOpen
             ? 'border-accent-blue ring-2 ring-accent-blue/20 bg-white/[0.07]'
             : 'border-white/[0.08] hover:border-white/20 hover:bg-white/[0.06]'
-        } text-sm text-text-primary transition duration-200 focus:outline-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed`}
+        } text-xs sm:text-sm text-text-primary transition duration-200 focus:outline-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed`}
       >
         <div className="flex items-center gap-2.5 truncate">
           <Globe size={16} className="text-accent-blue flex-shrink-0" />
@@ -246,7 +262,7 @@ export const SearchableLanguageSelect: React.FC<SearchableLanguageSelectProps> =
                 <input
                   ref={searchInputRef}
                   type="text"
-                  placeholder="Search..."
+                  placeholder={placeholder}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-9 pr-8 py-2 bg-white/[0.06] border border-white/[0.1] focus:border-accent-blue focus:ring-1 focus:ring-accent-blue/30 rounded-xl text-xs text-text-primary placeholder:text-text-muted/60 focus:outline-none transition"
