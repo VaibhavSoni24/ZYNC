@@ -15,7 +15,7 @@ interface Interactive3DBlobProps {
 const STATE_MESSAGES: Record<MascotState, string[]> = {
   idle: ["Hey there! I'm Zyncie ☁️", "Ready to watch together?", "Hover around! I'm watching 👀", "Your watch party buddy! ✨"],
   typing: ["Ooh nice typing! ✍️", "Looking good...", "Keep going! ✨", "Almost set!"],
-  password: ["I promise I'm not peeking! 🙈", "Top secret cipher! 🔒", "Eyes covered! 🫣"],
+  password: ["I promise I'm not peeking! 🙈", "Top secret cipher! 🔒", "Eyes closed tight! ✨"],
   success: ["Woohoo! You made it! 🎉", "Welcome to Zync! 🚀", "Let's party! 🍿"],
   error: ["Uh oh, let's fix that! 🥺", "Double check the details! 🔍", "You got this! 💪"],
   yawn: ["Where are you? 🥱", "Just do it already! 😴", "Still there? *yawns* ☁️", "I'm getting sleepy... 💤"],
@@ -58,9 +58,17 @@ export const Interactive3DBlob: React.FC<Interactive3DBlobProps> = ({
   const lastActiveTime = useRef(Date.now());
   const petTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Sync external state changes
+  // Sync external state changes: form interactions (typing, password, etc.) immediately override pet state!
   useEffect(() => {
-    setInternalState(prev => (prev === 'pet' ? 'pet' : externalState));
+    if (externalState !== 'idle') {
+      if (petTimerRef.current) {
+        clearTimeout(petTimerRef.current);
+        petTimerRef.current = null;
+      }
+      setInternalState(externalState);
+    } else {
+      setInternalState(prev => (prev === 'pet' ? 'pet' : 'idle'));
+    }
     lastActiveTime.current = Date.now();
   }, [externalState]);
 
@@ -490,10 +498,10 @@ export const Interactive3DBlob: React.FC<Interactive3DBlobProps> = ({
               <motion.circle
                 cx="88"
                 cy="108"
-                r={isPet ? 18 : 14}
+                r={isPet ? 18 : isPassword ? 16 : 14}
                 animate={{
-                  scale: isPet ? [1, 1.15, 1] : 1,
-                  opacity: isPet ? 0.95 : 0.6
+                  scale: isPet ? [1, 1.15, 1] : isPassword ? 1.08 : 1,
+                  opacity: isPet ? 0.95 : isPassword ? 0.85 : 0.6
                 }}
                 transition={{ repeat: isPet ? Infinity : 0, duration: 1.2, ease: 'easeInOut' }}
                 fill="url(#dreamCheekBlush)"
@@ -501,10 +509,10 @@ export const Interactive3DBlob: React.FC<Interactive3DBlobProps> = ({
               <motion.circle
                 cx="172"
                 cy="108"
-                r={isPet ? 18 : 14}
+                r={isPet ? 18 : isPassword ? 16 : 14}
                 animate={{
-                  scale: isPet ? [1, 1.15, 1] : 1,
-                  opacity: isPet ? 0.95 : 0.6
+                  scale: isPet ? [1, 1.15, 1] : isPassword ? 1.08 : 1,
+                  opacity: isPet ? 0.95 : isPassword ? 0.85 : 0.6
                 }}
                 transition={{ repeat: isPet ? Infinity : 0, duration: 1.2, ease: 'easeInOut' }}
                 fill="url(#dreamCheekBlush)"
@@ -533,10 +541,24 @@ export const Interactive3DBlob: React.FC<Interactive3DBlobProps> = ({
                   <circle cx="153" cy="84" r="2.5" fill="#FB7185" />
                 </g>
               ) : isPassword ? (
-                /* Eyes closed / covered playfully */
+                /* Natural cute closed eyes - identical to when patted ^ ^ */
                 <g className="transition-all duration-300">
-                  <path d="M 98 98 Q 107 92 116 98" stroke="#0F172A" strokeWidth="4" strokeLinecap="round" fill="none" />
-                  <path d="M 144 98 Q 153 92 162 98" stroke="#0F172A" strokeWidth="4" strokeLinecap="round" fill="none" />
+                  <path
+                    d="M 94 100 Q 107 82 120 100"
+                    stroke="#0F172A"
+                    strokeWidth="4.8"
+                    strokeLinecap="round"
+                    fill="none"
+                  />
+                  <path
+                    d="M 140 100 Q 153 82 166 100"
+                    stroke="#0F172A"
+                    strokeWidth="4.8"
+                    strokeLinecap="round"
+                    fill="none"
+                  />
+                  <circle cx="107" cy="84" r="2.2" fill="#FB7185" opacity="0.8" />
+                  <circle cx="153" cy="84" r="2.2" fill="#FB7185" opacity="0.8" />
                 </g>
               ) : isYawn ? (
                 /* Sleepy squint eyes: > < or curved sleepy arcs */
@@ -661,6 +683,15 @@ export const Interactive3DBlob: React.FC<Interactive3DBlobProps> = ({
                   <ellipse cx="130" cy="116" rx="9" ry="12.5" fill="#E11D48" stroke="#0F172A" strokeWidth="3" />
                   <path d="M 124 122 Q 130 118 136 122 Q 130 128 124 122 Z" fill="#FB7185" />
                 </g>
+              ) : isPassword ? (
+                /* Shy / bashful cute closed smile */
+                <path
+                  d="M 121 113 Q 130 123 139 113"
+                  stroke="#0F172A"
+                  strokeWidth="3.6"
+                  strokeLinecap="round"
+                  fill="none"
+                />
               ) : isError ? (
                 /* Apologetic Wavy Mouth */
                 <path
@@ -679,31 +710,6 @@ export const Interactive3DBlob: React.FC<Interactive3DBlobProps> = ({
                   strokeLinecap="round"
                   fill="none"
                 />
-              )}
-
-              {/* PAWS: When in Password mode, cute fluffy white paws slide up to cover eyes! */}
-              {isPassword && (
-                <motion.g
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ duration: 0.25, ease: 'easeOut' }}
-                >
-                  {/* Left Fluffy White Paw */}
-                  <g transform="translate(88, 86)">
-                    <ellipse cx="18" cy="16" rx="17" ry="14" fill="url(#cloudPawGrad)" stroke="#CBD5E1" strokeWidth="2" />
-                    <circle cx="10" cy="9" r="3" fill="#FFFFFF" opacity="0.8" />
-                    <circle cx="18" cy="7" r="3" fill="#FFFFFF" opacity="0.8" />
-                    <circle cx="26" cy="9" r="3" fill="#FFFFFF" opacity="0.8" />
-                  </g>
-
-                  {/* Right Fluffy White Paw */}
-                  <g transform="translate(136, 86)">
-                    <ellipse cx="18" cy="16" rx="17" ry="14" fill="url(#cloudPawGrad)" stroke="#CBD5E1" strokeWidth="2" />
-                    <circle cx="10" cy="9" r="3" fill="#FFFFFF" opacity="0.8" />
-                    <circle cx="18" cy="7" r="3" fill="#FFFFFF" opacity="0.8" />
-                    <circle cx="26" cy="9" r="3" fill="#FFFFFF" opacity="0.8" />
-                  </g>
-                </motion.g>
               )}
             </svg>
           </motion.div>

@@ -1,7 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { LogOut, Menu, X } from 'lucide-react';
-import { motion } from 'motion/react';
+import { motion, LayoutGroup } from 'motion/react';
 import { useAuthStore } from '../store/useAuthStore';
 import { AvatarIcon } from '../assets/avatars';
 
@@ -10,37 +10,8 @@ export const Navbar: React.FC = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated, logout } = useAuthStore();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [pillStyle, setPillStyle] = useState<{ left: number; width: number; opacity: number }>({
-    left: 0,
-    width: 0,
-    opacity: 0
-  });
-  const itemRefs = useRef<Record<string, HTMLAnchorElement | null>>({});
 
   const isActive = (path: string) => location.pathname === path;
-
-  useEffect(() => {
-    const updatePill = () => {
-      const activeEl = itemRefs.current[location.pathname];
-      if (activeEl) {
-        setPillStyle({
-          left: activeEl.offsetLeft,
-          width: activeEl.offsetWidth,
-          opacity: 1
-        });
-      } else {
-        setPillStyle((prev) => ({ ...prev, opacity: 0 }));
-      }
-    };
-
-    updatePill();
-    const t = setTimeout(updatePill, 40);
-    window.addEventListener('resize', updatePill);
-    return () => {
-      clearTimeout(t);
-      window.removeEventListener('resize', updatePill);
-    };
-  }, [location.pathname, isAuthenticated]);
 
   const handleLogout = async () => {
     await logout();
@@ -92,41 +63,35 @@ export const Navbar: React.FC = () => {
 
         {/* Desktop Navigation Links - Centered Floating Pill with Scroll-Independent Sliding Switch */}
         <nav className="hidden md:flex items-center gap-1 absolute left-1/2 -translate-x-1/2 pointer-events-auto">
-          <div className="flex items-center gap-1 p-1 rounded-full bg-white/[0.04] border border-white/[0.08] backdrop-blur-xl shadow-lg shadow-black/20 relative">
-            {/* Scroll-Independent Spring Sliding Pill Indicator */}
-            <motion.div
-              className="absolute top-1 bottom-1 rounded-full bg-gradient-to-r from-accent-blue/30 via-accent-purple/35 to-accent-blue/25 border border-white/20 shadow-[0_0_15px_rgba(155,60,255,0.25)] pointer-events-none"
-              initial={false}
-              animate={{
-                x: pillStyle.left,
-                width: pillStyle.width,
-                opacity: pillStyle.opacity
-              }}
-              transition={{
-                type: 'spring',
-                stiffness: 450,
-                damping: 35
-              }}
-            />
-
-            {navLinks.map((link) => {
-              const active = isActive(link.path);
-              return (
-                <Link
-                  key={link.path}
-                  ref={(el) => {
-                    itemRefs.current[link.path] = el;
-                  }}
-                  to={link.path}
-                  className={`relative px-4 py-1.5 rounded-full text-xs font-medium transition-colors duration-200 z-10 ${
-                    active ? 'text-white font-semibold' : 'text-text-muted hover:text-white'
-                  }`}
-                >
-                  <span>{link.label}</span>
-                </Link>
-              );
-            })}
-          </div>
+          <LayoutGroup id="desktop-navbar-pill">
+            <div className="flex items-center gap-1 p-1 rounded-full bg-white/[0.04] border border-white/[0.08] backdrop-blur-xl shadow-lg shadow-black/20 relative">
+              {navLinks.map((link) => {
+                const active = isActive(link.path);
+                return (
+                  <Link
+                    key={link.path}
+                    to={link.path}
+                    className={`relative inline-flex items-center justify-center px-4 py-1.5 rounded-full text-xs font-medium transition-colors duration-200 text-center select-none ${
+                      active ? 'text-white font-semibold' : 'text-text-muted hover:text-white'
+                    }`}
+                  >
+                    {active && (
+                      <motion.div
+                        layoutId="activeNavPill"
+                        className="absolute inset-0 rounded-full bg-gradient-to-r from-accent-blue/30 via-accent-purple/35 to-accent-blue/25 border border-white/20 shadow-[0_0_15px_rgba(155,60,255,0.25)]"
+                        transition={{
+                          type: 'spring',
+                          stiffness: 420,
+                          damping: 32
+                        }}
+                      />
+                    )}
+                    <span className="relative z-10">{link.label}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          </LayoutGroup>
         </nav>
 
         {/* Desktop User Section / CTA */}

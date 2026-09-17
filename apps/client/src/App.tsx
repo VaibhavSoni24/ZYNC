@@ -22,11 +22,11 @@ import { AboutPage } from './features/about/AboutPage';
 import { ContactPage } from './features/contact/ContactPage';
 import { NotFoundPage } from './features/notFound/NotFoundPage';
 
-interface ProtectedRouteProps {
+interface RouteGuardProps {
   children: React.ReactNode;
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
+const ProtectedRoute: React.FC<RouteGuardProps> = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuthStore();
 
   if (isLoading) {
@@ -39,6 +39,24 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
+  }
+
+  return <>{children}</>;
+};
+
+const PublicOnlyRoute: React.FC<RouteGuardProps> = ({ children }) => {
+  const { isAuthenticated, isLoading } = useAuthStore();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-[70vh] flex items-center justify-center">
+        <div className="w-8 h-8 rounded-full border-2 border-accent-blue border-t-transparent animate-spin" />
+      </div>
+    );
+  }
+
+  if (isAuthenticated) {
+    return <Navigate to="/home" replace />;
   }
 
   return <>{children}</>;
@@ -63,11 +81,47 @@ export const App: React.FC = () => {
         <main className="flex-1 relative z-20">
           <PageTransition>
             <Routes>
-              <Route path="/" element={<LandingPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route path="/verify-otp" element={<VerifyOtpPage />} />
+              {/* Public Only Guest Routes (redirect to /home if already logged in) */}
+              <Route
+                path="/"
+                element={
+                  <PublicOnlyRoute>
+                    <LandingPage />
+                  </PublicOnlyRoute>
+                }
+              />
+              <Route
+                path="/login"
+                element={
+                  <PublicOnlyRoute>
+                    <LoginPage />
+                  </PublicOnlyRoute>
+                }
+              />
+              <Route
+                path="/forgot-password"
+                element={
+                  <PublicOnlyRoute>
+                    <ForgotPasswordPage />
+                  </PublicOnlyRoute>
+                }
+              />
+              <Route
+                path="/register"
+                element={
+                  <PublicOnlyRoute>
+                    <RegisterPage />
+                  </PublicOnlyRoute>
+                }
+              />
+              <Route
+                path="/verify-otp"
+                element={
+                  <PublicOnlyRoute>
+                    <VerifyOtpPage />
+                  </PublicOnlyRoute>
+                }
+              />
 
             {/* Protected Routes */}
             <Route
