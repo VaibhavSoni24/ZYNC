@@ -91,17 +91,27 @@ export class UsersService {
         return formatUserDto(user);
       }
 
-      // 2. Monthly Cooldown (Once per month / 30 days)
-      const ONE_MONTH_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
-      const lastChanged = user.lastUsernameChangedAt || (user.usernameChangeCount > 0 ? user.updatedAt : null);
+      // 2. Calendar Month Rule (Eligible once per calendar month, resets on 1st day of next month at 12:00 AM)
+      const lastChangedRaw = user.lastUsernameChangedAt;
+      if (lastChangedRaw) {
+        const lastDate = new Date(lastChangedRaw);
+        const now = new Date();
 
-      if (lastChanged) {
-        const elapsed = Date.now() - new Date(lastChanged).getTime();
-        if (elapsed < ONE_MONTH_MS) {
-          const nextAvailable = new Date(new Date(lastChanged).getTime() + ONE_MONTH_MS);
-          const daysLeft = Math.ceil((nextAvailable.getTime() - Date.now()) / (24 * 60 * 60 * 1000));
+        const isSameCalendarMonth =
+          lastDate.getFullYear() === now.getFullYear() &&
+          lastDate.getMonth() === now.getMonth();
+
+        if (isSameCalendarMonth) {
+          const nextMonthStart = new Date(now.getFullYear(), now.getMonth() + 1, 1, 0, 0, 0, 0);
+          const daysLeft = Math.max(1, Math.ceil((nextMonthStart.getTime() - now.getTime()) / (24 * 60 * 60 * 1000)));
+          const formattedDate = nextMonthStart.toLocaleDateString(undefined, {
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric'
+          });
+
           throw new Error(
-            `Username can only be updated once per month. You can update it again in ${daysLeft} day${daysLeft === 1 ? '' : 's'} (${nextAvailable.toLocaleDateString()}).`
+            `You have already updated your username this month. Your next change becomes available on the 1st of next month (${formattedDate} at 12:00 AM) in ${daysLeft} day${daysLeft === 1 ? '' : 's'}.`
           );
         }
       }
