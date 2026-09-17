@@ -205,9 +205,20 @@ export const Interactive3DBlob: React.FC<Interactive3DBlobProps> = ({
         )}
       </AnimatePresence>
 
-      {/* Volumetric Glowing Ambient Aura behind the Cloud */}
-      <div
-        className="absolute rounded-full blur-[70px] opacity-45 transition-all duration-700 pointer-events-none"
+      {/* Volumetric Glowing Ambient Aura behind the Cloud with synchronized breathing */}
+      <motion.div
+        animate={{
+          scale: [1.03, 0.94, 1.03],
+          opacity: [0.45, 0.32, 0.45]
+        }}
+        transition={{
+          duration: isYawn ? 5.0 : 4.2,
+          repeat: Infinity,
+          repeatType: 'loop',
+          ease: 'easeInOut',
+          times: [0, 0.5, 1]
+        }}
+        className="absolute rounded-full blur-[70px] pointer-events-none"
         style={{
           width: size * 0.9,
           height: size * 0.6,
@@ -225,23 +236,25 @@ export const Interactive3DBlob: React.FC<Interactive3DBlobProps> = ({
         }}
       />
 
-      {/* Main Fluffy White Cloud Mascot Container with Jiggle & Float Physics */}
+      {/* Main Fluffy White Cloud Mascot Container with Smooth Large -> Small -> Large Breathing Loop */}
       <motion.div
         animate={{
-          y: isYawn ? [0, -4, 0] : [0, -10, 0],
-          rotate: isYawn ? [0, -1, 1, 0] : [0, 1.2, -1.2, 0]
+          y: isYawn ? [0, -4, 0] : [0, -8, 0],
+          scale: isYawn ? [1.02, 0.96, 1.02] : [1.02, 0.96, 1.02],
+          rotate: isYawn ? [0, -0.6, 0.6, 0] : [0, 0.8, -0.8, 0]
         }}
         transition={{
-          duration: isYawn ? 5.5 : 4.2,
+          duration: isYawn ? 5.0 : 4.2,
           repeat: Infinity,
-          ease: 'easeInOut'
+          repeatType: 'loop',
+          ease: 'easeInOut',
+          times: [0, 0.5, 1]
         }}
         whileHover={{
           scale: 1.05,
-          rotate: [-1, 1.5, -1, 0],
-          transition: { duration: 0.35, ease: 'easeInOut' }
+          transition: { duration: 0.25, ease: 'easeOut' }
         }}
-        whileTap={{ scale: 0.95 }}
+        whileTap={{ scale: 0.97 }}
         className="relative z-10 cursor-pointer drop-shadow-[0_20px_40px_rgba(0,0,0,0.6)]"
       >
         <svg

@@ -10,7 +10,13 @@ interface DateOfBirthPickerProps {
   required?: boolean;
 }
 
-const MONTHS = [
+const TODAY = new Date();
+const CURRENT_YEAR = TODAY.getFullYear();
+const CURRENT_MONTH = TODAY.getMonth() + 1; // 1-12
+const CURRENT_DAY = TODAY.getDate(); // 1-31
+const MIN_YEAR = 1900;
+
+const ALL_MONTHS = [
   { value: '01', label: 'January' },
   { value: '02', label: 'February' },
   { value: '03', label: 'March' },
@@ -25,13 +31,9 @@ const MONTHS = [
   { value: '12', label: 'December' }
 ];
 
-const CURRENT_YEAR = new Date().getFullYear();
-const MIN_AGE_YEAR = CURRENT_YEAR - 13; // At least 13 years old
-const MAX_AGE_YEAR = CURRENT_YEAR - 95; // Up to 95 years old
-
 const YEARS = Array.from(
-  { length: MIN_AGE_YEAR - MAX_AGE_YEAR + 1 },
-  (_, i) => (MIN_AGE_YEAR - i).toString()
+  { length: CURRENT_YEAR - MIN_YEAR + 1 },
+  (_, i) => (CURRENT_YEAR - i).toString()
 );
 
 interface CustomSelectProps {
@@ -153,11 +155,25 @@ export const DateOfBirthPicker: React.FC<DateOfBirthPickerProps> = ({
 
   const [openDropdown, setOpenDropdown] = useState<'month' | 'day' | 'year' | null>(null);
 
+  // Available months: if current year, restrict to months up to current month
+  const availableMonths = ALL_MONTHS.filter((m) => {
+    if (year === CURRENT_YEAR.toString()) {
+      return parseInt(m.value, 10) <= CURRENT_MONTH;
+    }
+    return true;
+  });
+
+  // Calculate days in selected month and year, capping at current day if current year and month
   const getDaysInMonth = (m: string, y: string) => {
     if (!m) return 31;
     const mNum = parseInt(m, 10);
     const yNum = parseInt(y, 10) || 2000;
-    return new Date(yNum, mNum, 0).getDate();
+    const totalDays = new Date(yNum, mNum, 0).getDate();
+
+    if (yNum === CURRENT_YEAR && mNum === CURRENT_MONTH) {
+      return Math.min(totalDays, CURRENT_DAY);
+    }
+    return totalDays;
   };
 
   const daysCount = getDaysInMonth(month, year);
@@ -167,12 +183,35 @@ export const DateOfBirthPicker: React.FC<DateOfBirthPickerProps> = ({
   });
 
   const handleUpdate = (newMonth: string, newDay: string, newYear: string) => {
-    setMonth(newMonth);
-    setDay(newDay);
+    let validMonth = newMonth;
+    let validDay = newDay;
+
+    // Check if newYear is current year
+    if (newYear === CURRENT_YEAR.toString()) {
+      if (validMonth && parseInt(validMonth, 10) > CURRENT_MONTH) {
+        validMonth = CURRENT_MONTH.toString().padStart(2, '0');
+      }
+      if (validMonth && parseInt(validMonth, 10) === CURRENT_MONTH && validDay) {
+        if (parseInt(validDay, 10) > CURRENT_DAY) {
+          validDay = CURRENT_DAY.toString().padStart(2, '0');
+        }
+      }
+    }
+
+    // Check max days for the month
+    if (validMonth && validDay) {
+      const maxDays = getDaysInMonth(validMonth, newYear);
+      if (parseInt(validDay, 10) > maxDays) {
+        validDay = maxDays.toString().padStart(2, '0');
+      }
+    }
+
+    setMonth(validMonth);
+    setDay(validDay);
     setYear(newYear);
 
-    if (newYear && newMonth && newDay) {
-      onChange(`${newYear}-${newMonth}-${newDay}`);
+    if (newYear && validMonth && validDay) {
+      onChange(`${newYear}-${validMonth}-${validDay}`);
     } else {
       onChange('');
     }
@@ -184,7 +223,6 @@ export const DateOfBirthPicker: React.FC<DateOfBirthPickerProps> = ({
         <label className="block text-xs font-semibold text-text-secondary">
           Date of Birth <span className="text-[10px] text-text-muted font-normal">(Month / Day / Year)</span>
         </label>
-        <span className="text-[10px] text-accent-blue font-mono font-medium">13+ Required</span>
       </div>
 
       <div className="grid grid-cols-12 gap-2 relative z-30">
@@ -193,7 +231,7 @@ export const DateOfBirthPicker: React.FC<DateOfBirthPickerProps> = ({
           <CustomDropdown
             placeholder="Month"
             value={month}
-            options={MONTHS}
+            options={availableMonths}
             isOpen={openDropdown === 'month'}
             onToggle={() => setOpenDropdown((prev) => (prev === 'month' ? null : 'month'))}
             onClose={() => {
