@@ -8,7 +8,6 @@ import {
   ArrowRight,
   Zap,
   Radio,
-  Tv,
   MessageSquare,
   Shield,
   Plus,
@@ -16,6 +15,7 @@ import {
 } from 'lucide-react';
 import { useAuthStore } from '../../store/useAuthStore';
 import { AvatarIcon } from '../../assets/avatars';
+import { Floating3DShapes } from '../../components/Background/Floating3DShapes';
 import { RoomDto } from '@zync/shared';
 import { apiRequest } from '../../lib/api';
 
@@ -43,17 +43,67 @@ export const HomePage: React.FC = () => {
   }, []);
 
   return (
-    <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-10 py-6 sm:py-10 space-y-10">
-      {/* Background Ambient Radial Glow Orbs */}
-      <div className="absolute top-12 left-1/2 -translate-x-1/2 w-[800px] h-[360px] bg-gradient-to-r from-accent-blue/15 via-accent-purple/20 to-accent-blue/10 blur-[130px] pointer-events-none -z-10" />
-      <div className="absolute bottom-1/3 right-10 w-[500px] h-[300px] bg-accent-blue/10 blur-[140px] pointer-events-none -z-10" />
+    <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-10 py-6 sm:py-10 space-y-12">
+      {/* Dedicated Floating 3D Shapes Layer for HomePage */}
+      <Floating3DShapes />
 
-      {/* 1. TOP SPOTLIGHT: About Zync + Floating 3D Telemetry Badges */}
-      <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-[#0c0c16]/90 via-[#101024]/80 to-[#0c0c16]/90 backdrop-blur-2xl p-6 sm:p-8 lg:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.6)]">
-        {/* Floating 3D Telemetry Badges */}
-        <div className="flex items-center justify-between gap-4 mb-6 flex-wrap">
+      {/* Background Ambient Radial Glow Orbs */}
+      <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[850px] h-[380px] bg-gradient-to-r from-accent-blue/15 via-accent-purple/20 to-accent-blue/10 blur-[130px] pointer-events-none -z-10" />
+      <div className="absolute bottom-1/4 right-5 w-[500px] h-[300px] bg-accent-blue/10 blur-[140px] pointer-events-none -z-10" />
+
+      {/* 1. TOP SECTION: Welcome Back Header (Unboxed / No Card Container) */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 pt-2 pb-2">
+        <div className="flex items-center gap-4 sm:gap-5">
+          <div className="relative flex-shrink-0">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-[#090914]/80 border border-white/15 flex items-center justify-center p-1 shadow-[0_0_25px_rgba(46,124,246,0.25)] backdrop-blur-md">
+              <AvatarIcon name={user?.avatar || 'Comet'} size={64} />
+            </div>
+            <span
+              className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 border-2 border-[#090914] flex items-center justify-center shadow-[0_0_8px_rgba(16,185,129,0.8)]"
+              title="Online"
+            />
+          </div>
+
+          <div>
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                Welcome back, {user?.name || 'Friend'}!
+              </h1>
+              <span className="text-xs font-mono text-accent-blue bg-accent-blue/15 px-2.5 py-0.5 rounded-full border border-accent-blue/25 font-semibold">
+                @{user?.username}
+              </span>
+            </div>
+            <p className="text-xs sm:text-sm text-gray-400 mt-1.5">
+              Ready to watch together? Start your own watch party or hop into an existing theater.
+            </p>
+          </div>
+        </div>
+
+        {/* Action Buttons: Host Party (NO AI sparkles) & Join Party */}
+        <div className="flex items-center gap-3 w-full sm:w-auto flex-shrink-0">
+          <Link
+            to="/room/host"
+            className="flex-1 sm:flex-none px-6 py-3 rounded-xl gradient-brand text-white font-semibold text-xs sm:text-sm shadow-lg shadow-accent-blue/25 hover:brightness-110 active:scale-95 transition flex items-center justify-center gap-2 group"
+          >
+            <Video size={16} className="group-hover:scale-110 transition-transform" />
+            <span>Host Party</span>
+          </Link>
+          <Link
+            to="/room/join"
+            className="flex-1 sm:flex-none px-6 py-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-accent-blue/30 text-white font-semibold text-xs sm:text-sm transition flex items-center justify-center gap-2 active:scale-95 shadow-md backdrop-blur-sm"
+          >
+            <LogIn size={16} />
+            <span>Join Party</span>
+          </Link>
+        </div>
+      </div>
+
+      {/* 2. SECOND SECTION: About Zync Spotlight (Unboxed / No Card Container) */}
+      <section className="relative pt-2 pb-2 space-y-6">
+        {/* Floating Telemetry Badges Left & Right (Center button removed) */}
+        <div className="flex items-center justify-between gap-4 flex-wrap">
           {/* Floating Telemetry 1 (Left) */}
-          <div className="flex items-center gap-3 p-2 px-3.5 rounded-2xl bg-[#080811]/90 border border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.5)] animate-float-slow select-none">
+          <div className="flex items-center gap-3 p-2 px-3.5 rounded-2xl bg-[#080811]/90 border border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.5)] animate-float-slow select-none backdrop-blur-md">
             <div className="w-7 h-7 rounded-xl bg-accent-blue/20 border border-accent-blue/30 flex items-center justify-center text-accent-blue shadow-[0_0_12px_rgba(46,124,246,0.35)]">
               <Zap size={14} className="animate-pulse" />
             </div>
@@ -66,14 +116,8 @@ export const HomePage: React.FC = () => {
             </div>
           </div>
 
-          {/* Center Platform Badge */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-accent-blue/10 border border-accent-blue/25 text-accent-blue text-[11px] font-semibold tracking-wider uppercase shadow-sm">
-            <Tv size={12} />
-            <span>Next-Gen Synchronized Watch Party</span>
-          </div>
-
           {/* Floating Telemetry 2 (Right) */}
-          <div className="flex items-center gap-3 p-2 px-3.5 rounded-2xl bg-[#080811]/90 border border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.5)] animate-float-reverse select-none">
+          <div className="flex items-center gap-3 p-2 px-3.5 rounded-2xl bg-[#080811]/90 border border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.5)] animate-float-reverse select-none backdrop-blur-md">
             <div className="w-7 h-7 rounded-xl bg-accent-purple/20 border border-accent-purple/30 flex items-center justify-center text-accent-purple shadow-[0_0_12px_rgba(155,60,255,0.35)]">
               <Radio size={14} className="animate-spin-slow" />
             </div>
@@ -97,96 +141,50 @@ export const HomePage: React.FC = () => {
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight leading-tight">
             Watch Together in <span className="gradient-brand-text font-black">Perfect Sync</span>
           </h2>
-          <p className="text-sm sm:text-base text-text-secondary mt-2.5 leading-relaxed">
-            Zync locks every play, pause, seek, and buffer across all screens in real-time. Experience videos with friends as if you're sitting on the same couch with zero phase lag, live theater chat, and expressive floating emoji bursts.
+          <p className="text-sm sm:text-base text-gray-300 mt-2.5 leading-relaxed">
+            Zync locks every play, pause, seek, and buffer across all screens in real-time. Experience videos with friends as if you're sitting on the same couch — zero phase lag, live theater chat, and expressive floating emoji bursts.
           </p>
         </div>
 
-        {/* 3 Core Highlights Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 sm:gap-4 mt-6 pt-6 border-t border-white/10">
-          <div className="flex items-start gap-3 p-3 rounded-2xl bg-white/[0.03] border border-white/5 hover:border-white/10 transition">
-            <div className="p-2 rounded-xl bg-accent-blue/15 text-accent-blue flex-shrink-0">
-              <Zap size={16} />
+        {/* 3 Core Highlights (Open, sleek glass pills/cards) */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+          <div className="flex items-start gap-3.5 p-4 rounded-2xl bg-[#0c0c16]/70 border border-white/10 hover:border-accent-blue/30 transition shadow-lg backdrop-blur-sm">
+            <div className="p-2.5 rounded-xl bg-accent-blue/15 text-accent-blue flex-shrink-0">
+              <Zap size={18} />
             </div>
             <div>
-              <h4 className="text-xs font-bold text-white">Sub-50ms Lock</h4>
-              <p className="text-[11px] text-text-muted mt-0.5 leading-snug">
+              <h4 className="text-sm font-bold text-white">Sub-50ms Lock</h4>
+              <p className="text-xs text-gray-400 mt-1 leading-snug">
                 Adaptive drift correction keeps every stream frame-synchronized worldwide.
               </p>
             </div>
           </div>
 
-          <div className="flex items-start gap-3 p-3 rounded-2xl bg-white/[0.03] border border-white/5 hover:border-white/10 transition">
-            <div className="p-2 rounded-xl bg-accent-purple/15 text-accent-purple flex-shrink-0">
-              <MessageSquare size={16} />
+          <div className="flex items-start gap-3.5 p-4 rounded-2xl bg-[#0c0c16]/70 border border-white/10 hover:border-accent-purple/30 transition shadow-lg backdrop-blur-sm">
+            <div className="p-2.5 rounded-xl bg-accent-purple/15 text-accent-purple flex-shrink-0">
+              <MessageSquare size={18} />
             </div>
             <div>
-              <h4 className="text-xs font-bold text-white">Live Theater Chat</h4>
-              <p className="text-[11px] text-text-muted mt-0.5 leading-snug">
+              <h4 className="text-sm font-bold text-white">Live Theater Chat</h4>
+              <p className="text-xs text-gray-400 mt-1 leading-snug">
                 Low-latency chat, sound effects, and animated floating emoji reactions.
               </p>
             </div>
           </div>
 
-          <div className="flex items-start gap-3 p-3 rounded-2xl bg-white/[0.03] border border-white/5 hover:border-white/10 transition">
-            <div className="p-2 rounded-xl bg-emerald-500/15 text-emerald-400 flex-shrink-0">
-              <Shield size={16} />
+          <div className="flex items-start gap-3.5 p-4 rounded-2xl bg-[#0c0c16]/70 border border-white/10 hover:border-emerald-500/30 transition shadow-lg backdrop-blur-sm">
+            <div className="p-2.5 rounded-xl bg-emerald-500/15 text-emerald-400 flex-shrink-0">
+              <Shield size={18} />
             </div>
             <div>
-              <h4 className="text-xs font-bold text-white">Host Authority</h4>
-              <p className="text-[11px] text-text-muted mt-0.5 leading-snug">
+              <h4 className="text-sm font-bold text-white">Host Authority</h4>
+              <p className="text-xs text-gray-400 mt-1 leading-snug">
                 Full host permissions, co-host delegation, and private invite codes.
               </p>
             </div>
           </div>
         </div>
       </section>
-
-      {/* 2. WELCOME & USER HUB BANNER */}
-      <div className="bg-gradient-to-r from-[#0d0d18] via-[#121226] to-[#0d0d18] border border-white/10 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-6 relative z-10">
-          <div className="flex items-center gap-4 sm:gap-5 w-full lg:w-auto">
-            <div className="relative flex-shrink-0">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-[#090912] border-2 border-accent-blue/40 flex items-center justify-center p-1 shadow-[0_0_25px_rgba(46,124,246,0.25)]">
-                <AvatarIcon name={user?.avatar || 'Comet'} size={64} />
-              </div>
-              <span className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 border-2 border-[#0d0d18] flex items-center justify-center" title="Online" />
-            </div>
-
-            <div>
-              <div className="flex items-center gap-2.5 flex-wrap">
-                <h1 className="text-xl sm:text-2xl font-bold text-white">
-                  Welcome back, {user?.name || 'Friend'}!
-                </h1>
-                <span className="text-xs font-mono text-accent-blue bg-accent-blue/15 px-2.5 py-0.5 rounded-full border border-accent-blue/25 font-semibold">
-                  @{user?.username}
-                </span>
-              </div>
-              <p className="text-xs sm:text-sm text-text-muted mt-1.5">
-                Ready to stream together? Host a new watch party or join an ongoing community room.
-              </p>
-            </div>
-          </div>
-
-          {/* Action Buttons: Host Party (NO AI sparkles) & Join Party */}
-          <div className="flex items-center gap-3 w-full sm:w-auto flex-shrink-0">
-            <Link
-              to="/room/host"
-              className="flex-1 sm:flex-none px-6 py-3 rounded-xl gradient-brand text-white font-semibold text-xs sm:text-sm shadow-lg shadow-accent-blue/25 hover:brightness-110 active:scale-95 transition flex items-center justify-center gap-2 group"
-            >
-              <Video size={16} className="group-hover:scale-110 transition-transform" />
-              <span>Host Party</span>
-            </Link>
-            <Link
-              to="/room/join"
-              className="flex-1 sm:flex-none px-6 py-3 rounded-xl bg-[#141426] hover:bg-[#1a1a32] border border-white/10 hover:border-accent-blue/30 text-white font-semibold text-xs sm:text-sm transition flex items-center justify-center gap-2 active:scale-95 shadow-md"
-            >
-              <LogIn size={16} />
-              <span>Join Party</span>
-            </Link>
-          </div>
-        </div>
-      </div>
 
       {/* 3. QUICK ACTION TILES (Full-Width 2-Column Grid) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -201,7 +199,7 @@ export const HomePage: React.FC = () => {
           <h2 className="text-xl font-bold text-white group-hover:text-accent-blue transition">
             Host a New Room
           </h2>
-          <p className="text-xs sm:text-sm text-text-muted mt-2 leading-relaxed">
+          <p className="text-xs sm:text-sm text-gray-400 mt-2 leading-relaxed">
             Create a custom room with visibility controls, select languages, and take the Host seat with authoritative playback sync.
           </p>
           <div className="mt-6 flex items-center text-xs font-semibold text-accent-blue gap-2 group-hover:translate-x-2 transition-transform">
@@ -221,7 +219,7 @@ export const HomePage: React.FC = () => {
           <h2 className="text-xl font-bold text-white group-hover:text-accent-purple transition">
             Join an Existing Room
           </h2>
-          <p className="text-xs sm:text-sm text-text-muted mt-2 leading-relaxed">
+          <p className="text-xs sm:text-sm text-gray-400 mt-2 leading-relaxed">
             Enter an 8-character invite code from a friend or browse live community rooms organized by language and category.
           </p>
           <div className="mt-6 flex items-center text-xs font-semibold text-accent-purple gap-2 group-hover:translate-x-2 transition-transform">
@@ -240,7 +238,7 @@ export const HomePage: React.FC = () => {
             </div>
             <div>
               <h2 className="text-base sm:text-lg font-bold text-white">Live Community Theaters</h2>
-              <p className="text-[11px] text-text-muted">Public rooms currently streaming</p>
+              <p className="text-[11px] text-gray-400">Public rooms currently streaming</p>
             </div>
           </div>
           <Link
@@ -267,7 +265,7 @@ export const HomePage: React.FC = () => {
               <Play size={20} />
             </div>
             <h3 className="text-sm font-semibold text-white">No Public Rooms Active</h3>
-            <p className="text-xs text-text-muted mt-1 max-w-sm mx-auto">
+            <p className="text-xs text-gray-400 mt-1 max-w-sm mx-auto">
               There are no live community watch parties streaming right now. Be the first to start one!
             </p>
             <button
@@ -307,7 +305,7 @@ export const HomePage: React.FC = () => {
                     {r.name}
                   </h4>
                   {r.description && (
-                    <p className="text-xs text-text-muted mt-1 line-clamp-2 leading-relaxed">
+                    <p className="text-xs text-gray-400 mt-1 line-clamp-2 leading-relaxed">
                       {r.description}
                     </p>
                   )}
