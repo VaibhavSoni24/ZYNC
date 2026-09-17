@@ -199,11 +199,11 @@ export const Interactive3DBlob: React.FC<Interactive3DBlobProps> = ({
 
     setParticles(prev => [...prev.slice(-6), ...newParticles]);
 
-    // Reset pet timer (lasts 3.2 seconds before smoothly returning to externalState)
+    // Reset pet timer (lasts 4.5 seconds before smoothly returning to externalState)
     if (petTimerRef.current) clearTimeout(petTimerRef.current);
     petTimerRef.current = setTimeout(() => {
       setInternalState(externalState);
-    }, 3200);
+    }, 4500);
   };
 
   const isPassword = activeState === 'password';
