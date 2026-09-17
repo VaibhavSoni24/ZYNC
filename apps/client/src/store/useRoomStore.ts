@@ -97,7 +97,7 @@ export const useRoomStore = create<RoomState>((set, get) => ({
     socket.off(SOCKET_EVENTS.ROLE_ASSIGNED);
     socket.off(SOCKET_EVENTS.CHAT_MESSAGE);
     socket.off(SOCKET_EVENTS.REACTION);
-    socket.off(SOCKET_EVENTS.CONTROL_REQUEST);
+    socket.off(SOCKET_EVENTS.CONTROL_REQUESTED);
     socket.off(SOCKET_EVENTS.KICKED);
     socket.off(SOCKET_EVENTS.ERROR);
 
