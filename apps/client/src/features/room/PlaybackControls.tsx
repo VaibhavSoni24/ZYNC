@@ -9,7 +9,8 @@ import {
   VolumeX,
   Maximize,
   Minimize,
-  Sparkles
+  Sparkles,
+  Subtitles
 } from 'lucide-react';
 import { Role } from '@zync/shared';
 import { extractYouTubeVideoId } from '../../lib/youtubeHelper';
@@ -21,6 +22,7 @@ interface PlaybackControlsProps {
   volume: number;
   isMuted: boolean;
   isFullscreen: boolean;
+  captionsEnabled: boolean;
   myRole: Role;
   canControl: boolean;
   onPlay: () => void;
@@ -29,6 +31,7 @@ interface PlaybackControlsProps {
   onVolumeChange: (val: number) => void;
   onToggleMute: () => void;
   onToggleFullscreen: () => void;
+  onToggleCaptions: () => void;
   onChangeVideo: (videoId: string) => void;
   onRequestControl: () => void;
 }
@@ -47,6 +50,7 @@ export const PlaybackControls: React.FC<PlaybackControlsProps> = ({
   volume,
   isMuted,
   isFullscreen,
+  captionsEnabled,
   myRole,
   canControl,
   onPlay,
@@ -55,6 +59,7 @@ export const PlaybackControls: React.FC<PlaybackControlsProps> = ({
   onVolumeChange,
   onToggleMute,
   onToggleFullscreen,
+  onToggleCaptions,
   onChangeVideo,
   onRequestControl
 }) => {
@@ -148,6 +153,29 @@ export const PlaybackControls: React.FC<PlaybackControlsProps> = ({
               className="w-16 h-1.5 rounded-lg appearance-none cursor-pointer bg-white/[0.1] accent-accent-blue"
             />
           </div>
+
+          {/* Captions Toggle Button - Controlled by Host & Moderator */}
+          <button
+            type="button"
+            onClick={canControl ? onToggleCaptions : undefined}
+            disabled={!canControl}
+            className={`p-2.5 rounded-xl border transition flex items-center justify-center flex-shrink-0 cursor-pointer ${
+              !canControl
+                ? 'opacity-40 cursor-not-allowed border-white/[0.06] bg-white/[0.02] text-text-muted'
+                : captionsEnabled
+                ? 'bg-accent-blue/20 border-accent-blue/50 text-accent-blue shadow-[0_0_12px_rgba(59,130,246,0.3)]'
+                : 'bg-white/[0.04] hover:bg-white/[0.08] border-white/[0.08] text-text-muted hover:text-white'
+            }`}
+            title={
+              !canControl
+                ? 'Captions are controlled by the Host & Moderators'
+                : captionsEnabled
+                ? 'Turn Off Captions (Host/Mod)'
+                : 'Turn On Captions (Host/Mod)'
+            }
+          >
+            <Subtitles size={17} />
+          </button>
 
           {/* Request Control Button for Participants */}
           {myRole === Role.PARTICIPANT && !canControl && (

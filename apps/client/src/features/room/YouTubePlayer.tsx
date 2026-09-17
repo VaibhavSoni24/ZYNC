@@ -1,4 +1,6 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Lock } from 'lucide-react';
 import { PlayState } from '@zync/shared';
 
 declare global {
@@ -14,6 +16,7 @@ interface YouTubePlayerProps {
   currentTime: number;
   volume?: number;
   isMuted?: boolean;
+  captionsEnabled?: boolean;
   onPlayerTimeUpdate?: (time: number, duration: number) => void;
 }
 
@@ -23,14 +26,35 @@ export const YouTubePlayer: React.FC<YouTubePlayerProps> = ({
   currentTime,
   volume = 80,
   isMuted = false,
+  captionsEnabled = false,
   onPlayerTimeUpdate
 }) => {
   const containerId = 'zync-youtube-iframe';
   const playerRef = useRef<any>(null);
   const isReadyRef = useRef<boolean>(false);
   const isProgrammaticRef = useRef<boolean>(false);
+  const [showWarning, setShowWarning] = useState(false);
+  const warningTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const activeVideoId = videoId?.trim() || 'dQw4w9WgXcQ';
+
+  const triggerWarning = () => {
+    setShowWarning(true);
+    if (warningTimerRef.current) {
+      clearTimeout(warningTimerRef.current);
+    }
+    warningTimerRef.current = setTimeout(() => {
+      setShowWarning(false);
+    }, 2200);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (warningTimerRef.current) {
+        clearTimeout(warningTimerRef.current);
+      }
+    };
+  }, []);
 
   // Load YouTube IFrame API Script
   useEffect(() => {
@@ -73,6 +97,7 @@ export const YouTubePlayer: React.FC<YouTubePlayerProps> = ({
         rel: 0,
         iv_load_policy: 3,
         fs: 0, // Custom fullscreen handled on container
+        cc_load_policy: 0, // Explicitly disable auto-captions by default
         enablejsapi: 1,
         origin: window.location.origin
       },
@@ -88,6 +113,19 @@ export const YouTubePlayer: React.FC<YouTubePlayerProps> = ({
               player.mute();
             } else {
               player.unMute();
+            }
+          } catch {
+            // ignore
+          }
+
+          // Set initial captions (default off)
+          try {
+            if (!captionsEnabled) {
+              player.unloadModule?.('captions');
+              player.setOption?.('captions', 'track', {});
+            } else {
+              player.loadModule?.('captions');
+              player.setOption?.('captions', 'track', { languageCode: 'en' });
             }
           } catch {
             // ignore
@@ -177,6 +215,23 @@ export const YouTubePlayer: React.FC<YouTubePlayerProps> = ({
     }
   }, [volume, isMuted]);
 
+  // Synchronize captions
+  useEffect(() => {
+    if (isReadyRef.current && playerRef.current) {
+      try {
+        if (!captionsEnabled) {
+          playerRef.current.unloadModule?.('captions');
+          playerRef.current.setOption?.('captions', 'track', {});
+        } else {
+          playerRef.current.loadModule?.('captions');
+          playerRef.current.setOption?.('captions', 'track', { languageCode: 'en' });
+        }
+      } catch {
+        // ignore
+      }
+    }
+  }, [captionsEnabled]);
+
   // High-frequency time ticker for smooth UI progress bar
   useEffect(() => {
     const interval = setInterval(() => {
@@ -195,11 +250,28 @@ export const YouTubePlayer: React.FC<YouTubePlayerProps> = ({
       {/* YouTube Iframe Container */}
       <div id={containerId} className="w-full h-full pointer-events-none" />
 
-      {/* Transparent Protective Shield (Enforcing UI-only playback control per Requirement 3) */}
+      {/* Transparent Protective Shield (Enforcing UI-only playback control) */}
       <div
         className="absolute inset-0 z-10 cursor-default select-none"
-        title="Playback is controlled exclusively through the UI controls below"
+        onMouseEnter={triggerWarning}
+        onClick={triggerWarning}
       />
+
+      {/* Temporary Auto-Fading Floating Warning Pill (Fades out after 2s, never blocks view) */}
+      <AnimatePresence>
+        {showWarning && (
+          <motion.div
+            initial={{ opacity: 0, y: -10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -10, scale: 0.95 }}
+            transition={{ duration: 0.25 }}
+            className="absolute top-4 left-1/2 -translate-x-1/2 z-20 pointer-events-none px-3.5 py-1.5 rounded-full bg-[#0d0a14]/90 border border-white/15 text-white/90 text-[11px] font-medium backdrop-blur-xl shadow-2xl flex items-center gap-2 shadow-[0_4px_20px_rgba(0,0,0,0.7)]"
+          >
+            <Lock size={12} className="text-accent-blue flex-shrink-0" />
+            <span>Playback is controlled via the player controls below</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

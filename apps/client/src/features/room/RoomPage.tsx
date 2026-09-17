@@ -54,6 +54,7 @@ export const RoomPage: React.FC = () => {
   const [volume, setVolume] = useState(80);
   const [isMuted, setIsMuted] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [captionsEnabled, setCaptionsEnabled] = useState(false);
 
   useEffect(() => {
     if (!code) {
@@ -108,7 +109,7 @@ export const RoomPage: React.FC = () => {
 
   if (isKicked) {
     return (
-      <div className="min-h-screen bg-[#06040a] flex items-center justify-center p-4">
+      <div className="min-h-[70vh] flex items-center justify-center p-4">
         <div className="bg-[#0d0a14]/90 border border-red-500/30 rounded-2xl p-8 max-w-md w-full text-center shadow-2xl backdrop-blur-2xl">
           <div className="w-14 h-14 rounded-full bg-red-500/10 text-red-400 flex items-center justify-center mx-auto mb-4 border border-red-500/20">
             <AlertCircle size={28} />
@@ -129,128 +130,126 @@ export const RoomPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#06040a] text-white selection:bg-accent-blue/30 relative">
-      {/* Ambient background glows */}
-      <div className="pointer-events-none fixed -top-40 left-1/4 w-96 h-96 bg-accent-blue/10 rounded-full blur-[140px]" />
-      <div className="pointer-events-none fixed top-1/3 -right-20 w-96 h-96 bg-accent-purple/10 rounded-full blur-[150px]" />
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 space-y-4 relative z-10">
-        {/* Top Header Bar */}
-        <div className="flex flex-wrap items-center justify-between gap-4 p-3.5 bg-[#0d0a14]/80 border border-white/[0.08] backdrop-blur-2xl rounded-2xl shadow-xl">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => navigate('/home')}
-              className="p-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] text-text-muted hover:text-white transition cursor-pointer"
-              title="Leave room"
-            >
-              <ArrowLeft size={16} />
-            </button>
-            <div>
-              <div className="flex items-center gap-2.5">
-                <h1 className="text-base font-bold text-white tracking-tight">
-                  {room?.name || 'Watch Party'}
-                </h1>
-                <span className="flex items-center gap-1.5 text-xs text-text-muted bg-white/[0.04] px-2.5 py-0.5 rounded-full border border-white/[0.08]">
-                  <span
-                    className={`w-2 h-2 rounded-full ${
-                      isConnected ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)] animate-pulse' : 'bg-amber-400'
-                    }`}
-                  />
-                  {isConnected ? 'Synced' : 'Connecting...'}
-                </span>
-              </div>
-              <div className="flex items-center gap-3 text-xs text-text-muted mt-0.5">
-                <span className="flex items-center gap-1">
-                  <Globe size={12} /> {room?.language || 'English'}
-                </span>
-                <span>•</span>
-                <span>Host: <strong className="text-white/80">{room?.hostUsername || 'Host'}</strong></span>
-              </div>
+    <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 space-y-4">
+      {/* Top Header Bar */}
+      <div className="flex flex-wrap items-center justify-between gap-4 p-3.5 bg-[#0d0a14]/80 border border-white/[0.08] backdrop-blur-2xl rounded-2xl shadow-xl">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => navigate('/home')}
+            className="p-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] text-text-muted hover:text-white transition cursor-pointer"
+            title="Leave room"
+          >
+            <ArrowLeft size={16} />
+          </button>
+          <div>
+            <div className="flex items-center gap-2.5">
+              <h1 className="text-base font-bold text-white tracking-tight">
+                {room?.name || 'Watch Party'}
+              </h1>
+              <span className="flex items-center gap-1.5 text-xs text-text-muted bg-white/[0.04] px-2.5 py-0.5 rounded-full border border-white/[0.08]">
+                <span
+                  className={`w-2 h-2 rounded-full ${
+                    isConnected ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)] animate-pulse' : 'bg-amber-400'
+                  }`}
+                />
+                {isConnected ? 'Synced' : 'Connecting...'}
+              </span>
             </div>
-          </div>
-
-          {/* Room Code Badge with Copy */}
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-2 bg-white/[0.04] px-3.5 py-1.5 rounded-xl border border-white/[0.08]">
-              <span className="text-xs text-text-muted">Code:</span>
-              <span className="font-mono text-sm font-bold text-accent-blue tracking-wider">{code}</span>
-              <button
-                onClick={handleCopyCode}
-                className="ml-1 text-text-muted hover:text-white transition cursor-pointer p-0.5"
-                title="Copy room code"
-              >
-                {copiedCode ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
-              </button>
+            <div className="flex items-center gap-3 text-xs text-text-muted mt-0.5">
+              <span className="flex items-center gap-1">
+                <Globe size={12} /> {room?.language || 'English'}
+              </span>
+              <span>•</span>
+              <span>Host: <strong className="text-white/80">{room?.hostUsername || 'Host'}</strong></span>
             </div>
           </div>
         </div>
 
-        {/* Error banner if any */}
-        {errorMessage && (
-          <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-xs px-4 py-2.5 rounded-xl flex items-center justify-between backdrop-blur-lg">
-            <span>{errorMessage}</span>
-            <button onClick={clearError} className="font-bold ml-2 cursor-pointer">&times;</button>
-          </div>
-        )}
-
-        {/* Main Grid: Video Player + Sidebar */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
-          {/* Video & Playback Column (2 cols) */}
-          <div className="lg:col-span-2 flex flex-col">
-            {/* Player Wrapper element supporting Fullscreen */}
-            <div
-              ref={playerWrapperRef}
-              className={`relative rounded-2xl overflow-hidden bg-black shadow-2xl ${
-                isFullscreen ? 'w-screen h-screen flex items-center justify-center' : 'w-full'
-              }`}
+        {/* Room Code Badge with Copy */}
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 bg-white/[0.04] px-3.5 py-1.5 rounded-xl border border-white/[0.08]">
+            <span className="text-xs text-text-muted">Code:</span>
+            <span className="font-mono text-sm font-bold text-accent-blue tracking-wider">{code}</span>
+            <button
+              onClick={handleCopyCode}
+              className="ml-1 text-text-muted hover:text-white transition cursor-pointer p-0.5"
+              title="Copy room code"
             >
-              <YouTubePlayer
-                videoId={videoId}
-                playState={playState}
-                currentTime={currentTime}
-                volume={volume}
-                isMuted={isMuted}
-                onPlayerTimeUpdate={(t, d) => {
-                  setLocalTime(t);
-                  setDuration(d);
-                }}
-              />
+              {copiedCode ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
+            </button>
+          </div>
+        </div>
+      </div>
 
-              {/* YouTube Live stream Physics Floating Reactions */}
-              <FloatingReactions reactions={activeReactions} />
+      {/* Error banner if any */}
+      {errorMessage && (
+        <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-xs px-4 py-2.5 rounded-xl flex items-center justify-between backdrop-blur-lg">
+          <span>{errorMessage}</span>
+          <button onClick={clearError} className="font-bold ml-2 cursor-pointer">&times;</button>
+        </div>
+      )}
 
-              {/* Fullscreen Reactions Floating Pill - Visible at bottom-right in Fullscreen per Requirement 4 */}
-              {isFullscreen && (
-                <div className="absolute bottom-6 right-6 z-40 animate-fade-in">
-                  <ReactionBar
-                    myRole={myRole}
-                    onSendReaction={(emoji) => emitReaction(emoji)}
-                    compact
-                  />
-                </div>
-              )}
-            </div>
-
-            {/* Custom Playback Controls */}
-            <PlaybackControls
+      {/* Main Grid: Video Player + Sidebar */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
+        {/* Video & Playback Column (2 cols) */}
+        <div className="lg:col-span-2 flex flex-col">
+          {/* Player Wrapper element supporting Fullscreen */}
+          <div
+            ref={playerWrapperRef}
+            className={`relative rounded-2xl overflow-hidden bg-black shadow-2xl ${
+              isFullscreen ? 'w-screen h-screen flex items-center justify-center' : 'w-full'
+            }`}
+          >
+            <YouTubePlayer
+              videoId={videoId}
               playState={playState}
-              currentTime={localTime}
-              duration={duration}
+              currentTime={currentTime}
               volume={volume}
               isMuted={isMuted}
-              isFullscreen={isFullscreen}
-              myRole={myRole}
-              canControl={canControl}
-              onPlay={() => emitPlay(localTime)}
-              onPause={() => emitPause(localTime)}
-              onSeek={(t) => emitSeek(t)}
-              onVolumeChange={(val) => setVolume(val)}
-              onToggleMute={() => setIsMuted(!isMuted)}
-              onToggleFullscreen={handleToggleFullscreen}
-              onChangeVideo={(vId) => emitChangeVideo(vId)}
-              onRequestControl={() => emitRequestControl()}
+              captionsEnabled={captionsEnabled}
+              onPlayerTimeUpdate={(t, d) => {
+                setLocalTime(t);
+                setDuration(d);
+              }}
             />
+
+            {/* YouTube Live stream Physics Floating Reactions */}
+            <FloatingReactions reactions={activeReactions} />
+
+            {/* Fullscreen Reactions Floating Pill - Visible at bottom-right in Fullscreen per Requirement 4 */}
+            {isFullscreen && (
+              <div className="absolute bottom-6 right-6 z-40 animate-fade-in">
+                <ReactionBar
+                  myRole={myRole}
+                  onSendReaction={(emoji) => emitReaction(emoji)}
+                  compact
+                />
+              </div>
+            )}
           </div>
+
+          {/* Custom Playback Controls */}
+          <PlaybackControls
+            playState={playState}
+            currentTime={localTime}
+            duration={duration}
+            volume={volume}
+            isMuted={isMuted}
+            isFullscreen={isFullscreen}
+            captionsEnabled={captionsEnabled}
+            myRole={myRole}
+            canControl={canControl}
+            onPlay={() => emitPlay(localTime)}
+            onPause={() => emitPause(localTime)}
+            onSeek={(t) => emitSeek(t)}
+            onVolumeChange={(val) => setVolume(val)}
+            onToggleMute={() => setIsMuted(!isMuted)}
+            onToggleFullscreen={handleToggleFullscreen}
+            onToggleCaptions={() => setCaptionsEnabled(!captionsEnabled)}
+            onChangeVideo={(vId) => emitChangeVideo(vId)}
+            onRequestControl={() => emitRequestControl()}
+          />
+        </div>
 
           {/* Sidebar Column (1 col): Chat & Participants */}
           <div className="flex flex-col h-[590px]">
@@ -309,7 +308,6 @@ export const RoomPage: React.FC = () => {
           requests={controlRequests}
           onRespond={(uId, approve) => emitRespondControl(uId, approve)}
         />
-      </div>
     </div>
   );
 };
