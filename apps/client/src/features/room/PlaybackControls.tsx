@@ -116,9 +116,8 @@ export const PlaybackControls: React.FC<PlaybackControlsProps> = ({
                 value={currentTime}
                 disabled={!canControl}
                 onChange={(e) => canControl && onSeek(parseFloat(e.target.value))}
-                className={`w-full h-2 rounded-lg appearance-none cursor-pointer bg-white/[0.08] accent-accent-blue focus:outline-none transition-all ${
-                  !canControl ? 'cursor-not-allowed opacity-60' : ''
-                }`}
+                className={`w-full h-2 rounded-lg appearance-none cursor-pointer bg-white/[0.08] accent-accent-blue focus:outline-none transition-all ${!canControl ? 'cursor-not-allowed opacity-60' : ''
+                  }`}
                 style={{
                   background: `linear-gradient(to right, #3b82f6 0%, #9333ea ${progressPercent}%, rgba(255,255,255,0.08) ${progressPercent}%, rgba(255,255,255,0.08) 100%)`
                 }}
@@ -168,11 +167,10 @@ export const PlaybackControls: React.FC<PlaybackControlsProps> = ({
             <button
               type="button"
               onClick={() => setShowChangeVideo(!showChangeVideo)}
-              className={`text-xs px-3 py-2 rounded-xl border font-semibold transition flex items-center gap-1.5 flex-shrink-0 ${
-                showChangeVideo
+              className={`text-xs px-3 py-2 rounded-xl border font-semibold transition flex items-center gap-1.5 flex-shrink-0 ${showChangeVideo
                   ? 'bg-accent-purple/25 border-accent-purple/50 text-white'
                   : 'bg-white/[0.04] hover:bg-white/[0.08] border-white/[0.08] text-text-muted hover:text-white'
-              }`}
+                }`}
               title="Change playing YouTube video"
             >
               <Video size={14} />
@@ -202,7 +200,7 @@ export const PlaybackControls: React.FC<PlaybackControlsProps> = ({
             <Video size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-muted" />
             <input
               type="text"
-              placeholder="Paste YouTube link or ID (leave empty for Rickroll)..."
+              placeholder="Paste YouTube link"
               value={videoInput}
               onChange={(e) => setVideoInput(e.target.value)}
               className="w-full pl-10 pr-3 py-2 bg-white/[0.03] border border-white/[0.08] rounded-xl text-xs sm:text-sm text-white placeholder:text-text-muted/50 focus:outline-none focus:border-accent-blue transition"
