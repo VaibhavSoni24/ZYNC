@@ -154,6 +154,30 @@ export class Room {
     return message;
   }
 
+  addSystemMessage(text: string): ChatMessageDto {
+    const message: ChatMessageDto = {
+      id: 'sys_' + Math.random().toString(36).substring(2, 10),
+      userId: 'system',
+      username: 'System',
+      avatar: 'Zyncie',
+      message: text.trim(),
+      ts: Date.now()
+    };
+
+    this.chatHistory.push(message);
+    if (this.chatHistory.length > this.MAX_CHAT_HISTORY) {
+      this.chatHistory.shift();
+    }
+
+    for (const p of this.participants.values()) {
+      if (p.role !== Role.VIEWER) {
+        p.socket.emit(SOCKET_EVENTS.CHAT_MESSAGE, message);
+      }
+    }
+
+    return message;
+  }
+
   getRecentChatFor(observer: Participant): ChatMessageDto[] {
     if (observer.role === Role.VIEWER) return [];
     return [...this.chatHistory];

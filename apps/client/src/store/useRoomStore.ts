@@ -98,6 +98,7 @@ export const useRoomStore = create<RoomState>((set, get) => ({
     socket.off(SOCKET_EVENTS.CHAT_MESSAGE);
     socket.off(SOCKET_EVENTS.REACTION);
     socket.off(SOCKET_EVENTS.CONTROL_REQUESTED);
+    socket.off(SOCKET_EVENTS.HOST_TRANSFERRED);
     socket.off(SOCKET_EVENTS.KICKED);
     socket.off(SOCKET_EVENTS.ERROR);
 
@@ -131,6 +132,14 @@ export const useRoomStore = create<RoomState>((set, get) => ({
         participants,
         myRole: me ? me.role : get().myRole
       });
+    });
+
+    // Host transferred
+    socket.on(SOCKET_EVENTS.HOST_TRANSFERRED, (payload: { newHostId: string; newHostUsername: string }) => {
+      set((state) => ({
+        room: state.room ? { ...state.room, hostId: payload.newHostId, hostUsername: payload.newHostUsername } : state.room,
+        myRole: payload.newHostId === user.id ? Role.HOST : state.myRole
+      }));
     });
 
     // New chat message
@@ -167,10 +176,10 @@ export const useRoomStore = create<RoomState>((set, get) => ({
     });
 
     // Kicked from room
-    socket.on(SOCKET_EVENTS.KICKED, (payload: { message: string }) => {
+    socket.on(SOCKET_EVENTS.KICKED, (payload: { message?: string; reason?: string }) => {
       set({
         isKicked: true,
-        kickedReason: payload.message || 'You were removed from the room by the host'
+        kickedReason: payload.reason || payload.message || 'You were removed from the room by the host'
       });
       disconnectSocket();
     });

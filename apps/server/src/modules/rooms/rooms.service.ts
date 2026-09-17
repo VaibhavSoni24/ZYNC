@@ -225,6 +225,27 @@ export class RoomsService {
       if (mem) mem.currentVideoId = videoId;
     }
   }
+
+  async updateRoomHost(code: string, newHostUserId: string): Promise<void> {
+    const normalizedCode = code.toUpperCase().trim();
+    try {
+      await prisma.room.update({
+        where: { code: normalizedCode },
+        data: { hostId: newHostUserId }
+      });
+      logger.info(`Updated room host in DB for ${normalizedCode} -> ${newHostUserId}`);
+    } catch (err: any) {
+      logger.warn(`Prisma updateRoomHost notice (${normalizedCode}): ${err.message}`);
+    }
+
+    const mem = inMemoryRooms.get(normalizedCode);
+    if (mem) mem.hostId = newHostUserId;
+    for (const [k, v] of inMemoryRooms.entries()) {
+      if (v.code === normalizedCode) {
+        v.hostId = newHostUserId;
+      }
+    }
+  }
 }
 
 export const roomsService = new RoomsService();

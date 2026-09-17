@@ -176,11 +176,66 @@ export class SocketServer {
 
     const removed = room.removeParticipant(socket.id);
     if (removed) {
-      room.broadcastParticipantListUpdate();
       this.io.to(room.code).emit(SOCKET_EVENTS.USER_LEFT, {
         userId: removed.userId,
         username: removed.username
       });
+
+      // Host departure logic:
+      // If host leaves and there are moderators, host power is given to any one random moderator.
+      // But if no moderator, the room will be deleted.
+      const wasHost = (removed.role === Role.HOST || room.hostId === removed.userId);
+
+      if (wasHost && room.getParticipantCount() > 0) {
+        const moderators = room.getAllParticipants().filter((p) => p.role === Role.MODERATOR);
+
+        if (moderators.length > 0) {
+          // Select one random moderator and promote to Host
+          const selectedMod = moderators[Math.floor(Math.random() * moderators.length)];
+          selectedMod.role = Role.HOST;
+          room.hostId = selectedMod.userId;
+
+          logger.info(`Host ${removed.username} left room ${roomCode}. Random moderator ${selectedMod.username} promoted to Host.`);
+
+          // Update host in DB
+          roomsService.updateRoomHost(roomCode, selectedMod.userId).catch((err) => {
+            logger.warn(`Failed to update room host in DB for ${roomCode}:`, err);
+          });
+
+          // Notify room of host transfer
+          this.io.to(room.code).emit(SOCKET_EVENTS.HOST_TRANSFERRED, {
+            newHostId: selectedMod.userId,
+            newHostUsername: selectedMod.username
+          });
+
+          // Post system notification message into chat
+          room.addSystemMessage(`👑 The Host left. ${selectedMod.username} was chosen as the new Host!`);
+
+          room.broadcastParticipantListUpdate();
+        } else {
+          // No moderator in room -> the room will be deleted!
+          logger.info(`Host ${removed.username} left room ${roomCode} with no moderators. Deleting room.`);
+
+          // Inform remaining participants that the room has ended
+          for (const remaining of room.getAllParticipants()) {
+            remaining.socket.emit(SOCKET_EVENTS.KICKED, {
+              reason: 'The host has left the room and no moderators were available. The watch party has ended.'
+            });
+            this.socketToRoomMap.delete(remaining.socket.id);
+            remaining.socket.leave(roomCode);
+          }
+
+          // Delete immediately from memory and database
+          this.rooms.delete(roomCode);
+          roomsService.deleteRoomByCode(roomCode).catch((err) => {
+            logger.warn(`Failed to delete room ${roomCode}:`, err);
+          });
+
+          return;
+        }
+      } else {
+        room.broadcastParticipantListUpdate();
+      }
 
       // If room is empty, delete it
       if (room.getParticipantCount() === 0) {

@@ -114,7 +114,11 @@ export const RoomPage: React.FC = () => {
           <div className="w-14 h-14 rounded-full bg-red-500/10 text-red-400 flex items-center justify-center mx-auto mb-4 border border-red-500/20">
             <AlertCircle size={28} />
           </div>
-          <h2 className="text-xl font-bold text-white">Removed From Room</h2>
+          <h2 className="text-xl font-bold text-white">
+            {kickedReason?.includes('ended') || kickedReason?.includes('closed') || kickedReason?.includes('host')
+              ? 'Watch Party Ended'
+              : 'Removed From Room'}
+          </h2>
           <p className="text-sm text-text-muted mt-2 mb-6">
             {kickedReason || 'You have been removed from this room by the host.'}
           </p>
