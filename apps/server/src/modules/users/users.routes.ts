@@ -5,6 +5,7 @@ import { requireAuth } from '../../middleware/auth';
 const router = Router();
 
 router.put('/profile', requireAuth, (req, res, next) => usersController.updateProfile(req as any, res, next));
+router.get('/check-username', requireAuth, (req, res, next) => usersController.checkUsername(req as any, res, next));
 router.put('/username', requireAuth, (req, res, next) => usersController.updateUsername(req as any, res, next));
 
 export const usersRoutes = router;

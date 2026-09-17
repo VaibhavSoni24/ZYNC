@@ -13,6 +13,7 @@ export interface UserDto {
   bio?: string | null;
   dob: string;
   usernameChangeCount: number;
+  lastUsernameChangedAt?: string | null;
   createdAt: string;
 }
 

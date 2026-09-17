@@ -25,6 +25,9 @@ function formatUserDto(user: any): UserDto {
     bio: user.bio || null,
     dob: user.dob,
     usernameChangeCount: user.usernameChangeCount || 0,
+    lastUsernameChangedAt: user.lastUsernameChangedAt instanceof Date
+      ? user.lastUsernameChangedAt.toISOString()
+      : (user.lastUsernameChangedAt || null),
     createdAt: user.createdAt instanceof Date ? user.createdAt.toISOString() : user.createdAt
   };
 }

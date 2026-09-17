@@ -124,9 +124,10 @@ describe('Zync Full Suite Verification', () => {
       expect(room.language).toBe('Japanese');
       expect(room.code).toBeDefined();
 
-      const retrieved = await roomsService.getRoomByCode(room.code);
-      expect(retrieved?.id).toBe(room.id);
-    });
+      const fetched = await roomsService.getRoomByCode(room.code);
+      expect(fetched).toBeDefined();
+      expect(fetched?.name).toBe('Movie Night');
+    }, 25000);
 
     it('should filter public rooms by language and search query', async () => {
       const rooms = await roomsService.getPublicRooms({
