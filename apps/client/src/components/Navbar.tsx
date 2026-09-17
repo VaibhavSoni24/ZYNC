@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useLayoutEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { LogOut, Menu, X } from 'lucide-react';
-import { motion, LayoutGroup } from 'motion/react';
+import { motion } from 'motion/react';
 import { useAuthStore } from '../store/useAuthStore';
 import { AvatarIcon } from '../assets/avatars';
 
@@ -31,6 +31,59 @@ export const Navbar: React.FC = () => {
         { label: 'About', path: '/about' },
         { label: 'Contact', path: '/contact' }
       ];
+
+  const navContainerRef = useRef<HTMLDivElement>(null);
+  const linkRefs = useRef<Record<string, HTMLAnchorElement | null>>({});
+  const [pillStyle, setPillStyle] = useState<{ left: number; width: number; opacity: number }>({
+    left: 0,
+    width: 0,
+    opacity: 0,
+  });
+  const isFirstRender = useRef(true);
+
+  useLayoutEffect(() => {
+    const updatePill = () => {
+      const activeLink = navLinks.find(link => isActive(link.path));
+      const container = navContainerRef.current;
+      if (!activeLink || !container) {
+        setPillStyle(prev => ({ ...prev, opacity: 0 }));
+        return;
+      }
+
+      const activeEl = linkRefs.current[activeLink.path];
+      if (activeEl) {
+        const containerRect = container.getBoundingClientRect();
+        const activeRect = activeEl.getBoundingClientRect();
+
+        setPillStyle({
+          left: activeRect.left - containerRect.left,
+          width: activeRect.width,
+          opacity: 1,
+        });
+      }
+    };
+
+    updatePill();
+
+    const timer = setTimeout(() => {
+      isFirstRender.current = false;
+    }, 60);
+
+    let ro: ResizeObserver | null = null;
+    if (navContainerRef.current && typeof ResizeObserver !== 'undefined') {
+      ro = new ResizeObserver(() => {
+        updatePill();
+      });
+      ro.observe(navContainerRef.current);
+    }
+
+    window.addEventListener('resize', updatePill);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('resize', updatePill);
+      if (ro) ro.disconnect();
+    };
+  }, [location.pathname, isAuthenticated]);
 
   return (
     <header className="sticky top-0 z-40 bg-bg-base/80 backdrop-blur-md border-b border-border-subtle">
@@ -63,35 +116,48 @@ export const Navbar: React.FC = () => {
 
         {/* Desktop Navigation Links - Centered Floating Pill with Scroll-Independent Sliding Switch */}
         <nav className="hidden md:flex items-center gap-1 absolute left-1/2 -translate-x-1/2 pointer-events-auto">
-          <LayoutGroup id="desktop-navbar-pill">
-            <div className="flex items-center gap-1 p-1 rounded-full bg-white/[0.04] border border-white/[0.08] backdrop-blur-xl shadow-lg shadow-black/20 relative">
-              {navLinks.map((link) => {
-                const active = isActive(link.path);
-                return (
-                  <Link
-                    key={link.path}
-                    to={link.path}
-                    className={`relative inline-flex items-center justify-center px-4 py-1.5 rounded-full text-xs font-medium transition-colors duration-200 text-center select-none ${
-                      active ? 'text-white font-semibold' : 'text-text-muted hover:text-white'
-                    }`}
-                  >
-                    {active && (
-                      <motion.div
-                        layoutId="activeNavPill"
-                        className="absolute inset-0 rounded-full bg-gradient-to-r from-accent-blue/30 via-accent-purple/35 to-accent-blue/25 border border-white/20 shadow-[0_0_15px_rgba(155,60,255,0.25)]"
-                        transition={{
-                          type: 'spring',
-                          stiffness: 420,
-                          damping: 32
-                        }}
-                      />
-                    )}
-                    <span className="relative z-10">{link.label}</span>
-                  </Link>
-                );
-              })}
-            </div>
-          </LayoutGroup>
+          <div
+            ref={navContainerRef}
+            className="relative flex items-center gap-1 p-1 rounded-full bg-white/[0.04] border border-white/[0.08] backdrop-blur-xl shadow-lg shadow-black/20"
+          >
+            {/* Smooth Horizontal-Only Sliding Active Pill Indicator */}
+            <motion.div
+              className="absolute top-1 bottom-1 left-0 rounded-full bg-gradient-to-r from-accent-blue/30 via-accent-purple/35 to-accent-blue/25 border border-white/20 shadow-[0_0_15px_rgba(155,60,255,0.25)] pointer-events-none"
+              initial={false}
+              animate={{
+                x: pillStyle.left,
+                width: pillStyle.width,
+                opacity: pillStyle.opacity,
+              }}
+              transition={
+                isFirstRender.current
+                  ? { duration: 0 }
+                  : {
+                      type: 'spring',
+                      stiffness: 420,
+                      damping: 32,
+                    }
+              }
+            />
+
+            {navLinks.map((link) => {
+              const active = isActive(link.path);
+              return (
+                <Link
+                  key={link.path}
+                  ref={(el) => {
+                    linkRefs.current[link.path] = el;
+                  }}
+                  to={link.path}
+                  className={`relative z-10 inline-flex items-center justify-center px-4 py-1.5 rounded-full text-xs font-semibold select-none text-center transition-colors duration-200 ${
+                    active ? 'text-white' : 'text-text-muted hover:text-white'
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
+          </div>
         </nav>
 
         {/* Desktop User Section / CTA */}

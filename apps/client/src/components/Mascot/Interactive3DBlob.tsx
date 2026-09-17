@@ -58,19 +58,25 @@ export const Interactive3DBlob: React.FC<Interactive3DBlobProps> = ({
   const lastActiveTime = useRef(Date.now());
   const petTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Sync external state changes: form interactions (typing, password, etc.) immediately override pet state!
+  // Sync external state changes: form interactions (typing, password, etc.) smoothly override pet state!
   useEffect(() => {
     if (externalState !== 'idle') {
       if (petTimerRef.current) {
         clearTimeout(petTimerRef.current);
         petTimerRef.current = null;
       }
+      squishControls.start({
+        scaleX: 1,
+        scaleY: 1,
+        y: 0,
+        transition: { duration: 0.25, ease: 'easeOut' }
+      });
       setInternalState(externalState);
     } else {
       setInternalState(prev => (prev === 'pet' ? 'pet' : 'idle'));
     }
     lastActiveTime.current = Date.now();
-  }, [externalState]);
+  }, [externalState, squishControls]);
 
   // Clean up pet timer on unmount
   useEffect(() => {
@@ -503,7 +509,10 @@ export const Interactive3DBlob: React.FC<Interactive3DBlobProps> = ({
                   scale: isPet ? [1, 1.15, 1] : isPassword ? 1.08 : 1,
                   opacity: isPet ? 0.95 : isPassword ? 0.85 : 0.6
                 }}
-                transition={{ repeat: isPet ? Infinity : 0, duration: 1.2, ease: 'easeInOut' }}
+                transition={{
+                  scale: isPet ? { repeat: Infinity, duration: 1.2, ease: 'easeInOut' } : { duration: 0.25, ease: 'easeOut' },
+                  opacity: { duration: 0.25, ease: 'easeOut' }
+                }}
                 fill="url(#dreamCheekBlush)"
               />
               <motion.circle
@@ -514,203 +523,217 @@ export const Interactive3DBlob: React.FC<Interactive3DBlobProps> = ({
                   scale: isPet ? [1, 1.15, 1] : isPassword ? 1.08 : 1,
                   opacity: isPet ? 0.95 : isPassword ? 0.85 : 0.6
                 }}
-                transition={{ repeat: isPet ? Infinity : 0, duration: 1.2, ease: 'easeInOut' }}
+                transition={{
+                  scale: isPet ? { repeat: Infinity, duration: 1.2, ease: 'easeInOut' } : { duration: 0.25, ease: 'easeOut' },
+                  opacity: { duration: 0.25, ease: 'easeOut' }
+                }}
                 fill="url(#dreamCheekBlush)"
               />
 
-              {/* EYES */}
-              {isPet ? (
-                /* Blissful Head-Pat Reaction: Adorable Squint Purr Eyes ^ ^ */
-                <g className="transition-all duration-300">
-                  <path
-                    d="M 94 100 Q 107 82 120 100"
-                    stroke="#0F172A"
-                    strokeWidth="4.8"
-                    strokeLinecap="round"
-                    fill="none"
-                  />
-                  <path
-                    d="M 140 100 Q 153 82 166 100"
-                    stroke="#0F172A"
-                    strokeWidth="4.8"
-                    strokeLinecap="round"
-                    fill="none"
-                  />
-                  {/* Joyful blush sparkles */}
-                  <circle cx="107" cy="84" r="2.5" fill="#FB7185" />
-                  <circle cx="153" cy="84" r="2.5" fill="#FB7185" />
-                </g>
-              ) : isPassword ? (
-                /* Natural cute closed eyes - identical to when patted ^ ^ */
-                <g className="transition-all duration-300">
-                  <path
-                    d="M 94 100 Q 107 82 120 100"
-                    stroke="#0F172A"
-                    strokeWidth="4.8"
-                    strokeLinecap="round"
-                    fill="none"
-                  />
-                  <path
-                    d="M 140 100 Q 153 82 166 100"
-                    stroke="#0F172A"
-                    strokeWidth="4.8"
-                    strokeLinecap="round"
-                    fill="none"
-                  />
-                  <circle cx="107" cy="84" r="2.2" fill="#FB7185" opacity="0.8" />
-                  <circle cx="153" cy="84" r="2.2" fill="#FB7185" opacity="0.8" />
-                </g>
-              ) : isYawn ? (
-                /* Sleepy squint eyes: > < or curved sleepy arcs */
-                <g className="transition-all duration-300">
-                  <path d="M 96 98 Q 106 90 116 98" stroke="#0F172A" strokeWidth="4" strokeLinecap="round" fill="none" />
-                  <path d="M 144 98 Q 154 90 164 98" stroke="#0F172A" strokeWidth="4" strokeLinecap="round" fill="none" />
-                </g>
-              ) : isSuccess ? (
-                /* Ecstatic happy curved joy eyes */
-                <g className="transition-all duration-300">
-                  <path d="M 96 100 Q 107 84 118 100" stroke="#0F172A" strokeWidth="4.5" strokeLinecap="round" fill="none" />
-                  <path d="M 142 100 Q 153 84 164 100" stroke="#0F172A" strokeWidth="4.5" strokeLinecap="round" fill="none" />
-                  <circle cx="158" cy="88" r="3.5" fill="#FBBF24" />
-                </g>
-              ) : isError ? (
-                /* Worried / Apologetic Droop Eyes */
-                <g className="transition-all duration-300">
-                  {/* Worried brows */}
-                  <path d="M 96 86 Q 107 90 116 84" stroke="#0F172A" strokeWidth="3" strokeLinecap="round" fill="none" />
-                  <path d="M 144 84 Q 153 90 164 86" stroke="#0F172A" strokeWidth="3" strokeLinecap="round" fill="none" />
-                  {/* Eyes */}
-                  <circle cx="107" cy="98" r="9" fill="#0F172A" />
-                  <circle cx="153" cy="98" r="9" fill="#0F172A" />
-                  <circle cx="105" cy="96" r="3" fill="#FFFFFF" />
-                  <circle cx="151" cy="96" r="3" fill="#FFFFFF" />
-                </g>
-              ) : (
-                /* Dream-Blob Expressive Eyes with Smooth Pupil Mouse Following */
-                <g className="transition-all duration-200">
-                  {/* Left Eye Socket */}
-                  <ellipse
-                    cx="107"
-                    cy="96"
-                    rx={11}
-                    ry={blink ? 1.5 : 13}
-                    fill="#0F172A"
-                    className="transition-all duration-150"
-                  />
-                  {/* Right Eye Socket */}
-                  <ellipse
-                    cx="153"
-                    cy="96"
-                    rx={11}
-                    ry={blink ? 1.5 : 13}
-                    fill="#0F172A"
-                    className="transition-all duration-150"
-                  />
-
-                  {!blink && (
-                    <>
-                      {/* Left Specular Glint (Glossy Dream-Blob Eye) */}
-                      <circle
-                        cx={107 + pupilPos.x}
-                        cy={94 + pupilPos.y}
-                        r="4.5"
-                        fill="#FFFFFF"
+              {/* EXPRESSIVE FACE (EYES + MOUTH) WITH SEAMLESS DISSOLVE TRANSITIONS */}
+              <AnimatePresence>
+                <motion.g
+                  key={activeState}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.22, ease: 'easeOut' }}
+                >
+                  {/* EYES */}
+                  {isPet ? (
+                    /* Blissful Head-Pat Reaction: Adorable Squint Purr Eyes ^ ^ */
+                    <g className="transition-all duration-300">
+                      <path
+                        d="M 94 100 Q 107 82 120 100"
+                        stroke="#0F172A"
+                        strokeWidth="4.8"
+                        strokeLinecap="round"
+                        fill="none"
                       />
-                      <circle
-                        cx={111 + pupilPos.x}
-                        cy={98 + pupilPos.y}
-                        r="1.8"
-                        fill="#FFFFFF"
+                      <path
+                        d="M 140 100 Q 153 82 166 100"
+                        stroke="#0F172A"
+                        strokeWidth="4.8"
+                        strokeLinecap="round"
+                        fill="none"
+                      />
+                      {/* Joyful blush sparkles */}
+                      <circle cx="107" cy="84" r="2.5" fill="#FB7185" />
+                      <circle cx="153" cy="84" r="2.5" fill="#FB7185" />
+                    </g>
+                  ) : isPassword ? (
+                    /* Natural cute closed eyes - identical to when patted ^ ^ */
+                    <g className="transition-all duration-300">
+                      <path
+                        d="M 94 100 Q 107 82 120 100"
+                        stroke="#0F172A"
+                        strokeWidth="4.8"
+                        strokeLinecap="round"
+                        fill="none"
+                      />
+                      <path
+                        d="M 140 100 Q 153 82 166 100"
+                        stroke="#0F172A"
+                        strokeWidth="4.8"
+                        strokeLinecap="round"
+                        fill="none"
+                      />
+                      <circle cx="107" cy="84" r="2.2" fill="#FB7185" opacity="0.8" />
+                      <circle cx="153" cy="84" r="2.2" fill="#FB7185" opacity="0.8" />
+                    </g>
+                  ) : isYawn ? (
+                    /* Sleepy squint eyes: > < or curved sleepy arcs */
+                    <g className="transition-all duration-300">
+                      <path d="M 96 98 Q 106 90 116 98" stroke="#0F172A" strokeWidth="4" strokeLinecap="round" fill="none" />
+                      <path d="M 144 98 Q 154 90 164 98" stroke="#0F172A" strokeWidth="4" strokeLinecap="round" fill="none" />
+                    </g>
+                  ) : isSuccess ? (
+                    /* Ecstatic happy curved joy eyes */
+                    <g className="transition-all duration-300">
+                      <path d="M 96 100 Q 107 84 118 100" stroke="#0F172A" strokeWidth="4.5" strokeLinecap="round" fill="none" />
+                      <path d="M 142 100 Q 153 84 164 100" stroke="#0F172A" strokeWidth="4.5" strokeLinecap="round" fill="none" />
+                      <circle cx="158" cy="88" r="3.5" fill="#FBBF24" />
+                    </g>
+                  ) : isError ? (
+                    /* Worried / Apologetic Droop Eyes */
+                    <g className="transition-all duration-300">
+                      {/* Worried brows */}
+                      <path d="M 96 86 Q 107 90 116 84" stroke="#0F172A" strokeWidth="3" strokeLinecap="round" fill="none" />
+                      <path d="M 144 84 Q 153 90 164 86" stroke="#0F172A" strokeWidth="3" strokeLinecap="round" fill="none" />
+                      {/* Eyes */}
+                      <circle cx="107" cy="98" r="9" fill="#0F172A" />
+                      <circle cx="153" cy="98" r="9" fill="#0F172A" />
+                      <circle cx="105" cy="96" r="3" fill="#FFFFFF" />
+                      <circle cx="151" cy="96" r="3" fill="#FFFFFF" />
+                    </g>
+                  ) : (
+                    /* Dream-Blob Expressive Eyes with Smooth Pupil Mouse Following */
+                    <g className="transition-all duration-200">
+                      {/* Left Eye Socket */}
+                      <ellipse
+                        cx="107"
+                        cy="96"
+                        rx={11}
+                        ry={blink ? 1.5 : 13}
+                        fill="#0F172A"
+                        className="transition-all duration-150"
+                      />
+                      {/* Right Eye Socket */}
+                      <ellipse
+                        cx="153"
+                        cy="96"
+                        rx={11}
+                        ry={blink ? 1.5 : 13}
+                        fill="#0F172A"
+                        className="transition-all duration-150"
                       />
 
-                      {/* Right Specular Glint */}
-                      <circle
-                        cx={153 + pupilPos.x}
-                        cy={94 + pupilPos.y}
-                        r="4.5"
-                        fill="#FFFFFF"
-                      />
-                      <circle
-                        cx={157 + pupilPos.x}
-                        cy={98 + pupilPos.y}
-                        r="1.8"
-                        fill="#FFFFFF"
-                      />
-                    </>
+                      {!blink && (
+                        <>
+                          {/* Left Specular Glint (Glossy Dream-Blob Eye) */}
+                          <circle
+                            cx={107 + pupilPos.x}
+                            cy={94 + pupilPos.y}
+                            r="4.5"
+                            fill="#FFFFFF"
+                          />
+                          <circle
+                            cx={111 + pupilPos.x}
+                            cy={98 + pupilPos.y}
+                            r="1.8"
+                            fill="#FFFFFF"
+                          />
+
+                          {/* Right Specular Glint */}
+                          <circle
+                            cx={153 + pupilPos.x}
+                            cy={94 + pupilPos.y}
+                            r="4.5"
+                            fill="#FFFFFF"
+                          />
+                          <circle
+                            cx={157 + pupilPos.x}
+                            cy={98 + pupilPos.y}
+                            r="1.8"
+                            fill="#FFFFFF"
+                          />
+                        </>
+                      )}
+                    </g>
                   )}
-                </g>
-              )}
 
-              {/* MOUTH */}
-              {isPet ? (
-                /* Ecstatic Head-Pat Purring Smile */
-                <g className="transition-all duration-300">
-                  <path
-                    d="M 115 110 Q 130 132 145 110 Z"
-                    fill="#F43F5E"
-                    stroke="#0F172A"
-                    strokeWidth="3.2"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M 122 122 Q 130 117 138 122 Q 130 128 122 122 Z"
-                    fill="#FDA4AF"
-                  />
-                </g>
-              ) : isSuccess ? (
-                /* Big Joyful Happy Open Smile */
-                <path
-                  d="M 116 112 Q 130 134 144 112 Z"
-                  fill="#E11D48"
-                  stroke="#0F172A"
-                  strokeWidth="3"
-                  strokeLinejoin="round"
-                />
-              ) : isTyping ? (
-                /* Curious 'O' Mouth */
-                <ellipse
-                  cx="130"
-                  cy="114"
-                  rx="6"
-                  ry="7.5"
-                  fill="#E11D48"
-                  stroke="#0F172A"
-                  strokeWidth="2.8"
-                />
-              ) : isYawn ? (
-                /* Wide Cute Yawning Mouth with Tongue */
-                <g>
-                  <ellipse cx="130" cy="116" rx="9" ry="12.5" fill="#E11D48" stroke="#0F172A" strokeWidth="3" />
-                  <path d="M 124 122 Q 130 118 136 122 Q 130 128 124 122 Z" fill="#FB7185" />
-                </g>
-              ) : isPassword ? (
-                /* Shy / bashful cute closed smile */
-                <path
-                  d="M 121 113 Q 130 123 139 113"
-                  stroke="#0F172A"
-                  strokeWidth="3.6"
-                  strokeLinecap="round"
-                  fill="none"
-                />
-              ) : isError ? (
-                /* Apologetic Wavy Mouth */
-                <path
-                  d="M 120 118 Q 125 114 130 118 Q 135 122 140 117"
-                  stroke="#0F172A"
-                  strokeWidth="3.2"
-                  strokeLinecap="round"
-                  fill="none"
-                />
-              ) : (
-                /* Classic Dream-Blob Cute Smile */
-                <path
-                  d="M 118 112 Q 130 125 142 112"
-                  stroke="#0F172A"
-                  strokeWidth="3.8"
-                  strokeLinecap="round"
-                  fill="none"
-                />
-              )}
+                  {/* MOUTH */}
+                  {isPet ? (
+                    /* Ecstatic Head-Pat Purring Smile */
+                    <g className="transition-all duration-300">
+                      <path
+                        d="M 115 110 Q 130 132 145 110 Z"
+                        fill="#F43F5E"
+                        stroke="#0F172A"
+                        strokeWidth="3.2"
+                        strokeLinejoin="round"
+                      />
+                      <path
+                        d="M 122 122 Q 130 117 138 122 Q 130 128 122 122 Z"
+                        fill="#FDA4AF"
+                      />
+                    </g>
+                  ) : isSuccess ? (
+                    /* Big Joyful Happy Open Smile */
+                    <path
+                      d="M 116 112 Q 130 134 144 112 Z"
+                      fill="#E11D48"
+                      stroke="#0F172A"
+                      strokeWidth="3"
+                      strokeLinejoin="round"
+                    />
+                  ) : isTyping ? (
+                    /* Curious 'O' Mouth */
+                    <ellipse
+                      cx="130"
+                      cy="114"
+                      rx="6"
+                      ry="7.5"
+                      fill="#E11D48"
+                      stroke="#0F172A"
+                      strokeWidth="2.8"
+                    />
+                  ) : isYawn ? (
+                    /* Wide Cute Yawning Mouth with Tongue */
+                    <g>
+                      <ellipse cx="130" cy="116" rx="9" ry="12.5" fill="#E11D48" stroke="#0F172A" strokeWidth="3" />
+                      <path d="M 124 122 Q 130 118 136 122 Q 130 128 124 122 Z" fill="#FB7185" />
+                    </g>
+                  ) : isPassword ? (
+                    /* Shy / bashful cute closed smile */
+                    <path
+                      d="M 121 113 Q 130 123 139 113"
+                      stroke="#0F172A"
+                      strokeWidth="3.6"
+                      strokeLinecap="round"
+                      fill="none"
+                    />
+                  ) : isError ? (
+                    /* Apologetic Wavy Mouth */
+                    <path
+                      d="M 120 118 Q 125 114 130 118 Q 135 122 140 117"
+                      stroke="#0F172A"
+                      strokeWidth="3.2"
+                      strokeLinecap="round"
+                      fill="none"
+                    />
+                  ) : (
+                    /* Classic Dream-Blob Cute Smile */
+                    <path
+                      d="M 118 112 Q 130 125 142 112"
+                      stroke="#0F172A"
+                      strokeWidth="3.8"
+                      strokeLinecap="round"
+                      fill="none"
+                    />
+                  )}
+                </motion.g>
+              </AnimatePresence>
             </svg>
           </motion.div>
         </motion.div>
