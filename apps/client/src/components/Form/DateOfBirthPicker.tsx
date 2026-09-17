@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ChevronDown, Check } from 'lucide-react';
 
 interface DateOfBirthPickerProps {
   value: string; // YYYY-MM-DD
@@ -32,6 +34,111 @@ const YEARS = Array.from(
   (_, i) => (MIN_AGE_YEAR - i).toString()
 );
 
+interface CustomSelectProps {
+  placeholder: string;
+  value: string;
+  options: { value: string; label: string }[];
+  onSelect: (val: string) => void;
+  isOpen: boolean;
+  onToggle: () => void;
+  onClose: () => void;
+  onFocus?: () => void;
+  align?: 'left' | 'center';
+}
+
+const CustomDropdown: React.FC<CustomSelectProps> = ({
+  placeholder,
+  value,
+  options,
+  onSelect,
+  isOpen,
+  onToggle,
+  onClose,
+  onFocus,
+  align = 'left'
+}) => {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        onClose();
+      }
+    };
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen, onClose]);
+
+  const selectedOption = options.find((opt) => opt.value === value);
+
+  return (
+    <div ref={containerRef} className="relative w-full">
+      <button
+        type="button"
+        onClick={() => {
+          if (!isOpen && onFocus) onFocus();
+          onToggle();
+        }}
+        className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl bg-white/[0.04] border ${
+          isOpen
+            ? 'border-accent-blue ring-1 ring-accent-blue/40 bg-white/[0.07]'
+            : 'border-white/[0.08] hover:border-white/20 hover:bg-white/[0.06]'
+        } text-xs transition duration-200 focus:outline-none cursor-pointer text-left`}
+      >
+        <span className={`truncate ${selectedOption ? 'text-white font-medium' : 'text-text-muted/60'} ${align === 'center' ? 'w-full text-center' : ''}`}>
+          {selectedOption ? selectedOption.label : placeholder}
+        </span>
+        <motion.span
+          animate={{ rotate: isOpen ? 180 : 0 }}
+          transition={{ duration: 0.2 }}
+          className="ml-1 flex-shrink-0 text-text-muted"
+        >
+          <ChevronDown size={14} />
+        </motion.span>
+      </button>
+
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -6, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -6, scale: 0.96 }}
+            transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+            className="absolute z-50 left-0 right-0 mt-1.5 py-1.5 max-h-56 overflow-y-auto rounded-2xl bg-[#0d0d1a] border border-white/[0.12] backdrop-blur-2xl shadow-[0_15px_35px_rgba(0,0,0,0.7)] custom-scrollbar"
+            style={{ minWidth: '100%' }}
+          >
+            {options.map((opt) => {
+              const isSelected = opt.value === value;
+              return (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => {
+                    onSelect(opt.value);
+                    onClose();
+                  }}
+                  className={`w-full px-3 py-2 text-xs flex items-center justify-between transition-colors cursor-pointer ${
+                    isSelected
+                      ? 'bg-accent-blue/15 text-accent-blue font-semibold'
+                      : 'text-text-secondary hover:bg-white/[0.06] hover:text-white'
+                  }`}
+                >
+                  <span className={`truncate ${align === 'center' ? 'w-full text-center' : ''}`}>{opt.label}</span>
+                  {isSelected && <Check size={12} className="text-accent-blue ml-1 flex-shrink-0" />}
+                </button>
+              );
+            })}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
 export const DateOfBirthPicker: React.FC<DateOfBirthPickerProps> = ({
   value,
   onChange,
@@ -39,13 +146,13 @@ export const DateOfBirthPicker: React.FC<DateOfBirthPickerProps> = ({
   onBlur,
   required = true
 }) => {
-  // Parse existing YYYY-MM-DD
   const parts = value ? value.split('-') : ['', '', ''];
   const [year, setYear] = useState(parts[0] || '');
   const [month, setMonth] = useState(parts[1] || '');
   const [day, setDay] = useState(parts[2] || '');
 
-  // Calculate days in selected month and year
+  const [openDropdown, setOpenDropdown] = useState<'month' | 'day' | 'year' | null>(null);
+
   const getDaysInMonth = (m: string, y: string) => {
     if (!m) return 31;
     const mNum = parseInt(m, 10);
@@ -77,73 +184,70 @@ export const DateOfBirthPicker: React.FC<DateOfBirthPickerProps> = ({
         <label className="block text-xs font-semibold text-text-secondary">
           Date of Birth <span className="text-[10px] text-text-muted font-normal">(Month / Day / Year)</span>
         </label>
-        <span className="text-[10px] text-accent-blue font-mono">13+ Required</span>
+        <span className="text-[10px] text-accent-blue font-mono font-medium">13+ Required</span>
       </div>
 
-      <div className="grid grid-cols-12 gap-2">
+      <div className="grid grid-cols-12 gap-2 relative z-30">
         {/* Month Dropdown (5 cols) */}
         <div className="col-span-5 relative">
-          <select
-            required={required}
+          <CustomDropdown
+            placeholder="Month"
             value={month}
+            options={MONTHS}
+            isOpen={openDropdown === 'month'}
+            onToggle={() => setOpenDropdown((prev) => (prev === 'month' ? null : 'month'))}
+            onClose={() => {
+              setOpenDropdown(null);
+              if (onBlur) onBlur();
+            }}
             onFocus={onFocus}
-            onBlur={onBlur}
-            onChange={(e) => handleUpdate(e.target.value, day, year)}
-            className="w-full bg-white/[0.04] border border-white/[0.08] focus:border-accent-blue focus:ring-1 focus:ring-accent-blue/30 rounded-xl px-2.5 py-2.5 text-xs text-text-primary focus:outline-none transition appearance-none cursor-pointer"
-          >
-            <option value="" disabled className="bg-[#0f0f1c] text-text-muted">
-              Month
-            </option>
-            {MONTHS.map((m) => (
-              <option key={m.value} value={m.value} className="bg-[#0f0f1c] text-text-primary">
-                {m.label}
-              </option>
-            ))}
-          </select>
+            onSelect={(val) => handleUpdate(val, day, year)}
+          />
         </div>
 
         {/* Day Dropdown (3 cols) */}
         <div className="col-span-3 relative">
-          <select
-            required={required}
+          <CustomDropdown
+            placeholder="Day"
             value={day}
+            options={DAYS}
+            isOpen={openDropdown === 'day'}
+            onToggle={() => setOpenDropdown((prev) => (prev === 'day' ? null : 'day'))}
+            onClose={() => {
+              setOpenDropdown(null);
+              if (onBlur) onBlur();
+            }}
             onFocus={onFocus}
-            onBlur={onBlur}
-            onChange={(e) => handleUpdate(month, e.target.value, year)}
-            className="w-full bg-white/[0.04] border border-white/[0.08] focus:border-accent-blue focus:ring-1 focus:ring-accent-blue/30 rounded-xl px-2.5 py-2.5 text-xs text-text-primary focus:outline-none transition appearance-none cursor-pointer text-center"
-          >
-            <option value="" disabled className="bg-[#0f0f1c] text-text-muted">
-              Day
-            </option>
-            {DAYS.map((d) => (
-              <option key={d.value} value={d.value} className="bg-[#0f0f1c] text-text-primary">
-                {d.label}
-              </option>
-            ))}
-          </select>
+            onSelect={(val) => handleUpdate(month, val, year)}
+            align="center"
+          />
         </div>
 
         {/* Year Dropdown (4 cols) */}
         <div className="col-span-4 relative">
-          <select
-            required={required}
+          <CustomDropdown
+            placeholder="Year"
             value={year}
+            options={YEARS.map((y) => ({ value: y, label: y }))}
+            isOpen={openDropdown === 'year'}
+            onToggle={() => setOpenDropdown((prev) => (prev === 'year' ? null : 'year'))}
+            onClose={() => {
+              setOpenDropdown(null);
+              if (onBlur) onBlur();
+            }}
             onFocus={onFocus}
-            onBlur={onBlur}
-            onChange={(e) => handleUpdate(month, day, e.target.value)}
-            className="w-full bg-white/[0.04] border border-white/[0.08] focus:border-accent-blue focus:ring-1 focus:ring-accent-blue/30 rounded-xl px-2.5 py-2.5 text-xs text-text-primary focus:outline-none transition appearance-none cursor-pointer text-center"
-          >
-            <option value="" disabled className="bg-[#0f0f1c] text-text-muted">
-              Year
-            </option>
-            {YEARS.map((y) => (
-              <option key={y} value={y} className="bg-[#0f0f1c] text-text-primary">
-                {y}
-              </option>
-            ))}
-          </select>
+            onSelect={(val) => handleUpdate(month, day, val)}
+            align="center"
+          />
         </div>
       </div>
+
+      {/* Hidden input for standard form validation */}
+      <input
+        type="hidden"
+        required={required}
+        value={year && month && day ? `${year}-${month}-${day}` : ''}
+      />
     </div>
   );
 };

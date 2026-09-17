@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { User, AtSign, Mail, Lock, Sparkles, ArrowRight, Check, Film, Zap } from 'lucide-react';
+import { User, AtSign, Mail, Lock, ArrowRight, Check, Film, Zap } from 'lucide-react';
 import { useAuthStore } from '../../store/useAuthStore';
 import { Interactive3DBlob, MascotState } from '../../components/Mascot/Interactive3DBlob';
 import {
@@ -89,12 +89,12 @@ export const RegisterPage: React.FC = () => {
           {/* ================================================================= */}
           {/* LEFT COLUMN: 3D CLOUD-BLOB COMPANION & BRAND VALUE (5 cols)       */}
           {/* ================================================================= */}
-          <div className="lg:col-span-5 flex flex-col items-center lg:items-start text-center lg:text-left space-y-6 lg:sticky lg:top-24">
-            <div className="w-full flex justify-center lg:justify-start">
-              <Interactive3DBlob state={mascotState} size={250} />
+          <div className="lg:col-span-5 flex flex-col items-center text-center space-y-6 lg:sticky lg:top-24 mx-auto lg:mx-0 w-full max-w-md lg:max-w-none">
+            <div className="w-full flex justify-center">
+              <Interactive3DBlob state={mascotState} size={300} />
             </div>
 
-            <div className="space-y-3 max-w-md">
+            <div className="space-y-3 max-w-md mx-auto">
               <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight">
                 Create Your{' '}
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent-blue via-accent-purple to-cyan-400">
@@ -303,7 +303,6 @@ export const RegisterPage: React.FC = () => {
                       </>
                     ) : (
                       <>
-                        <Sparkles size={16} />
                         <span>Create Account & Verify OTP</span>
                         <ArrowRight size={15} className="group-hover:translate-x-1 transition-transform" />
                       </>

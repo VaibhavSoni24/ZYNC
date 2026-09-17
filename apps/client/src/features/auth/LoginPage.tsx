@@ -71,13 +71,13 @@ export const LoginPage: React.FC = () => {
           {/* ================================================================= */}
           {/* LEFT COLUMN: 3D CLOUD-BLOB COMPANION & WELCOME HERO (5 cols)     */}
           {/* ================================================================= */}
-          <div className="lg:col-span-5 flex flex-col items-center lg:items-start text-center lg:text-left space-y-6">
+          <div className="lg:col-span-5 flex flex-col items-center text-center space-y-6 mx-auto lg:mx-0 w-full max-w-md lg:max-w-none">
             {/* Interactive 3D Cloud-Blob Mascot */}
-            <div className="w-full flex justify-center lg:justify-start">
-              <Interactive3DBlob state={mascotState} size={240} />
+            <div className="w-full flex justify-center">
+              <Interactive3DBlob state={mascotState} size={300} />
             </div>
 
-            <div className="space-y-3 max-w-md">
+            <div className="space-y-3 max-w-md mx-auto">
               <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight">
                 Welcome Back to{' '}
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent-blue via-accent-purple to-cyan-400">
@@ -90,7 +90,7 @@ export const LoginPage: React.FC = () => {
             </div>
 
             {/* Feature Highlights Pill */}
-            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2.5 pt-1">
+            <div className="flex flex-wrap items-center justify-center gap-2.5 pt-1">
               <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.03] border border-white/[0.06] text-[11px] text-text-muted">
                 <Radio size={12} className="text-accent-blue" />
                 <span>60Hz Live Playhead</span>

@@ -81,12 +81,12 @@ export const VerifyOtpPage: React.FC = () => {
           {/* ================================================================= */}
           {/* LEFT COLUMN: 3D CLOUD-BLOB MASCOT & INFO (5 cols)                */}
           {/* ================================================================= */}
-          <div className="lg:col-span-5 flex flex-col items-center lg:items-start text-center lg:text-left space-y-6">
-            <div className="w-full flex justify-center lg:justify-start">
-              <Interactive3DBlob state={mascotState} size={240} />
+          <div className="lg:col-span-5 flex flex-col items-center text-center space-y-6 mx-auto lg:mx-0 w-full max-w-md lg:max-w-none">
+            <div className="w-full flex justify-center">
+              <Interactive3DBlob state={mascotState} size={300} />
             </div>
 
-            <div className="space-y-3 max-w-md">
+            <div className="space-y-3 max-w-md mx-auto">
               <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight">
                 Verify Your{' '}
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent-blue via-accent-purple to-cyan-400">
@@ -99,7 +99,7 @@ export const VerifyOtpPage: React.FC = () => {
             </div>
 
             {/* Feature Pills */}
-            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2.5 pt-1">
+            <div className="flex flex-wrap items-center justify-center gap-2.5 pt-1">
               <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.03] border border-white/[0.06] text-[11px] text-text-muted">
                 <ShieldCheck size={12} className="text-accent-blue" />
                 <span>Encrypted Verification</span>
@@ -115,21 +115,21 @@ export const VerifyOtpPage: React.FC = () => {
           {/* RIGHT COLUMN: LUXURY VERIFICATION CARD (7 cols)                  */}
           {/* ================================================================= */}
           <div className="lg:col-span-7 flex justify-center lg:justify-end">
-            <div className="w-full max-w-lg rounded-3xl p-7 sm:p-10 bg-[#0a0a14]/85 border border-white/[0.08] backdrop-blur-2xl shadow-[0_25px_60px_rgba(0,0,0,0.5)] relative overflow-hidden text-center sm:text-left">
+            <div className="w-full max-w-lg rounded-3xl p-7 sm:p-10 bg-[#0a0a14]/85 border border-white/[0.08] backdrop-blur-2xl shadow-[0_25px_60px_rgba(0,0,0,0.5)] relative overflow-hidden text-center">
               {/* Brand Accent Top Border */}
               <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-accent-blue via-accent-purple to-cyan-400" />
               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-60 h-28 bg-accent-blue/15 rounded-full blur-3xl pointer-events-none" />
 
               <div className="relative z-10 space-y-6">
-                <div>
+                <div className="text-center">
                   <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent-blue/10 border border-accent-blue/20 text-accent-blue text-xs font-semibold mb-3">
                     <MailCheck size={13} />
-                    <span>Code Dispatched</span>
+                    <span>Code Sent</span>
                   </div>
                   <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
                     Enter Verification Code
                   </h2>
-                  <p className="text-xs text-text-muted mt-1.5 leading-relaxed">
+                  <p className="text-xs text-text-muted mt-1.5 leading-relaxed max-w-sm mx-auto">
                     We sent a 6-digit confirmation code to{' '}
                     <span className="text-white font-medium break-all">{email}</span>
                   </p>
@@ -150,7 +150,7 @@ export const VerifyOtpPage: React.FC = () => {
                 )}
 
                 <form onSubmit={handleSubmit} className="space-y-6">
-                  <div className="relative max-w-[320px] mx-auto sm:mx-0">
+                  <div className="relative max-w-[320px] mx-auto">
                     <input
                       type="text"
                       maxLength={6}
