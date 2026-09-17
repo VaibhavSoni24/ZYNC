@@ -27,11 +27,36 @@ interface AuthState {
   clearError: () => void;
 }
 
+const CACHED_USER_KEY = 'zync_cached_user';
+
+function getInitialCachedUser(): UserDto | null {
+  try {
+    const raw = localStorage.getItem(CACHED_USER_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+function setCachedUser(user: UserDto | null) {
+  try {
+    if (user) {
+      localStorage.setItem(CACHED_USER_KEY, JSON.stringify(user));
+    } else {
+      localStorage.removeItem(CACHED_USER_KEY);
+    }
+  } catch {
+    // ignore
+  }
+}
+
+const initialUser = getInitialCachedUser();
+
 export const useAuthStore = create<AuthState>((set) => ({
-  user: null,
+  user: initialUser,
   accessToken: null,
-  isAuthenticated: false,
-  isLoading: true,
+  isAuthenticated: !!initialUser,
+  isLoading: !initialUser,
   error: null,
 
   clearError: () => set({ error: null }),
@@ -45,6 +70,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       });
       const { user, accessToken } = res.data;
       setApiAccessToken(accessToken);
+      setCachedUser(user);
       set({ user, accessToken, isAuthenticated: true, isLoading: false });
     } catch (err: any) {
       set({ error: err.message || 'Login failed', isLoading: false });
@@ -76,6 +102,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       });
       const { user, accessToken } = res.data;
       setApiAccessToken(accessToken);
+      setCachedUser(user);
       set({ user, accessToken, isAuthenticated: true, isLoading: false });
     } catch (err: any) {
       set({ error: err.message || 'Verification failed', isLoading: false });
@@ -99,17 +126,23 @@ export const useAuthStore = create<AuthState>((set) => ({
     try {
       await apiRequest('/api/auth/logout', { method: 'POST' });
     } finally {
+      setCachedUser(null);
       setApiAccessToken(null);
       set({ user: null, accessToken: null, isAuthenticated: false, isLoading: false });
     }
   },
 
   checkAuth: async () => {
-    set({ isLoading: true });
+    // If no cached user is present, indicate loading state
+    if (!initialUser) {
+      set({ isLoading: true });
+    }
+
     try {
       const res = await apiRequest('/api/auth/refresh', { method: 'POST' });
       if (res.success && res.data?.accessToken) {
         setApiAccessToken(res.data.accessToken);
+        setCachedUser(res.data.user);
         set({
           user: res.data.user,
           accessToken: res.data.accessToken,
@@ -119,10 +152,17 @@ export const useAuthStore = create<AuthState>((set) => ({
         return;
       }
     } catch {
-      // Not authenticated or refresh expired
+      // Session expired or unauthenticated
     }
+
+    // If verification failed, clear cache and reset
+    setCachedUser(null);
+    setApiAccessToken(null);
     set({ user: null, accessToken: null, isAuthenticated: false, isLoading: false });
   },
 
-  setUser: (user: UserDto) => set({ user })
+  setUser: (user: UserDto) => {
+    setCachedUser(user);
+    set({ user });
+  }
 }));

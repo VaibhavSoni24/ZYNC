@@ -58,13 +58,19 @@ let redisSubClient: Redis | null = null;
 
 if (ENV.REDIS_URL && ENV.REDIS_URL.trim() !== '') {
   try {
-    logger.info('Connecting to Redis cluster at ' + ENV.REDIS_URL.split('@').pop());
-    redisClient = new Redis(ENV.REDIS_URL, {
+    const isTls = ENV.REDIS_URL.startsWith('rediss://');
+    const redisOptions: any = {
       maxRetriesPerRequest: 3,
-      retryStrategy: (times) => Math.min(times * 100, 3000)
-    });
+      retryStrategy: (times: number) => Math.min(times * 100, 3000)
+    };
 
-    redisPubClient = new Redis(ENV.REDIS_URL);
+    if (isTls) {
+      redisOptions.tls = { rejectUnauthorized: false };
+    }
+
+    logger.info('Connecting to Redis at ' + ENV.REDIS_URL.split('@').pop());
+    redisClient = new Redis(ENV.REDIS_URL, redisOptions);
+    redisPubClient = new Redis(ENV.REDIS_URL, redisOptions);
     redisSubClient = redisPubClient.duplicate();
 
     redisClient.on('connect', () => logger.info('Redis client connected successfully'));

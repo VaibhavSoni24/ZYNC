@@ -34,9 +34,13 @@ export async function apiRequest<T = any>(endpoint: string, options: RequestOpti
     headers['Authorization'] = `Bearer ${currentAccessToken}`;
   }
 
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 15000);
+
   const config: RequestInit = {
     ...options,
     headers,
+    signal: options.signal || controller.signal,
     credentials: 'include' // needed to send httpOnly refresh cookie
   };
 
@@ -44,13 +48,21 @@ export async function apiRequest<T = any>(endpoint: string, options: RequestOpti
     config.body = JSON.stringify(options.data);
   }
 
-  let response = await fetch(url, config);
+  let response: Response;
+  try {
+    response = await fetch(url, config);
+  } finally {
+    clearTimeout(timeoutId);
+  }
 
   // If 401 and not an auth attempt, try refreshing the token once
   if (response.status === 401 && !url.includes('/auth/login') && !url.includes('/auth/refresh')) {
+    const refreshController = new AbortController();
+    const refreshTimeoutId = setTimeout(() => refreshController.abort(), 15000);
     try {
       const refreshRes = await fetch(`${serverBaseUrl}/api/auth/refresh`, {
         method: 'POST',
+        signal: refreshController.signal,
         credentials: 'include'
       });
 
@@ -65,6 +77,8 @@ export async function apiRequest<T = any>(endpoint: string, options: RequestOpti
       }
     } catch {
       // Refresh failed, continue with original 401
+    } finally {
+      clearTimeout(refreshTimeoutId);
     }
   }
 
