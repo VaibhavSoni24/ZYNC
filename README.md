@@ -151,9 +151,11 @@ cp .env.example .env
 | `BREVO_API_KEY` | *(Optional)* Brevo transactional email API key |
 | `BREVO_SENDER_EMAIL` | Verified sender email address |
 | `BREVO_SENDER_NAME` | Sender display name |
-| `CLIENT_URL` | Frontend origin (e.g. `http://localhost:3000` or production URL) |
+| `CLIENT_URL` | Frontend origin for CORS (e.g. `http://localhost:3000` or production URL) |
 | `SERVER_URL` | Backend server URL (e.g. `http://localhost:5000` or production URL) |
+| `VITE_SERVER_URL` | Frontend client target API/Socket URL (e.g. `http://localhost:5000` or production Render URL) |
 | `PORT` | Server port (default: `5000`) |
+| `CONTACT_RECEIVER_EMAIL` | *(Optional)* Target email address for contact form submissions |
 
 *(Note: In local development, if `REDIS_URL` or `BREVO_API_KEY` are omitted, the server operates with simulated in-memory caching and console email logging.)*
 
