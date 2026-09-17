@@ -62,12 +62,12 @@ export const HomePage: React.FC = () => {
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
                 <span className="text-xs font-bold text-white tracking-wide">4.2ms Sync Drift</span>
               </div>
-              <p className="text-[10px] text-text-muted font-mono">Zero audio phase error</p>
+              <p className="text-[10px] text-gray-400 font-mono">Zero audio phase error</p>
             </div>
           </div>
 
           {/* Center Platform Badge */}
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent-blue/10 border border-accent-blue/25 text-accent-blue text-[11px] font-semibold tracking-wider uppercase">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-accent-blue/10 border border-accent-blue/25 text-accent-blue text-[11px] font-semibold tracking-wider uppercase shadow-sm">
             <Tv size={12} />
             <span>Next-Gen Synchronized Watch Party</span>
           </div>
@@ -87,7 +87,7 @@ export const HomePage: React.FC = () => {
                 </div>
                 <span className="text-xs font-bold text-white ml-1">WebSocket 60Hz</span>
               </div>
-              <p className="text-[10px] text-text-muted font-mono">Real-time playhead feed</p>
+              <p className="text-[10px] text-gray-400 font-mono">Real-time playhead feed</p>
             </div>
           </div>
         </div>
@@ -95,10 +95,10 @@ export const HomePage: React.FC = () => {
         {/* Main Zync Pitch */}
         <div className="max-w-3xl">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight leading-tight">
-            Watch Together in <span className="text-transparent bg-clip-text gradient-brand">Perfect Sync</span>
+            Watch Together in <span className="gradient-brand-text font-black">Perfect Sync</span>
           </h2>
           <p className="text-sm sm:text-base text-text-secondary mt-2.5 leading-relaxed">
-            Zync locks every play, pause, seek, and buffer across all screens in real-time. Experience videos with friends as if you're sitting on the same couch — zero phase lag, live theater chat, and expressive floating emoji bursts.
+            Zync locks every play, pause, seek, and buffer across all screens in real-time. Experience videos with friends as if you're sitting on the same couch with zero phase lag, live theater chat, and expressive floating emoji bursts.
           </p>
         </div>
 
