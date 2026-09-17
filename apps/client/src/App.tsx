@@ -18,6 +18,7 @@ import { HostRoomPage } from './features/room/HostRoomPage';
 import { JoinRoomPage } from './features/room/JoinRoomPage';
 import { RoomPage } from './features/room/RoomPage';
 import { ProfilePage } from './features/profile/ProfilePage';
+import { DeleteAccountPage } from './features/profile/DeleteAccountPage';
 import { AboutPage } from './features/about/AboutPage';
 import { ContactPage } from './features/contact/ContactPage';
 import { NotFoundPage } from './features/notFound/NotFoundPage';
@@ -145,6 +146,22 @@ export const App: React.FC = () => {
               element={
                 <ProtectedRoute>
                   <ProfilePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/delete-account"
+              element={
+                <ProtectedRoute>
+                  <DeleteAccountPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/delete_account"
+              element={
+                <ProtectedRoute>
+                  <DeleteAccountPage />
                 </ProtectedRoute>
               }
             />

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import {
   User,
   AtSign,
@@ -19,11 +19,9 @@ import {
   Loader2,
   Trash2,
   KeyRound,
-  ShieldAlert,
-  X
+  ShieldAlert
 } from 'lucide-react';
 import { useAuthStore } from '../../store/useAuthStore';
-import { Interactive3DBlob } from '../../components/Mascot/Interactive3DBlob';
 import {
   PRESET_AVATARS,
   PRESET_AVATAR_DETAILS,
@@ -42,7 +40,7 @@ const QUICK_BIO_IDEAS = [
 
 export const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
-  const { user, setUser, logout } = useAuthStore();
+  const { user, setUser } = useAuthStore();
 
   // Profile Form States
   const [name, setName] = useState(user?.name || '');
@@ -85,30 +83,12 @@ export const ProfilePage: React.FC = () => {
   const [pwdError, setPwdError] = useState<string | null>(null);
   const [pwdSuccess, setPwdSuccess] = useState<string | null>(null);
 
-  // Danger Zone - Delete Account States
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [deleteMode, setDeleteMode] = useState<'password' | 'otp'>('password');
-  const [deletePassword, setDeletePassword] = useState('');
-  const [showDeletePassword, setShowDeletePassword] = useState(false);
-  const [deleteOtp, setDeleteOtp] = useState('');
-  const [deleteOtpSent, setDeleteOtpSent] = useState(false);
-  const [deleteCooldown, setDeleteCooldown] = useState(0);
-  const [deleteConfirmUsername, setDeleteConfirmUsername] = useState('');
-  const [deleteLoading, setDeleteLoading] = useState(false);
-  const [deleteError, setDeleteError] = useState<string | null>(null);
-
   // Cooldown timers
   useEffect(() => {
     if (pwdCooldown <= 0) return;
     const t = setInterval(() => setPwdCooldown((prev) => prev - 1), 1000);
     return () => clearInterval(t);
   }, [pwdCooldown]);
-
-  useEffect(() => {
-    if (deleteCooldown <= 0) return;
-    const t = setInterval(() => setDeleteCooldown((prev) => prev - 1), 1000);
-    return () => clearInterval(t);
-  }, [deleteCooldown]);
 
   // Masked email for display
   const maskedUserEmail = user?.email
@@ -227,71 +207,6 @@ export const ProfilePage: React.FC = () => {
       setPwdError(err.message || 'Failed to reset password');
     } finally {
       setPwdLoading(false);
-    }
-  };
-
-  // Handlers for Delete Account
-  const handleSendDeleteOtp = async () => {
-    if (deleteCooldown > 0) return;
-    setDeleteError(null);
-    setDeleteLoading(true);
-    try {
-      const res = await apiRequest('/api/users/request-delete-otp', {
-        method: 'POST'
-      });
-      if (res.success) {
-        setDeleteOtpSent(true);
-        setDeleteCooldown(60);
-      } else {
-        throw new Error(res.error || 'Failed to dispatch deletion code');
-      }
-    } catch (err: any) {
-      setDeleteError(err.message || 'Failed to request deletion code');
-    } finally {
-      setDeleteLoading(false);
-    }
-  };
-
-  const handleDeleteAccount = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setDeleteError(null);
-
-    if (deleteConfirmUsername.trim().toLowerCase() !== user?.username.toLowerCase()) {
-      setDeleteError(`Please type @${user?.username} exactly to confirm account deletion`);
-      return;
-    }
-
-    if (deleteMode === 'password' && !deletePassword) {
-      setDeleteError('Account password is required');
-      return;
-    }
-
-    if (deleteMode === 'otp' && deleteOtp.trim().length !== 6) {
-      setDeleteError('Please enter the 6-digit email deletion code');
-      return;
-    }
-
-    setDeleteLoading(true);
-    try {
-      const res = await apiRequest('/api/users/account', {
-        method: 'DELETE',
-        data: {
-          password: deleteMode === 'password' ? deletePassword : undefined,
-          otp: deleteMode === 'otp' ? deleteOtp.trim() : undefined
-        }
-      });
-
-      if (res.success) {
-        setIsDeleteModalOpen(false);
-        await logout();
-        navigate('/', { replace: true });
-      } else {
-        throw new Error(res.error || 'Failed to delete account');
-      }
-    } catch (err: any) {
-      setDeleteError(err.message || 'Failed to delete account');
-    } finally {
-      setDeleteLoading(false);
     }
   };
 
@@ -1234,205 +1149,16 @@ export const ProfilePage: React.FC = () => {
                 Permanently remove your personal account, your silhouette identity, and any hosted watch parties. Once deleted, your account cannot be recovered.
               </p>
             </div>
-            <button
-              type="button"
-              onClick={() => {
-                setIsDeleteModalOpen(true);
-                setDeleteError(null);
-                setDeleteConfirmUsername('');
-                setDeletePassword('');
-                setDeleteOtp('');
-                setDeleteOtpSent(false);
-              }}
-              className="px-4 py-2.5 rounded-xl bg-red-500/20 hover:bg-red-500 text-red-300 hover:text-white border border-red-500/30 text-xs font-bold transition flex items-center gap-2 flex-shrink-0 self-start sm:self-auto shadow-lg shadow-red-500/10 active:scale-95"
+            <Link
+              to="/delete-account"
+              className="px-4 py-2.5 rounded-xl bg-red-500/20 hover:bg-red-500 text-red-300 hover:text-white border border-red-500/30 text-xs font-bold transition flex items-center gap-2 flex-shrink-0 self-start sm:self-auto shadow-lg shadow-red-500/10 active:scale-95 cursor-pointer"
             >
               <Trash2 size={14} />
               <span>Delete Account</span>
-            </button>
+            </Link>
           </div>
         </div>
       </div>
-
-      {/* ========================================================================= */}
-      {/* DELETE ACCOUNT MODAL WITH 3D CLOUD-BLOB MASCOT (WORRIED EMOTION)          */}
-      {/* ========================================================================= */}
-      {isDeleteModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in overflow-y-auto">
-          <div className="relative w-full max-w-lg rounded-3xl p-6 sm:p-8 bg-[#0d070b] border border-red-500/35 shadow-[0_25px_60px_rgba(239,68,68,0.25)] space-y-5 overflow-hidden my-auto">
-            {/* Close Button */}
-            <button
-              type="button"
-              onClick={() => setIsDeleteModalOpen(false)}
-              className="absolute top-5 right-5 p-2 text-text-muted hover:text-white rounded-xl bg-white/[0.04] transition"
-            >
-              <X size={16} />
-            </button>
-
-            {/* 3D Cloud-Blob Companion Mascot with Worried Expression */}
-            <div className="flex flex-col items-center justify-center pt-2">
-              <Interactive3DBlob state="error" size={170} showReactionBubble={false} />
-              <h3 className="text-xl font-bold text-red-400 mt-2 text-center">
-                Permanently Delete Account?
-              </h3>
-              <p className="text-xs text-text-muted text-center mt-1 max-w-sm">
-                We're really sad to see you go. This will immediately wipe your profile, avatar persona, and cancel any watch parties you host.
-              </p>
-            </div>
-
-            {deleteError && (
-              <div className="p-3 rounded-xl bg-red-500/15 border border-red-500/30 text-red-400 text-xs flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-ping flex-shrink-0" />
-                <span>{deleteError}</span>
-              </div>
-            )}
-
-            {/* Verification Mode Toggle */}
-            <div className="flex flex-wrap items-center gap-2 border-b border-white/[0.06] pb-3 text-xs">
-              <button
-                type="button"
-                onClick={() => {
-                  setDeleteMode('password');
-                  setDeleteError(null);
-                }}
-                className={`px-3 py-1.5 rounded-lg font-medium transition ${
-                  deleteMode === 'password'
-                    ? 'bg-red-500 text-white shadow-md'
-                    : 'text-text-muted hover:text-white'
-                }`}
-              >
-                Verify with Password
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setDeleteMode('otp');
-                  setDeleteError(null);
-                }}
-                className={`px-3 py-1.5 rounded-lg font-medium transition ${
-                  deleteMode === 'otp'
-                    ? 'bg-red-500 text-white shadow-md'
-                    : 'text-text-muted hover:text-white'
-                }`}
-              >
-                Forgot Password? Verify via OTP
-              </button>
-            </div>
-
-            <form onSubmit={handleDeleteAccount} className="space-y-4">
-              {/* Mode 1: Password */}
-              {deleteMode === 'password' && (
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-semibold text-text-secondary">
-                    Your Current Password <span className="text-red-400">*</span>
-                  </label>
-                  <div className="relative">
-                    <input
-                      type={showDeletePassword ? 'text' : 'password'}
-                      required
-                      placeholder="Enter your account password"
-                      value={deletePassword}
-                      onChange={(e) => setDeletePassword(e.target.value)}
-                      className="w-full pl-10 pr-11 py-2.5 bg-white/[0.04] border border-white/[0.08] focus:border-red-500 rounded-xl text-xs sm:text-sm text-white focus:outline-none transition"
-                    />
-                    <Lock size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" />
-                    <button
-                      type="button"
-                      onClick={() => setShowDeletePassword(!showDeletePassword)}
-                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-text-muted hover:text-white transition"
-                    >
-                      {showDeletePassword ? <EyeOff size={14} /> : <Eye size={14} />}
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* Mode 2: Email OTP */}
-              {deleteMode === 'otp' && (
-                <div className="space-y-3">
-                  {!deleteOtpSent ? (
-                    <div className="space-y-2">
-                      <p className="text-xs text-text-muted">
-                        Request a 6-digit deletion code to your email: <span className="text-white font-mono">{maskedUserEmail}</span>
-                      </p>
-                      <button
-                        type="button"
-                        onClick={handleSendDeleteOtp}
-                        disabled={deleteLoading || deleteCooldown > 0}
-                        className="px-4 py-2 rounded-xl bg-red-500/20 text-red-300 hover:bg-red-500 hover:text-white border border-red-500/30 text-xs font-semibold transition flex items-center gap-2"
-                      >
-                        {deleteLoading ? <Loader2 size={13} className="animate-spin" /> : <Mail size={13} />}
-                        <span>{deleteCooldown > 0 ? `Resend in ${deleteCooldown}s` : 'Send Deletion Code'}</span>
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="space-y-1.5">
-                      <div className="flex items-center justify-between">
-                        <label className="block text-xs font-semibold text-text-secondary">6-Digit Deletion Code</label>
-                        <button
-                          type="button"
-                          onClick={handleSendDeleteOtp}
-                          disabled={deleteCooldown > 0}
-                          className="text-[11px] font-mono text-red-400 hover:underline disabled:text-text-muted/50"
-                        >
-                          {deleteCooldown > 0 ? `Resend in ${deleteCooldown}s` : 'Resend Code'}
-                        </button>
-                      </div>
-                      <input
-                        type="text"
-                        required
-                        maxLength={6}
-                        placeholder="123456"
-                        value={deleteOtp}
-                        onChange={(e) => setDeleteOtp(e.target.value.replace(/\D/g, ''))}
-                        className="w-full px-4 py-2.5 bg-white/[0.04] border border-white/[0.08] focus:border-red-500 rounded-xl font-mono text-center tracking-[0.3em] text-sm text-red-400 font-bold focus:outline-none"
-                      />
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* GitHub-style confirmation text input */}
-              <div className="space-y-1.5 pt-1">
-                <label className="block text-xs font-semibold text-text-secondary">
-                  To confirm deletion, type <strong className="text-red-400 font-mono">@{user?.username}</strong> below:
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder={`@${user?.username}`}
-                  value={deleteConfirmUsername}
-                  onChange={(e) => setDeleteConfirmUsername(e.target.value)}
-                  className="w-full px-4 py-2.5 bg-white/[0.04] border border-white/[0.08] focus:border-red-500 rounded-xl text-xs sm:text-sm font-mono text-white placeholder:text-text-muted/40 focus:outline-none transition"
-                />
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex items-center justify-end gap-3 pt-3 border-t border-white/[0.08]">
-                <button
-                  type="button"
-                  onClick={() => setIsDeleteModalOpen(false)}
-                  className="px-4 py-2.5 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] text-text-muted hover:text-white text-xs font-semibold transition"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={
-                    deleteLoading ||
-                    deleteConfirmUsername.trim().toLowerCase() !== user?.username.toLowerCase() ||
-                    (deleteMode === 'password' && !deletePassword) ||
-                    (deleteMode === 'otp' && deleteOtp.trim().length !== 6)
-                  }
-                  className="px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs shadow-lg shadow-red-600/30 transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2"
-                >
-                  {deleteLoading ? <Loader2 size={13} className="animate-spin" /> : <Trash2 size={13} />}
-                  <span>Permanently Delete Account</span>
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
