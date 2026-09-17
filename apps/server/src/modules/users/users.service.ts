@@ -91,27 +91,28 @@ export class UsersService {
         return formatUserDto(user);
       }
 
-      // 2. Calendar Month Rule (Eligible once per calendar month, resets on 1st day of next month at 12:00 AM)
-      const lastChangedRaw = user.lastUsernameChangedAt;
-      if (lastChangedRaw) {
-        const lastDate = new Date(lastChangedRaw);
+      // 2. Calendar-Month Reset (Eligible on the 1st day of every month at 12:00 AM)
+      const lastChanged = user.lastUsernameChangedAt || (user.usernameChangeCount > 0 ? user.updatedAt : null);
+
+      if (lastChanged) {
+        const lastChangedDate = new Date(lastChanged);
         const now = new Date();
 
         const isSameCalendarMonth =
-          lastDate.getFullYear() === now.getFullYear() &&
-          lastDate.getMonth() === now.getMonth();
+          lastChangedDate.getFullYear() === now.getFullYear() &&
+          lastChangedDate.getMonth() === now.getMonth();
 
         if (isSameCalendarMonth) {
-          const nextMonthStart = new Date(now.getFullYear(), now.getMonth() + 1, 1, 0, 0, 0, 0);
-          const daysLeft = Math.max(1, Math.ceil((nextMonthStart.getTime() - now.getTime()) / (24 * 60 * 60 * 1000)));
-          const formattedDate = nextMonthStart.toLocaleDateString(undefined, {
-            month: 'long',
+          // Unlocks on the 1st day of next month at 12:00 AM (00:00:00)
+          const nextAvailable = new Date(now.getFullYear(), now.getMonth() + 1, 1, 0, 0, 0, 0);
+          const daysLeft = Math.max(1, Math.ceil((nextAvailable.getTime() - now.getTime()) / (24 * 60 * 60 * 1000)));
+          const formattedDate = nextAvailable.toLocaleDateString(undefined, {
+            month: 'short',
             day: 'numeric',
             year: 'numeric'
           });
-
           throw new Error(
-            `You have already updated your username this month. Your next change becomes available on the 1st of next month (${formattedDate} at 12:00 AM) in ${daysLeft} day${daysLeft === 1 ? '' : 's'}.`
+            `Username can only be updated once per calendar month. Next update unlocks on ${formattedDate} at 12:00 AM (${daysLeft} day${daysLeft === 1 ? '' : 's'} remaining).`
           );
         }
       }

@@ -76,13 +76,15 @@ export const ProfilePage: React.FC = () => {
     }
   }, [user]);
 
-  // Calculate Monthly Username Change Eligibility (Calendar month rule: resets on 1st day of next month at 12:00 AM)
+  // Calculate Calendar-Month Username Change Eligibility
+  // Resets on the 1st day of every new month at 12:00 AM
   let canChangeUsername = true;
   let daysUntilEligible = 0;
   let nextEligibleDate: string | null = null;
 
-  if (user?.lastUsernameChangedAt) {
-    const lastDate = new Date(user.lastUsernameChangedAt);
+  const lastChanged = user?.lastUsernameChangedAt;
+  if (lastChanged) {
+    const lastDate = new Date(lastChanged);
     const now = new Date();
 
     const isSameCalendarMonth =
@@ -91,10 +93,11 @@ export const ProfilePage: React.FC = () => {
 
     if (isSameCalendarMonth) {
       canChangeUsername = false;
-      const nextMonthStart = new Date(now.getFullYear(), now.getMonth() + 1, 1, 0, 0, 0, 0);
-      daysUntilEligible = Math.max(1, Math.ceil((nextMonthStart.getTime() - now.getTime()) / (24 * 60 * 60 * 1000)));
-      nextEligibleDate = nextMonthStart.toLocaleDateString(undefined, {
-        month: 'long',
+      // 1st day of next month at 12:00 AM (00:00:00)
+      const nextMonthFirstDay = new Date(now.getFullYear(), now.getMonth() + 1, 1, 0, 0, 0, 0);
+      daysUntilEligible = Math.max(1, Math.ceil((nextMonthFirstDay.getTime() - now.getTime()) / (24 * 60 * 60 * 1000)));
+      nextEligibleDate = nextMonthFirstDay.toLocaleDateString(undefined, {
+        month: 'short',
         day: 'numeric',
         year: 'numeric'
       });
@@ -175,7 +178,7 @@ export const ProfilePage: React.FC = () => {
 
     if (!canChangeUsername) {
       setUsernameError(
-        `Username can only be updated once per calendar month. Next change becomes available on ${nextEligibleDate} at 12:00 AM (${daysUntilEligible}d left).`
+        `Username can only be updated once per calendar month. Next update unlocks on ${nextEligibleDate} at 12:00 AM (${daysUntilEligible} day(s) left).`
       );
       return;
     }
@@ -466,7 +469,7 @@ export const ProfilePage: React.FC = () => {
                 <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-400 bg-amber-500/10 border border-amber-500/25 px-3 py-1 rounded-full self-start sm:self-auto font-mono">
                   <Clock size={13} />
                   <span>
-                    Monthly limit reached: resets on {nextEligibleDate} ({daysUntilEligible}d left)
+                    Cooldown active: unlocks {nextEligibleDate} at 12:00 AM ({daysUntilEligible}d left)
                   </span>
                 </span>
               )}
@@ -476,10 +479,10 @@ export const ProfilePage: React.FC = () => {
             <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/[0.06] text-xs space-y-1.5 text-gray-300">
               <div className="flex items-center gap-2 text-white font-semibold">
                 <AlertTriangle size={14} className="text-amber-400" />
-                <span>Monthly Handle Policy</span>
+                <span>Calendar-Month Handle Policy</span>
               </div>
               <p className="text-[11px] text-text-muted leading-relaxed">
-                Usernames can be changed <strong>once per calendar month</strong>. Eligibility automatically resets on the <strong>1st day of each new month at 12:00 AM</strong>, provided the desired handle is available.
+                Usernames can be changed <strong>once per calendar month</strong> (unlocks at 12:00 AM on the 1st day of each new month) and only if the requested handle is currently available.
                 To protect against unauthorized account takeovers, your <strong>current password verification</strong> is strictly required.
               </p>
             </div>
@@ -573,7 +576,7 @@ export const ProfilePage: React.FC = () => {
                 ) : !canChangeUsername ? (
                   <span className="text-xs text-amber-400 flex items-center gap-1.5">
                     <Clock size={13} />
-                    <span>Monthly limit reached. Resets on {nextEligibleDate} at 12:00 AM ({daysUntilEligible}d left).</span>
+                    <span>Monthly cooldown active. Unlocks {nextEligibleDate} at 12:00 AM ({daysUntilEligible}d left).</span>
                   </span>
                 ) : (
                   <span className="text-[11px] text-text-muted font-mono">
