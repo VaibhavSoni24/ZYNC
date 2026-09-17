@@ -14,10 +14,6 @@
     "build:shared": "npm run build --workspace=@zync/shared",
     "build:server": "npm run build --workspace=@zync/server",
     "build:client": "npm run build --workspace=@zync/client",
-    "typecheck": "npm run typecheck --workspace=@zync/shared && npm run typecheck --workspace=@zync/server && npm run typecheck --workspace=@zync/client",
-    "test": "vitest run"
-  },
-  "devDependencies": {
-    "vitest": "^5.0.1"
+    "typecheck": "npm run typecheck --workspace=@zync/shared && npm run typecheck --workspace=@zync/server && npm run typecheck --workspace=@zync/client"
   }
 }

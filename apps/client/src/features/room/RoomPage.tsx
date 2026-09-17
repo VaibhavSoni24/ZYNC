@@ -10,6 +10,7 @@ import { ParticipantList } from './ParticipantList';
 import { ChatPanel } from './ChatPanel';
 import { ReactionBar, FloatingReactions } from './ReactionBar';
 import { ControlRequestModal } from './ControlRequestModal';
+import { LeaveRoomModal } from './LeaveRoomModal';
 
 export const RoomPage: React.FC = () => {
   const { code } = useParams<{ code: string }>();
@@ -55,6 +56,9 @@ export const RoomPage: React.FC = () => {
   const [isMuted, setIsMuted] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [captionsEnabled, setCaptionsEnabled] = useState(false);
+  const [showLeaveModal, setShowLeaveModal] = useState(false);
+  const [pendingDestination, setPendingDestination] = useState<string | null>(null);
+  const isConfirmedLeaveRef = useRef(false);
 
   useEffect(() => {
     if (!code) {
@@ -74,6 +78,80 @@ export const RoomPage: React.FC = () => {
       leaveRoom();
     };
   }, [code, user]);
+
+  // Leave room confirmation handlers
+  const handleRequestLeave = (destination = '/home') => {
+    setPendingDestination(destination);
+    setShowLeaveModal(true);
+  };
+
+  const handleConfirmLeave = () => {
+    isConfirmedLeaveRef.current = true;
+    setShowLeaveModal(false);
+    leaveRoom();
+    navigate(pendingDestination || '/home');
+  };
+
+  const handleCancelLeave = () => {
+    setShowLeaveModal(false);
+    setPendingDestination(null);
+  };
+
+  // Intercept all in-app link clicks (Navbar, Footer, brand logo) while in room
+  useEffect(() => {
+    const handleDocumentClick = (e: MouseEvent) => {
+      if (isConfirmedLeaveRef.current) return;
+
+      const target = e.target as HTMLElement | null;
+      const anchor = target?.closest('a');
+      if (!anchor) return;
+
+      const href = anchor.getAttribute('href');
+      if (!href || href.startsWith('#') || href.startsWith('mailto:') || href.startsWith('tel:') || anchor.target === '_blank') {
+        return;
+      }
+
+      try {
+        const targetUrl = new URL(anchor.href, window.location.origin);
+        if (targetUrl.origin === window.location.origin && targetUrl.pathname !== window.location.pathname) {
+          e.preventDefault();
+          e.stopPropagation();
+          handleRequestLeave(targetUrl.pathname + targetUrl.search + targetUrl.hash);
+        }
+      } catch {
+        // ignore
+      }
+    };
+
+    document.addEventListener('click', handleDocumentClick, true);
+    return () => document.removeEventListener('click', handleDocumentClick, true);
+  }, []);
+
+  // Intercept browser back / forward button
+  useEffect(() => {
+    window.history.pushState(null, '', window.location.href);
+
+    const handlePopState = () => {
+      if (isConfirmedLeaveRef.current) return;
+      window.history.pushState(null, '', window.location.href);
+      handleRequestLeave('/home');
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  // Intercept browser tab closing or page refresh
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isConfirmedLeaveRef.current) return;
+      e.preventDefault();
+      e.returnValue = '';
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, []);
 
   // Fullscreen state listener
   useEffect(() => {
@@ -139,7 +217,7 @@ export const RoomPage: React.FC = () => {
       <div className="flex flex-wrap items-center justify-between gap-4 p-3.5 bg-[#0d0a14]/80 border border-white/[0.08] backdrop-blur-2xl rounded-2xl shadow-xl">
         <div className="flex items-center gap-3">
           <button
-            onClick={() => navigate('/home')}
+            onClick={() => handleRequestLeave('/home')}
             className="p-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] text-text-muted hover:text-white transition cursor-pointer"
             title="Leave room"
           >
@@ -311,6 +389,14 @@ export const RoomPage: React.FC = () => {
         <ControlRequestModal
           requests={controlRequests}
           onRespond={(uId, approve) => emitRespondControl(uId, approve)}
+        />
+
+        {/* Leave Watch Party Confirmation Modal */}
+        <LeaveRoomModal
+          isOpen={showLeaveModal}
+          myRole={myRole}
+          onConfirm={handleConfirmLeave}
+          onCancel={handleCancelLeave}
         />
     </div>
   );
