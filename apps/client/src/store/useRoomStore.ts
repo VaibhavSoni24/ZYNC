@@ -77,23 +77,42 @@ export const useRoomStore = create<RoomState>((set, get) => ({
       kickedReason: null,
       chatMessages: [],
       activeReactions: [],
-      controlRequests: []
+      controlRequests: [],
+      isConnected: socket.connected
     });
 
-    socket.emit(SOCKET_EVENTS.JOIN_ROOM, {
-      roomId: roomCode,
-      userId: user.id,
-      username: user.username,
-      avatar: user.avatar
-    });
+    const sendJoin = () => {
+      socket.emit(SOCKET_EVENTS.JOIN_ROOM, {
+        roomId: roomCode,
+        userId: user.id,
+        username: user.username,
+        avatar: user.avatar
+      });
+    };
+
+    // Remove any previous listeners to avoid duplicates
+    socket.off('connect');
+    socket.off('disconnect');
+    socket.off(SOCKET_EVENTS.SYNC_STATE);
+    socket.off(SOCKET_EVENTS.ROLE_ASSIGNED);
+    socket.off(SOCKET_EVENTS.CHAT_MESSAGE);
+    socket.off(SOCKET_EVENTS.REACTION);
+    socket.off(SOCKET_EVENTS.CONTROL_REQUEST);
+    socket.off(SOCKET_EVENTS.KICKED);
+    socket.off(SOCKET_EVENTS.ERROR);
 
     socket.on('connect', () => {
       set({ isConnected: true });
+      sendJoin();
     });
 
     socket.on('disconnect', () => {
       set({ isConnected: false });
     });
+
+    if (socket.connected) {
+      sendJoin();
+    }
 
     // Inbound sync state
     socket.on(SOCKET_EVENTS.SYNC_STATE, (payload: { playState: PlayState; currentTime: number; videoId: string }) => {
