@@ -12,8 +12,7 @@ import {
   X,
   Zap,
   MessageSquare,
-  Ticket,
-  Video
+  Ticket
 } from 'lucide-react';
 import { RoomDto } from '@zync/shared';
 import { useAuthStore } from '../../store/useAuthStore';
@@ -83,13 +82,13 @@ export const JoinRoomPage: React.FC = () => {
   const displayCode = directCode.trim().toUpperCase().replace(/\s+/g, '');
 
   return (
-    <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-10 pt-6 sm:pt-10 pb-28 sm:pb-36 space-y-12 sm:space-y-14">
+    <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-10 pt-4 sm:pt-6 pb-28 sm:pb-36">
       {/* Background Ambient Radial Glow */}
       <div className="absolute top-10 left-1/4 -translate-x-1/2 w-[750px] h-[350px] bg-gradient-to-r from-accent-blue/15 via-accent-purple/20 to-transparent blur-[140px] pointer-events-none -z-10" />
       <div className="absolute bottom-1/3 right-10 w-[550px] h-[320px] bg-accent-blue/10 blur-[140px] pointer-events-none -z-10" />
 
       {/* Navigation Breadcrumb */}
-      <div>
+      <div className="mb-3 sm:mb-4">
         <button
           type="button"
           onClick={() => navigate('/home')}
@@ -106,14 +105,10 @@ export const JoinRoomPage: React.FC = () => {
         <div className="lg:col-span-7 space-y-6">
           {/* Main Title */}
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent-blue/10 border border-accent-blue/20 text-accent-blue text-xs font-semibold mb-3">
-              <KeyRound size={13} className="animate-pulse" />
-              <span>Direct Access & Discovery</span>
-            </div>
             <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
               Join a Watch Party
             </h1>
-            <p className="text-sm sm:text-base text-gray-400 mt-2 max-w-xl">
+            <p className="text-sm sm:text-base text-gray-400 mt-1.5 max-w-xl">
               Enter an invite code to hop directly into your friend's private theater, or discover live public rooms streaming right now.
             </p>
           </div>
@@ -184,24 +179,11 @@ export const JoinRoomPage: React.FC = () => {
                 <span>Codes are case-insensitive (e.g. T6YZ-POM2 or T6YZPOM2).</span>
               </div>
             </form>
-
-            {/* Quick Link to Host */}
-            <div className="pt-2">
-              <Link
-                to="/room/host"
-                className="inline-flex items-center gap-2 text-xs font-semibold text-accent-blue hover:text-accent-blue-hover transition group"
-              >
-                <span>Want to stream your own videos instead?</span>
-                <span className="underline underline-offset-4 flex items-center gap-1">
-                  Host a Watch Party <ArrowRight size={12} className="group-hover:translate-x-1 transition-transform" />
-                </span>
-              </Link>
-            </div>
           </div>
         </div>
 
         {/* Right Column: Live Attendee Pass / Features Card (5 cols) */}
-        <div className="lg:col-span-5 space-y-5">
+        <div className="lg:col-span-5">
           {/* Live Direct Access Ticket Pass */}
           <div className="p-6 rounded-3xl bg-white/[0.03] border border-white/10 backdrop-blur-xl shadow-2xl relative overflow-hidden">
             {/* Top Badge */}
@@ -266,34 +248,11 @@ export const JoinRoomPage: React.FC = () => {
               Instant sync engine connects immediately upon code submission.
             </p>
           </div>
-
-          {/* Hosting Superpower Banner */}
-          <div className="p-5 rounded-3xl bg-white/[0.02] border border-white/[0.06] backdrop-blur-md flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-xl bg-accent-purple/15 text-accent-purple flex-shrink-0">
-                <Video size={18} />
-              </div>
-              <div>
-                <h4 className="text-xs font-bold text-white">Host Your Own Watch Party</h4>
-                <p className="text-[11px] text-text-muted mt-0.5">
-                  Stream YouTube videos with host-authoritative controls.
-                </p>
-              </div>
-            </div>
-
-            <Link
-              to="/room/host"
-              className="px-3.5 py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] border border-white/10 text-xs font-semibold text-white transition flex items-center gap-1.5 flex-shrink-0"
-            >
-              <span>Host</span>
-              <ArrowRight size={13} />
-            </Link>
-          </div>
         </div>
       </div>
 
       {/* DIVIDER LINE */}
-      <div className="border-t border-white/[0.08]" />
+      <div className="my-10 sm:my-12 border-t border-white/[0.08]" />
 
       {/* 2. PUBLIC WATCH PARTIES: BROWSE IN CARDS (FULL WIDTH) */}
       <div className="space-y-6">

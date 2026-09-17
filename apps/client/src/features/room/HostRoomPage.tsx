@@ -9,7 +9,6 @@ import {
   Users,
   Play,
   Zap,
-  Radio,
   CheckCircle2
 } from 'lucide-react';
 import { useAuthStore } from '../../store/useAuthStore';
@@ -67,13 +66,13 @@ export const HostRoomPage: React.FC = () => {
   };
 
   return (
-    <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-10 pt-6 sm:pt-10 pb-28 sm:pb-36">
+    <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-10 pt-4 sm:pt-6 pb-28 sm:pb-36">
       {/* Background Ambient Radial Glow */}
       <div className="absolute top-12 left-1/4 -translate-x-1/2 w-[700px] h-[350px] bg-gradient-to-r from-accent-blue/15 via-accent-purple/20 to-transparent blur-[140px] pointer-events-none -z-10" />
       <div className="absolute bottom-1/3 right-10 w-[500px] h-[300px] bg-accent-blue/10 blur-[130px] pointer-events-none -z-10" />
 
       {/* Navigation Breadcrumb / Back Button */}
-      <div className="mb-6 sm:mb-8">
+      <div className="mb-3 sm:mb-4">
         <button
           type="button"
           onClick={() => navigate('/home')}
@@ -85,15 +84,11 @@ export const HostRoomPage: React.FC = () => {
       </div>
 
       {/* Main Section Header (Unboxed) */}
-      <div className="mb-8 sm:mb-10">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent-blue/10 border border-accent-blue/20 text-accent-blue text-xs font-semibold mb-3">
-          <Radio size={13} className="animate-pulse" />
-          <span>Live Room Creation</span>
-        </div>
+      <div className="mb-6 sm:mb-8">
         <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
           Host a Watch Party
         </h1>
-        <p className="text-sm sm:text-base text-gray-400 mt-2 max-w-2xl">
+        <p className="text-sm sm:text-base text-gray-400 mt-1.5 max-w-2xl">
           Set up your private or public cinema, invite your circle, and experience video sync in ultra-low latency.
         </p>
       </div>
