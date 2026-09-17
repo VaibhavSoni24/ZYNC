@@ -59,7 +59,7 @@ export const App: React.FC = () => {
         <Floating3DShapes />
 
         <Navbar />
-        <main className="flex-1 relative z-10">
+        <main className="flex-1 relative z-20">
           <PageTransition>
             <Routes>
               <Route path="/" element={<LandingPage />} />

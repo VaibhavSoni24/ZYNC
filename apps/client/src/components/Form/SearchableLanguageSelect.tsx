@@ -105,8 +105,9 @@ export const WORLD_LANGUAGES: LanguageOption[] = [
   { code: 'om', name: 'Oromo', native: 'Afaan Oromoo' },
   { code: 'mg', name: 'Malagasy', native: 'Fiteny Malagasy' },
 
-  // Multilingual / Global
-  { code: 'multi', name: 'Multilingual / Any', native: 'Universal' }
+  // Multilingual & Other
+  { code: 'multi', name: 'Multilingual / Any', native: 'Universal' },
+  { code: 'other', name: 'Other Language', native: 'Other' }
 ];
 
 interface SearchableLanguageSelectProps {
@@ -121,9 +122,20 @@ export const SearchableLanguageSelect: React.FC<SearchableLanguageSelectProps> =
   disabled = false
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [openUpward, setOpenUpward] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const containerRef = useRef<HTMLDivElement | null>(null);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
+
+  // Auto-detect whether to open upwards or downwards based on viewport space
+  useEffect(() => {
+    if (isOpen && containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom;
+      const spaceAbove = rect.top;
+      setOpenUpward(spaceBelow < 280 && spaceAbove > spaceBelow);
+    }
+  }, [isOpen]);
 
   // Close on outside click
   useEffect(() => {
@@ -214,11 +226,15 @@ export const SearchableLanguageSelect: React.FC<SearchableLanguageSelectProps> =
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -6, scale: 0.98 }}
+            initial={{ opacity: 0, y: openUpward ? 6 : -6, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -6, scale: 0.98 }}
+            exit={{ opacity: 0, y: openUpward ? 6 : -6, scale: 0.98 }}
             transition={{ duration: 0.18, ease: 'easeOut' }}
-            className="absolute top-[calc(100%+8px)] left-0 right-0 z-50 rounded-2xl backdrop-blur-2xl bg-[#0e0e1a]/95 border border-white/15 shadow-[0_20px_50px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col max-h-80"
+            className={`absolute ${
+              openUpward
+                ? 'bottom-[calc(100%+8px)] origin-bottom'
+                : 'top-[calc(100%+8px)] origin-top'
+            } left-0 right-0 z-50 rounded-2xl backdrop-blur-2xl bg-[#0e0e1a]/95 border border-white/15 shadow-[0_20px_50px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col max-h-64`}
           >
             {/* Sticky Search Header */}
             <div className="p-3 border-b border-white/10 bg-[#0e0e1a]/80 sticky top-0 z-10">
@@ -230,7 +246,7 @@ export const SearchableLanguageSelect: React.FC<SearchableLanguageSelectProps> =
                 <input
                   ref={searchInputRef}
                   type="text"
-                  placeholder="Search 90+ languages..."
+                  placeholder="Search..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-9 pr-8 py-2 bg-white/[0.06] border border-white/[0.1] focus:border-accent-blue focus:ring-1 focus:ring-accent-blue/30 rounded-xl text-xs text-text-primary placeholder:text-text-muted/60 focus:outline-none transition"
@@ -244,10 +260,6 @@ export const SearchableLanguageSelect: React.FC<SearchableLanguageSelectProps> =
                     <X size={13} />
                   </button>
                 )}
-              </div>
-              <div className="flex items-center justify-between text-[10px] text-text-muted/60 px-1 pt-1.5 font-mono">
-                <span>{filteredLanguages.length} languages available</span>
-                <span>ESC to close</span>
               </div>
             </div>
 

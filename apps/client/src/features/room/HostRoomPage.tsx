@@ -67,7 +67,7 @@ export const HostRoomPage: React.FC = () => {
   };
 
   return (
-    <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-10 py-6 sm:py-10">
+    <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-10 pt-6 sm:pt-10 pb-28 sm:pb-36">
       {/* Background Ambient Radial Glow */}
       <div className="absolute top-12 left-1/4 -translate-x-1/2 w-[700px] h-[350px] bg-gradient-to-r from-accent-blue/15 via-accent-purple/20 to-transparent blur-[140px] pointer-events-none -z-10" />
       <div className="absolute bottom-1/3 right-10 w-[500px] h-[300px] bg-accent-blue/10 blur-[130px] pointer-events-none -z-10" />
